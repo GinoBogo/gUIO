@@ -188,21 +188,23 @@ const auto spi_registers_num = 11;
 #define BIT_SPI_IER_SMFE  SET_BIT(1)  // Slave Mode-Fault Error (R/W)
 #define BIT_SPI_IER_MFE   SET_BIT(0)  // Mode-Fault Error (R/W)
 
-#define QSPI_softwareResetRegister(base_addr)                   __REG(base_addr, REG_SPI_SRR) = 0x0000000A
-#define QSPI_getControlRegister(base_addr)                      __REG(base_addr, REG_SPI_CR)
-#define QSPI_setControlRegister(base_addr, value)               __REG(base_addr, REG_SPI_CR) = value
-#define QSPI_getStatusRegister(base_addr)                       __REG(base_addr, REG_SPI_SR)
-#define QSPI_setDataTransmitRegister(base_addr, value)          __REG(base_addr, REG_SPI_DTR) = value
-#define QSPI_getDataReceiveRegister(base_addr)                  __REG(base_addr, REG_SPI_DRR)
-#define QSPI_getSlaveSelectRegister(base_addr)                  __REG(base_addr, REG_SPI_SSR)
-#define QSPI_setSlaveSelectRegister(base_addr, value)           __REG(base_addr, REG_SPI_SSR) = value
-#define QSPI_getTransmitFifoOccupancyRegister(base_addr)        __REG(base_addr, REG_SPI_TFOR)
-#define QSPI_getReceiveFifoOccupancyRegister(base_addr)         __REG(base_addr, REG_SPI_RFOR)
-#define QSPI_getDeviceGlobalInterruptRegister(base_addr)        __REG(base_addr, REG_SPI_DGIER)
+// clang-format off
+#define QSPI_softwareResetRegister           (base_addr       ) __REG(base_addr, REG_SPI_SRR  ) = 0x0000000A
+#define QSPI_getControlRegister              (base_addr       ) __REG(base_addr, REG_SPI_CR   )
+#define QSPI_setControlRegister              (base_addr, value) __REG(base_addr, REG_SPI_CR   ) = value
+#define QSPI_getStatusRegister               (base_addr       ) __REG(base_addr, REG_SPI_SR   )
+#define QSPI_setDataTransmitRegister         (base_addr, value) __REG(base_addr, REG_SPI_DTR  ) = value
+#define QSPI_getDataReceiveRegister          (base_addr       ) __REG(base_addr, REG_SPI_DRR  )
+#define QSPI_getSlaveSelectRegister          (base_addr       ) __REG(base_addr, REG_SPI_SSR  )
+#define QSPI_setSlaveSelectRegister          (base_addr, value) __REG(base_addr, REG_SPI_SSR  ) = value
+#define QSPI_getTransmitFifoOccupancyRegister(base_addr       ) __REG(base_addr, REG_SPI_TFOR )
+#define QSPI_getReceiveFifoOccupancyRegister (base_addr       ) __REG(base_addr, REG_SPI_RFOR )
+#define QSPI_getDeviceGlobalInterruptRegister(base_addr       ) __REG(base_addr, REG_SPI_DGIER)
 #define QSPI_setDeviceGlobalInterruptRegister(base_addr, value) __REG(base_addr, REG_SPI_DGIER) = value
-#define QSPI_getIpInterruptStatusRegister(base_addr)            __REG(base_addr, REG_SPI_IPISR)
-#define QSPI_setIpInterruptStatusRegister(base_addr, value)     __REG(base_addr, REG_SPI_IPISR) = value
-#define QSPI_getIpInterruptEnableRegister(base_addr)            __REG(base_addr, REG_SPI_IPIER)
-#define QSPI_setIpInterruptEnableRegister(base_addr, value)     __REG(base_addr, REG_SPI_IPIER) = value
+#define QSPI_getIpInterruptStatusRegister    (base_addr       ) __REG(base_addr, REG_SPI_IPISR)
+#define QSPI_setIpInterruptStatusRegister    (base_addr, value) __REG(base_addr, REG_SPI_IPISR) = value
+#define QSPI_getIpInterruptEnableRegister    (base_addr       ) __REG(base_addr, REG_SPI_IPIER)
+#define QSPI_setIpInterruptEnableRegister    (base_addr, value) __REG(base_addr, REG_SPI_IPIER) = value
+// clang-format on
 
 #endif /* REGISTERS_HPP_ */
