@@ -80,25 +80,29 @@ const auto gpio_registers_number = 7;
 #define REG_GPIO_IP_IER 0x0128 // IP Interrupt Enable Register (R/W)
 #define REG_GPIO_IP_ISR 0x0120 // IP Interrupt Status Register (R/TOW)
 
-void     GPIO_getRegistersInfo(void *base_addr, register_info *info_list);
-uint32_t GPIO_getDataCh1(void *base_addr);
-void     GPIO_setDataCh1(void *base_addr, uint32_t value);
-uint32_t GPIO_getTriStateCh1(void *base_addr);
-void     GPIO_setTriStateCh1(void *base_addr, uint32_t pins);
-uint32_t GPIO_getDataCh2(void *base_addr);
-void     GPIO_setDataCh2(void *base_addr, uint32_t value);
-uint32_t GPIO_getTriStateCh2(void *base_addr);
-void     GPIO_setTriStateCh2(void *base_addr, uint32_t pins);
-bool     GPIO_getGlobalInterruptEnable(void *base_addr);
-void     GPIO_setGlobalInterruptEnable(void *base_addr, bool enable);
-bool     GPIO_getInterruptEnableCh1(void *base_addr);
-void     GPIO_setInterruptEnableCh1(void *base_addr, bool enable);
-bool     GPIO_getInterruptEnableCh2(void *base_addr);
-void     GPIO_setInterruptEnableCh2(void *base_addr, bool enable);
-bool     GPIO_getInterruptStatusCh1(void *base_addr);
-void     GPIO_clrInterruptStatusCh1(void *base_addr);
-bool     GPIO_getInterruptStatusCh2(void *base_addr);
-void     GPIO_clrInterruptStatusCh2(void *base_addr);
+// IP Interrupt Registers Bits
+#define BIT_GPIO_GIER     SET_BIT(31) // Global Interrupt Enable Bit
+#define BIT_GPIO_IP_IER_1 SET_BIT(0)  // Channel 1 IP Interrupt Enable Bit
+#define BIT_GPIO_IP_IER_2 SET_BIT(1)  // Channel 2 IP Interrupt Enable Bit
+#define BIT_GPIO_IP_ISR_1 SET_BIT(0)  // Channel 1 IP Interrupt Status Bit
+#define BIT_GPIO_IP_ISR_2 SET_BIT(1)  // Channel 2 IP Interrupt Status Bit
+
+#define GPIO_getDataCh1(base_addr)                      __REG(base_addr, REG_GPIO_DATA_1)
+#define GPIO_setDataCh1(base_addr, value)               __REG(base_addr, REG_GPIO_DATA_1) = value
+#define GPIO_getTriStateCh1(base_addr)                  __REG(base_addr, REG_GPIO_TRI_1)
+#define GPIO_setTriStateCh1(base_addr, value)           __REG(base_addr, REG_GPIO_TRI_1) = value
+#define GPIO_getDataCh2(base_addr)                      __REG(base_addr, REG_GPIO_DATA_2)
+#define GPIO_setDataCh2(base_addr, value)               __REG(base_addr, REG_GPIO_DATA_2) = value
+#define GPIO_getTriStateCh2(base_addr)                  __REG(base_addr, REG_GPIO_TRI_2)
+#define GPIO_setTriStateCh2(base_addr, value)           __REG(base_addr, REG_GPIO_TRI_2) = value
+#define GPIO_getGlobalInterruptEnable(base_addr)        __REG(base_addr, REG_GPIO_GIER)
+#define GPIO_setGlobalInterruptEnable(base_addr, value) __REG(base_addr, REG_GPIO_GIER) = value
+#define GPIO_getInterruptEnable(base_addr)              __REG(base_addr, REG_GPIO_IP_IER)
+#define GPIO_setInterruptEnable(base_addr, value)       __REG(base_addr, REG_GPIO_IP_IER) = value
+#define GPIO_getInterruptStatus(base_addr)              __REG(base_addr, REG_GPIO_IP_ISR)
+#define GPIO_setInterruptStatus(base_addr, value)       __REG(base_addr, REG_GPIO_IP_ISR) = value
+
+void GPIO_getRegistersInfo(void *base_addr, register_info *info_list);
 
 //==============================================================================
 // LogiCORE IP: AXI Quad SPI v3.2
@@ -188,23 +192,21 @@ const auto spi_registers_num = 11;
 #define BIT_SPI_IER_SMFE  SET_BIT(1)  // Slave Mode-Fault Error (R/W)
 #define BIT_SPI_IER_MFE   SET_BIT(0)  // Mode-Fault Error (R/W)
 
-// clang-format off
-#define QSPI_softwareResetRegister           (base_addr       ) __REG(base_addr, REG_SPI_SRR  ) = 0x0000000A
-#define QSPI_getControlRegister              (base_addr       ) __REG(base_addr, REG_SPI_CR   )
-#define QSPI_setControlRegister              (base_addr, value) __REG(base_addr, REG_SPI_CR   ) = value
-#define QSPI_getStatusRegister               (base_addr       ) __REG(base_addr, REG_SPI_SR   )
-#define QSPI_setDataTransmitRegister         (base_addr, value) __REG(base_addr, REG_SPI_DTR  ) = value
-#define QSPI_getDataReceiveRegister          (base_addr       ) __REG(base_addr, REG_SPI_DRR  )
-#define QSPI_getSlaveSelectRegister          (base_addr       ) __REG(base_addr, REG_SPI_SSR  )
-#define QSPI_setSlaveSelectRegister          (base_addr, value) __REG(base_addr, REG_SPI_SSR  ) = value
-#define QSPI_getTransmitFifoOccupancyRegister(base_addr       ) __REG(base_addr, REG_SPI_TFOR )
-#define QSPI_getReceiveFifoOccupancyRegister (base_addr       ) __REG(base_addr, REG_SPI_RFOR )
-#define QSPI_getDeviceGlobalInterruptRegister(base_addr       ) __REG(base_addr, REG_SPI_DGIER)
+#define QSPI_softwareResetRegister(base_addr)                   __REG(base_addr, REG_SPI_SRR) = 0x0000000A
+#define QSPI_getControlRegister(base_addr)                      __REG(base_addr, REG_SPI_CR)
+#define QSPI_setControlRegister(base_addr, value)               __REG(base_addr, REG_SPI_CR) = value
+#define QSPI_getStatusRegister(base_addr)                       __REG(base_addr, REG_SPI_SR)
+#define QSPI_setDataTransmitRegister(base_addr, value)          __REG(base_addr, REG_SPI_DTR) = value
+#define QSPI_getDataReceiveRegister(base_addr)                  __REG(base_addr, REG_SPI_DRR)
+#define QSPI_getSlaveSelectRegister(base_addr)                  __REG(base_addr, REG_SPI_SSR)
+#define QSPI_setSlaveSelectRegister(base_addr, value)           __REG(base_addr, REG_SPI_SSR) = value
+#define QSPI_getTransmitFifoOccupancyRegister(base_addr)        __REG(base_addr, REG_SPI_TFOR)
+#define QSPI_getReceiveFifoOccupancyRegister(base_addr)         __REG(base_addr, REG_SPI_RFOR)
+#define QSPI_getDeviceGlobalInterruptRegister(base_addr)        __REG(base_addr, REG_SPI_DGIER)
 #define QSPI_setDeviceGlobalInterruptRegister(base_addr, value) __REG(base_addr, REG_SPI_DGIER) = value
-#define QSPI_getIpInterruptStatusRegister    (base_addr       ) __REG(base_addr, REG_SPI_IPISR)
-#define QSPI_setIpInterruptStatusRegister    (base_addr, value) __REG(base_addr, REG_SPI_IPISR) = value
-#define QSPI_getIpInterruptEnableRegister    (base_addr       ) __REG(base_addr, REG_SPI_IPIER)
-#define QSPI_setIpInterruptEnableRegister    (base_addr, value) __REG(base_addr, REG_SPI_IPIER) = value
-// clang-format on
+#define QSPI_getIpInterruptStatusRegister(base_addr)            __REG(base_addr, REG_SPI_IPISR)
+#define QSPI_setIpInterruptStatusRegister(base_addr, value)     __REG(base_addr, REG_SPI_IPISR) = value
+#define QSPI_getIpInterruptEnableRegister(base_addr)            __REG(base_addr, REG_SPI_IPIER)
+#define QSPI_setIpInterruptEnableRegister(base_addr, value)     __REG(base_addr, REG_SPI_IPIER) = value
 
 #endif /* REGISTERS_HPP_ */
