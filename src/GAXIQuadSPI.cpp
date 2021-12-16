@@ -131,6 +131,8 @@ uint32_t GAXIQuadSPI::WriteThenRead(uint8_t *tx_buf, uint32_t tx_buf_len, uint8_
     {
         m_ctrl_reg = QSPI_getControlRegister(m_base_addr);
 
+        QSPI_setSlaveSelectRegister(m_base_addr, disable_chip_select);
+
         QSPI_setControlRegister(m_base_addr, m_ctrl_reg | inhibit_master);
 
         for (decltype(tx_buf_len) i{0}; i < tx_buf_len; ++i) {
@@ -179,9 +181,9 @@ uint32_t GAXIQuadSPI::WriteThenRead(uint8_t *tx_buf, uint32_t tx_buf_len, uint8_
             if (rx_buf != nullptr) rx_buf[i] = data;
         }
 
-        QSPI_setControlRegister(m_base_addr, m_ctrl_reg | inhibit_master);
-
         QSPI_setSlaveSelectRegister(m_base_addr, disable_chip_select);
+
+        QSPI_setControlRegister(m_base_addr, m_ctrl_reg | inhibit_master);
     }
     QSPI_setDeviceGlobalInterruptRegister(m_base_addr, enable_global_irq);
 

@@ -97,10 +97,10 @@ const auto gpio_registers_number = 7;
 #define GPIO_setTriStateCh2(base_addr, value)           __REG(base_addr, REG_GPIO_TRI_2) = value
 #define GPIO_getGlobalInterruptEnable(base_addr)        __REG(base_addr, REG_GPIO_GIER)
 #define GPIO_setGlobalInterruptEnable(base_addr, value) __REG(base_addr, REG_GPIO_GIER) = value
-#define GPIO_getInterruptEnable(base_addr)              __REG(base_addr, REG_GPIO_IP_IER)
-#define GPIO_setInterruptEnable(base_addr, value)       __REG(base_addr, REG_GPIO_IP_IER) = value
-#define GPIO_getInterruptStatus(base_addr)              __REG(base_addr, REG_GPIO_IP_ISR)
-#define GPIO_setInterruptStatus(base_addr, value)       __REG(base_addr, REG_GPIO_IP_ISR) = value
+#define GPIO_getIpInterruptEnable(base_addr)            __REG(base_addr, REG_GPIO_IP_IER)
+#define GPIO_setIpInterruptEnable(base_addr, value)     __REG(base_addr, REG_GPIO_IP_IER) = value
+#define GPIO_getIpInterruptStatus(base_addr)            __REG(base_addr, REG_GPIO_IP_ISR)
+#define GPIO_setIpInterruptStatus(base_addr, value)     __REG(base_addr, REG_GPIO_IP_ISR) = value
 
 void GPIO_getRegistersInfo(void *base_addr, register_info *info_list);
 
