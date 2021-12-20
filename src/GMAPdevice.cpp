@@ -69,7 +69,7 @@ void GMAPdevice::Close() {
 }
 
 bool GMAPdevice::MapToMemory() {
-    const size_t page_size   = sysconf(_SC_PAGESIZE);
+    const size_t page_size   = (size_t)sysconf(_SC_PAGESIZE);
     const size_t page_mask   = page_size - 1;
     const size_t mmap_offset = m_dev.addr & ~page_mask;
     const size_t virt_offset = m_dev.addr & page_mask;
@@ -81,7 +81,7 @@ bool GMAPdevice::MapToMemory() {
     // mmap_offset: 0xFFFFA000
     // virt_offset: 0x00000E54
 
-    m_dev.mmap_addr = mmap(nullptr, m_dev.size, PROT_READ | PROT_WRITE, MAP_SHARED, m_dev.fd, mmap_offset);
+    m_dev.mmap_addr = mmap(nullptr, m_dev.size, PROT_READ | PROT_WRITE, MAP_SHARED, m_dev.fd, (off_t)mmap_offset);
     if (m_dev.mmap_addr == MAP_FAILED) {
         LOG_FORMAT(error, "Cannot map the 0x%08x address to user space [E%d]", m_dev.addr, errno);
         return false;
