@@ -23,7 +23,7 @@
 #define enable_global_irq   0x80000000
 #define disable_global_irq  0x00000000
 
-GAXIQuadSPI::GAXIQuadSPI(size_t addr, size_t size) : GMEMdevice(addr, size) {
+GAXIQuadSPI::GAXIQuadSPI(size_t addr, size_t size) : GMAPdevice(addr, size) {
     m_base_addr  = nullptr;
     m_is_valid   = false;
     m_ctrl_reg   = 0;

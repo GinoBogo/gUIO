@@ -1,17 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file      GMEMdevice.hpp
+/// \file      GMAPdevice.hpp
 /// \version   0.1
 /// \date      November, 2021
 /// \author    Gino Francesco Bogo
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GMEMDEVICE_HPP_
-#define GMEMDEVICE_HPP_
+#ifndef GMAPDEVICE_HPP_
+#define GMAPDEVICE_HPP_
 
 #include <cstddef> // size_t
 
-struct mem_device_t {
+struct map_device_t {
     // SECTION: node properties
     int fd;
     // SECTION: device properties
@@ -22,10 +22,10 @@ struct mem_device_t {
     void *virt_addr;
 };
 
-class GMEMdevice {
+class GMAPdevice {
     public:
-    GMEMdevice(size_t addr, size_t size);
-    ~GMEMdevice();
+    GMAPdevice(size_t addr, size_t size);
+    ~GMAPdevice();
 
     bool Open();
     void Close();
@@ -72,7 +72,7 @@ class GMEMdevice {
     }
 
     private:
-    mem_device_t m_dev;
+    map_device_t m_dev;
 };
 
-#endif /* GMEMDEVICE_HPP_ */
+#endif /* GMAPDEVICE_HPP_ */

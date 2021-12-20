@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file      GMEMdevice.cpp
+/// \file      GMAPdevice.cpp
 /// \version   0.1
 /// \date      November, 2021
 /// \author    Gino Francesco Bogo
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "GMEMdevice.hpp"
+#include "GMAPdevice.hpp"
 
 #include "GLogger.hpp"
 
@@ -17,11 +17,11 @@
 #include <sys/mman.h> // mmap, munmap
 #include <unistd.h>   // close, read, write
 
-auto mem_device_reset = [](mem_device_t *dev, bool clear_all) {
+auto map_device_reset = [](map_device_t *dev, bool clear_all) {
     auto addr = dev->addr;
     auto size = dev->size;
 
-    bzero(dev, sizeof(mem_device_t));
+    bzero(dev, sizeof(map_device_t));
     dev->fd        = -1;
     dev->mmap_addr = MAP_FAILED;
     dev->virt_addr = MAP_FAILED;
@@ -32,8 +32,8 @@ auto mem_device_reset = [](mem_device_t *dev, bool clear_all) {
     }
 };
 
-GMEMdevice::GMEMdevice(size_t addr, size_t size) {
-    mem_device_reset(&m_dev, true);
+GMAPdevice::GMAPdevice(size_t addr, size_t size) {
+    map_device_reset(&m_dev, true);
     m_dev.addr = addr;
     m_dev.size = size;
     if (!size) {
@@ -41,11 +41,11 @@ GMEMdevice::GMEMdevice(size_t addr, size_t size) {
     }
 }
 
-GMEMdevice::~GMEMdevice() {
+GMAPdevice::~GMAPdevice() {
     Close();
 }
 
-bool GMEMdevice::Open() {
+bool GMAPdevice::Open() {
     m_dev.fd = open("/dev/mem", O_RDWR | O_SYNC);
     if (m_dev.fd == -1) {
         LOG_FORMAT(error, "Cannot open the \"/dev/mem\" device [E%d]", errno);
@@ -54,7 +54,7 @@ bool GMEMdevice::Open() {
     return true;
 }
 
-void GMEMdevice::Close() {
+void GMAPdevice::Close() {
     if (m_dev.fd != -1) {
         close(m_dev.fd);
     }
@@ -65,10 +65,10 @@ void GMEMdevice::Close() {
         }
     }
 
-    mem_device_reset(&m_dev, false);
+    map_device_reset(&m_dev, false);
 }
 
-bool GMEMdevice::MapToMemory() {
+bool GMAPdevice::MapToMemory() {
     const size_t page_size   = sysconf(_SC_PAGESIZE);
     const size_t page_mask   = page_size - 1;
     const size_t mmap_offset = m_dev.addr & ~page_mask;

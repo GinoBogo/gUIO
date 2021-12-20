@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "GLogger.hpp"
-#include "GMEMdevice.hpp"
+#include "GMAPdevice.hpp"
 #include "registers.hpp"
 
 #include <strings.h> // bzero
@@ -16,8 +16,8 @@ int main() {
     GLogger::Initialize("example_MMAP.log");
     LOG_WRITE(trace, "Process STARTED");
 
-    auto ps2pl_regs{GMEMdevice(0xa0001000, 4096)};
-    auto pl2ps_regs{GMEMdevice(0xa0010000, 4096)};
+    auto ps2pl_regs{GMAPdevice(0xa0001000, 4096)};
+    auto pl2ps_regs{GMAPdevice(0xa0010000, 4096)};
 
     uint32_t data[32];
 
