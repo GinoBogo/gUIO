@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-set(COMPILER "clang")
+set(COMPILER "gcc")
 
 if (COMPILER STREQUAL "clang")
     if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
@@ -35,7 +35,7 @@ message("=======================================================================
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-project(test)
+project(examples)
 
 add_compile_options(
     -fno-omit-frame-pointer
@@ -55,7 +55,7 @@ if (COMPILE_LANGUAGE:CXX)
     add_compile_options(-Wold-style-cast)
 endif()
 
-add_library(gLIB OBJECT
+add_library(gUIO OBJECT
 "../../src/GLogger.cpp"
 "../../src/GMAPdevice.cpp"
 "../../src/registers.cpp"
@@ -64,4 +64,4 @@ add_library(gLIB OBJECT
 include_directories("../../src")
 
 add_executable(example_MMAP "./src/main.cpp")
-target_link_libraries(example_MMAP pthread gLIB)
+target_link_libraries(example_MMAP pthread gUIO)
