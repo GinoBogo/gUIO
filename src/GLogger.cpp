@@ -47,7 +47,7 @@ namespace GLogger {
     // WARNING: unsafe function
     void GetDateTime(char *dst_buffer, size_t dst_buffer_size) {
         timespec ts;
-        timespec_get(&ts, TIME_UTC);
+        clock_gettime(CLOCK_REALTIME, &ts);
 
         auto tm{std::localtime(&ts.tv_sec)};
         auto _Y{tm->tm_year + 1900};
