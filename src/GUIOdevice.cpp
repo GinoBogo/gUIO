@@ -137,7 +137,7 @@ size_t GUIOdevice::GetMapAttribute(const char *attr_name, bool *error, char *dst
             return _val;
         }
         else {
-            strncpy(dst_buff, _buf, bytes - 1);
+            strncpy(dst_buff, _buf, (size_t)bytes - 1);
             return 0;
         }
     }
