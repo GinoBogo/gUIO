@@ -11,7 +11,7 @@
 
 #include "Buffer.hpp"
 
-#include <pthread.h>
+#include <mutex>
 
 class FiFo {
     public:
@@ -58,13 +58,13 @@ class FiFo {
     }
 
     private:
-    uint32_t        m_size;
-    uint32_t        m_depth;
-    uint32_t        m_count;
-    uint32_t        m_iR;
-    uint32_t        m_iW;
-    Buffer        **p_fifo;
-    pthread_mutex_t m_mutex;
+    uint32_t   m_size;
+    uint32_t   m_depth;
+    uint32_t   m_count;
+    uint32_t   m_iR;
+    uint32_t   m_iW;
+    Buffer   **p_fifo;
+    std::mutex m_mutex;
 };
 
 #endif /* FIFO_HPP_ */
