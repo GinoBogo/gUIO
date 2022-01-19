@@ -10,12 +10,14 @@
 #include "GUIOdevice.hpp"
 #include "registers.hpp"
 
-void GPIO_printRegistersInfo(void *base_addr) {
+void GPIO_printRegistersInfo(GUIOdevice *uio_dev) {
     register_info info_list[gpio_registers_number];
+
+    auto base_addr{uio_dev->virt_addr()};
 
     GPIO_getRegistersInfo(base_addr, info_list);
 
-    LOG_WRITE(info, "GPIO Registers Info <OFFSET> <VALUE> <LABEL>:");
+    LOG_FORMAT(info, "GPIO_%d Registers Info <OFFSET> <VALUE> <LABEL>:", uio_dev->uio_num());
     for (auto i = 0; i < gpio_registers_number; ++i) {
         LOG_FORMAT(info, "  0x%04x | 0x%08x | %s", info_list[i].offset, info_list[i].value, info_list[i].label);
     }
@@ -42,11 +44,10 @@ int main() {
             auto base_addr{uio_dev.virt_addr()};
 
             // SECTION: interrupts
-            GPIO_setIpInterruptEnable(base_addr, 0 * BIT_GPIO_IP_IER_1);
             GPIO_setIpInterruptEnable(base_addr, 1 * BIT_GPIO_IP_IER_2);
             GPIO_setGlobalInterruptEnable(base_addr, 1 * BIT_GPIO_GIER);
 
-            GPIO_printRegistersInfo(base_addr);
+            GPIO_printRegistersInfo(&uio_dev);
 
             GPIO_setIpInterruptStatus(base_addr, BIT_GPIO_IP_ISR_2);
             uio_dev.IRQ_Clear();
