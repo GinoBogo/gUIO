@@ -33,6 +33,8 @@ FiFo::~FiFo() {
     }
 
     delete[] m_item;
+
+    pthread_mutex_destroy(&m_mutex);
 }
 
 void FiFo::Reset() {
