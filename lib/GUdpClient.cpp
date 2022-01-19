@@ -16,9 +16,6 @@
 #include <string.h> // bzero
 #include <unistd.h> // close
 
-// Maximum size of UDP datagram: 65507 = (2^16 - 1) -20 (UDP header) - 8 (IPv4 header)
-#define UDP_MAX_SIZE 65507
-
 GUdpClient::GUdpClient(const char *remote_addr, uint16_t remote_port, const char *tag_name) {
     if (tag_name != nullptr) {
         snprintf(m_tag_name, sizeof(m_tag_name), "\"%s\" UDP Client", tag_name);
@@ -83,7 +80,7 @@ bool GUdpClient::Receive(void *dst_buffer, size_t *dst_bytes) {
         return false;
     }
 
-    auto bytes{recv(m_socket_fd, dst_buffer, UDP_MAX_SIZE, 0)};
+    auto bytes{recv(m_socket_fd, dst_buffer, MAX_DATAGRAM_SIZE, 0)};
     if (bytes == -1) {
         return false;
     }

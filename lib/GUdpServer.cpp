@@ -16,9 +16,6 @@
 #include <string.h> // bzero
 #include <unistd.h> // close
 
-// Maximum size of UDP datagram: 65507 = (2^16 - 1) -20 (UDP header) - 8 (IPv4 header)
-#define UDP_MAX_SIZE 65507
-
 GUdpServer::GUdpServer(const char *local_addr, uint16_t local_port, const char *tag_name) {
     if (tag_name != nullptr) {
         snprintf(m_tag_name, sizeof(m_tag_name), "\"%s\" UDP Server", tag_name);
@@ -85,7 +82,7 @@ bool GUdpServer::Receive(void *dst_buffer, size_t *dst_bytes) {
     }
 
     auto _addr{(struct sockaddr *)&m_peer_addr};
-    auto bytes{recvfrom(m_socket_fd, dst_buffer, UDP_MAX_SIZE, 0, _addr, &m_peer_addr_len)};
+    auto bytes{recvfrom(m_socket_fd, dst_buffer, MAX_DATAGRAM_SIZE, 0, _addr, &m_peer_addr_len)};
     if (bytes == -1) {
         return false;
     }
