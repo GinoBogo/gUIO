@@ -14,13 +14,13 @@ FiFo::FiFo(const uint32_t item_size, const uint32_t fifo_depth) {
     m_count = 0;
     m_iW    = 0;
     m_iR    = 0;
-    m_item  = nullptr;
+    p_fifo  = nullptr;
 
     if (m_size && m_depth) {
-        m_item = new Buffer *[m_depth];
+        p_fifo = new Buffer *[m_depth];
 
-        for (uint32_t i = 0; i < m_depth; i++) {
-            m_item[i] = new Buffer(m_size);
+        for (decltype(m_depth) i{0}; i < m_depth; i++) {
+            p_fifo[i] = new Buffer(m_size);
         }
     }
 
@@ -28,11 +28,11 @@ FiFo::FiFo(const uint32_t item_size, const uint32_t fifo_depth) {
 }
 
 FiFo::~FiFo() {
-    for (uint32_t i = 0; i < m_depth; i++) {
-        delete m_item[i];
+    for (decltype(m_depth) i{0}; i < m_depth; i++) {
+        delete p_fifo[i];
     }
 
-    delete[] m_item;
+    delete[] p_fifo;
 
     pthread_mutex_destroy(&m_mutex);
 }
@@ -43,7 +43,7 @@ void FiFo::Reset() {
     uint32_t i = 0, N = m_depth;
 
     while (N--) {
-        m_item[i++]->Reset();
+        p_fifo[i++]->Reset();
     }
 
     m_count = 0;
@@ -59,7 +59,7 @@ void FiFo::Clear() {
     uint32_t i = 0, N = m_depth;
 
     while (N--) {
-        m_item[i++]->Clear();
+        p_fifo[i++]->Clear();
     }
 
     m_count = 0;
@@ -75,7 +75,7 @@ void FiFo::SmartClear() {
     uint32_t i = 0, N = m_depth;
 
     while (N--) {
-        m_item[i++]->SmartClear();
+        p_fifo[i++]->SmartClear();
     }
 
     m_count = 0;
@@ -90,7 +90,7 @@ bool FiFo::Push(const Buffer *src_buff) {
         pthread_mutex_lock(&m_mutex);
 
         if (!IsFull()) {
-            Buffer *_item = m_item[m_iW];
+            Buffer *_item = p_fifo[m_iW];
 
             _item->Reset();
 
@@ -119,7 +119,7 @@ bool FiFo::Push(const uint8_t *src_data, const uint32_t src_count) {
         pthread_mutex_lock(&m_mutex);
 
         if (!IsFull()) {
-            Buffer *_item = m_item[m_iW];
+            Buffer *_item = p_fifo[m_iW];
 
             _item->Reset();
 
@@ -148,7 +148,7 @@ bool FiFo::Pop(Buffer *dst_buff) {
         pthread_mutex_lock(&m_mutex);
 
         if (!IsEmpty()) {
-            Buffer *_item = m_item[m_iR];
+            Buffer *_item = p_fifo[m_iR];
 
             dst_buff->Reset();
 
@@ -177,7 +177,7 @@ int32_t FiFo::Pop(uint8_t *dst_data, const uint32_t dst_size) {
         pthread_mutex_lock(&m_mutex);
 
         if (!IsEmpty()) {
-            Buffer  *_item = m_item[m_iR];
+            Buffer * _item = p_fifo[m_iR];
             uint32_t bytes = _item->count();
 
             if (dst_size >= bytes) {

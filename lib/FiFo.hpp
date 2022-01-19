@@ -63,7 +63,7 @@ class FiFo {
     uint32_t        m_count;
     uint32_t        m_iR;
     uint32_t        m_iW;
-    Buffer        **m_item;
+    Buffer        **p_fifo;
     pthread_mutex_t m_mutex;
 };
 
