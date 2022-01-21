@@ -1,23 +1,23 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file      FiFo.hpp
+/// \file      GFiFo.hpp
 /// \version   0.1
 /// \date      May, 2016
 /// \author    Gino Francesco Bogo
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef FIFO_HPP_
-#define FIFO_HPP_
+#ifndef GFIFO_HPP_
+#define GFIFO_HPP_
 
 #include "GBuffer.hpp"
 
 #include <mutex>
 
-class FiFo {
+class GFiFo {
     public:
-    FiFo(const uint32_t item_size, const uint32_t fifo_depth);
+    GFiFo(const uint32_t item_size, const uint32_t fifo_depth);
 
-    ~FiFo();
+    ~GFiFo();
 
     void Reset();
 
@@ -67,4 +67,4 @@ class FiFo {
     std::mutex m_mutex;
 };
 
-#endif /* FIFO_HPP_ */
+#endif /* GFIFO_HPP_ */

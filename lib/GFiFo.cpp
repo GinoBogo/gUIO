@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file      FiFo.cpp
+/// \file      GFiFo.cpp
 /// \version   0.1
 /// \date      May, 2016
 /// \author    Gino Francesco Bogo
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "FiFo.hpp"
+#include "GFiFo.hpp"
 
-FiFo::FiFo(const uint32_t item_size, const uint32_t fifo_depth) {
+GFiFo::GFiFo(const uint32_t item_size, const uint32_t fifo_depth) {
     m_size  = item_size;
     m_depth = fifo_depth;
     m_count = 0;
@@ -25,7 +25,7 @@ FiFo::FiFo(const uint32_t item_size, const uint32_t fifo_depth) {
     }
 }
 
-FiFo::~FiFo() {
+GFiFo::~GFiFo() {
     for (decltype(m_depth) i{0}; i < m_depth; i++) {
         delete p_fifo[i];
     }
@@ -33,7 +33,7 @@ FiFo::~FiFo() {
     delete[] p_fifo;
 }
 
-void FiFo::Reset() {
+void GFiFo::Reset() {
     const std::lock_guard<std::mutex> lock(m_mutex);
 
     uint32_t i = 0, N = m_depth;
@@ -47,7 +47,7 @@ void FiFo::Reset() {
     m_iR    = 0;
 }
 
-void FiFo::Clear() {
+void GFiFo::Clear() {
     const std::lock_guard<std::mutex> lock(m_mutex);
 
     uint32_t i = 0, N = m_depth;
@@ -61,7 +61,7 @@ void FiFo::Clear() {
     m_iR    = 0;
 }
 
-void FiFo::SmartClear() {
+void GFiFo::SmartClear() {
     const std::lock_guard<std::mutex> lock(m_mutex);
 
     uint32_t i = 0, N = m_depth;
@@ -75,7 +75,7 @@ void FiFo::SmartClear() {
     m_iR    = 0;
 }
 
-bool FiFo::Push(const GBuffer *src_buff) {
+bool GFiFo::Push(const GBuffer *src_buff) {
     if (src_buff) {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -100,7 +100,7 @@ bool FiFo::Push(const GBuffer *src_buff) {
     return false;
 }
 
-bool FiFo::Push(const uint8_t *src_data, const uint32_t src_count) {
+bool GFiFo::Push(const uint8_t *src_data, const uint32_t src_count) {
     if (src_data && src_count) {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -125,7 +125,7 @@ bool FiFo::Push(const uint8_t *src_data, const uint32_t src_count) {
     return false;
 }
 
-bool FiFo::Pop(GBuffer *dst_buff) {
+bool GFiFo::Pop(GBuffer *dst_buff) {
     if (dst_buff) {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -150,7 +150,7 @@ bool FiFo::Pop(GBuffer *dst_buff) {
     return false;
 }
 
-int32_t FiFo::Pop(uint8_t *dst_data, const uint32_t dst_size) {
+int32_t GFiFo::Pop(uint8_t *dst_data, const uint32_t dst_size) {
     if (dst_data && dst_size) {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
