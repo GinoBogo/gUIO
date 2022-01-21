@@ -8,13 +8,13 @@
 
 #include "GBuffer.hpp"
 
-GBuffer::GBuffer(const uint32_t buf_size) {
+GBuffer::GBuffer(const uint32_t max_size) {
     m_is_wrapper = true;
-    m_size       = buf_size;
+    m_size       = max_size;
 
-    if (buf_size) {
+    if (max_size) {
         m_is_wrapper = false;
-        p_data       = new uint8_t[buf_size];
+        p_data       = new uint8_t[max_size];
         Reset();
     }
 }

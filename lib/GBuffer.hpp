@@ -14,7 +14,7 @@
 
 class GBuffer {
     public:
-    GBuffer(const uint32_t buf_size = 0);
+    GBuffer(const uint32_t max_size = 0);
 
     ~GBuffer();
 
