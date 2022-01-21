@@ -48,6 +48,7 @@ class GPacket {
     public:
     static bool IsValid(uint8_t *buffer, size_t bytes);
     static bool IsSingle(TPacket *packet);
+    static bool IsShort(TPacket *packet);
     static bool IsFirst(TPacket *packet);
     static bool IsMiddle(TPacket *packet);
     static bool IsLast(TPacket *packet);

@@ -27,6 +27,10 @@ bool GPacket::IsSingle(TPacket *packet) {
     return check_1 && check_2 && check_3;
 }
 
+bool GPacket::IsShort(TPacket *packet) {
+    return packet->head.data_length;
+}
+
 bool GPacket::IsFirst(TPacket *packet) {
     auto check_1 = packet->head.file_id != 0;
     auto check_2 = packet->head.current_segment == 1;
