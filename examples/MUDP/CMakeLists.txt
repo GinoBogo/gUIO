@@ -58,6 +58,7 @@ endif()
 add_library(gUIO OBJECT
 "../../lib/Buffer.cpp"
 "../../lib/FiFo.cpp"
+"../../lib/GPacket.cpp"
 "../../lib/GUdpClient.cpp"
 "../../lib/GUdpServer.cpp"
 "../../src/GLogger.cpp"
