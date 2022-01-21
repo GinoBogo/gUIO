@@ -56,7 +56,7 @@ if (COMPILE_LANGUAGE:CXX)
 endif()
 
 add_library(gUIO OBJECT
-"../../lib/Buffer.cpp"
+"../../lib/GBuffer.cpp"
 "../../lib/FiFo.cpp"
 "../../lib/GPacket.cpp"
 "../../lib/GUdpClient.cpp"

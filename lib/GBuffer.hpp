@@ -1,22 +1,22 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file      Buffer.hpp
+/// \file      GBuffer.hpp
 /// \version   0.1
 /// \date      May, 2016
 /// \author    Gino Francesco Bogo
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef BUFFER_HPP_
-#define BUFFER_HPP_
+#ifndef GBUFFER_HPP_
+#define GBUFFER_HPP_
 
 #include <cstdint> // uint8_t, uint32_t
 #include <cstring> // memset
 
-class Buffer {
+class GBuffer {
     public:
-    Buffer(const uint32_t buf_size = 0);
+    GBuffer(const uint32_t buf_size = 0);
 
-    ~Buffer();
+    ~GBuffer();
 
     inline void Reset();
 
@@ -72,21 +72,21 @@ class Buffer {
     uint8_t *p_next;
 };
 
-inline void Buffer::Reset() {
+inline void GBuffer::Reset() {
     m_count = 0;
     p_next  = p_data;
 }
 
-inline void Buffer::Clear() {
+inline void GBuffer::Clear() {
     memset(p_data, 0, m_size);
     Reset();
 }
 
-inline void Buffer::SmartClear() {
+inline void GBuffer::SmartClear() {
     if (m_count) {
         memset(p_data, 0, m_count);
         Reset();
     }
 }
 
-#endif /* BUFFER_HPP_ */
+#endif /* GBUFFER_HPP_ */

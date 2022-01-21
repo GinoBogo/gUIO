@@ -9,7 +9,7 @@
 #ifndef FIFO_HPP_
 #define FIFO_HPP_
 
-#include "Buffer.hpp"
+#include "GBuffer.hpp"
 
 #include <mutex>
 
@@ -25,11 +25,11 @@ class FiFo {
 
     void SmartClear();
 
-    bool Push(const Buffer *src_buff);
+    bool Push(const GBuffer *src_buff);
 
     bool Push(const uint8_t *src_data, const uint32_t src_count);
 
-    bool Pop(Buffer *dst_buff);
+    bool Pop(GBuffer *dst_buff);
 
     int32_t Pop(uint8_t *dst_data, const uint32_t dst_size);
 
@@ -63,7 +63,7 @@ class FiFo {
     uint32_t   m_count;
     uint32_t   m_iR;
     uint32_t   m_iW;
-    Buffer   **p_fifo;
+    GBuffer   **p_fifo;
     std::mutex m_mutex;
 };
 

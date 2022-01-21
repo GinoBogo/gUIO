@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file      Buffer.cpp
+/// \file      GBuffer.cpp
 /// \version   0.1
 /// \date      May, 2016
 /// \author    Gino Francesco Bogo
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Buffer.hpp"
+#include "GBuffer.hpp"
 
-Buffer::Buffer(const uint32_t buf_size) {
+GBuffer::GBuffer(const uint32_t buf_size) {
     m_is_wrapper = true;
     m_size       = buf_size;
 
@@ -19,13 +19,13 @@ Buffer::Buffer(const uint32_t buf_size) {
     }
 }
 
-Buffer::~Buffer() {
+GBuffer::~GBuffer() {
     if (!m_is_wrapper) {
         delete[] p_data;
     }
 }
 
-bool Buffer::Wrap(uint8_t *buf_data, const uint32_t buf_size) {
+bool GBuffer::Wrap(uint8_t *buf_data, const uint32_t buf_size) {
     if (m_is_wrapper) {
         if (buf_data && buf_size) {
             m_size = buf_size;
@@ -37,7 +37,7 @@ bool Buffer::Wrap(uint8_t *buf_data, const uint32_t buf_size) {
     return false;
 }
 
-bool Buffer::Append(const uint8_t *src_data, const uint32_t src_count) {
+bool GBuffer::Append(const uint8_t *src_data, const uint32_t src_count) {
     if (!src_data || !src_count || free() < src_count) {
         return false;
     }
@@ -50,7 +50,7 @@ bool Buffer::Append(const uint8_t *src_data, const uint32_t src_count) {
     return true;
 }
 
-void Buffer::SetCount(const uint32_t value) {
+void GBuffer::SetCount(const uint32_t value) {
     if (value >= m_size) {
         m_count = m_size;
         p_next  = nullptr;
@@ -61,7 +61,7 @@ void Buffer::SetCount(const uint32_t value) {
     }
 }
 
-void Buffer::Increase(const uint32_t delta) {
+void GBuffer::Increase(const uint32_t delta) {
     if (delta >= free()) {
         m_count = m_size;
         p_next  = nullptr;
