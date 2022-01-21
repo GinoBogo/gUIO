@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "GLogger.hpp"
-#include "GPacket.hpp"
+#include "GMessage.hpp"
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"
 
@@ -34,6 +34,8 @@ void f_ctrlx_server(GUdpServer &p_server, GUdpClient &p_client) {
     uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
     size_t  bytes;
 
+    auto message = GMessage();
+
     while (p_server.Receive(buffer, &bytes)) {
 
         if (GPacket::IsValid(buffer, bytes)) {
@@ -41,24 +43,31 @@ void f_ctrlx_server(GUdpServer &p_server, GUdpClient &p_client) {
             auto packet = (TPacket *)buffer;
 
             if (GPacket::IsSingle(packet)) {
-                // GMessage decode
+                if (GPacket::IsShort(packet)) {
+                    // decode packet head
+                }
+                else {
+                    message.Initialize(packet);
+                    message.Append(packet);
+                    // decode message
+                }
                 continue;
             }
 
             if (GPacket::IsFirst(packet)) {
-                // GMessage reset
-                // GMessage append
-                continue;
-            }
-
-            if (GPacket::IsLast(packet)) {
-                // GMessage append
-                // GMessage decode
+                message.Initialize(packet);
+                message.Append(packet);
                 continue;
             }
 
             if (GPacket::IsMiddle(packet)) {
-                // GMessage append
+                message.Append(packet);
+                continue;
+            }
+
+            if (GPacket::IsLast(packet)) {
+                message.Append(packet);
+                // decode message
             }
         }
         else {

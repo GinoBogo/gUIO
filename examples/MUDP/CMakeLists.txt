@@ -59,6 +59,7 @@ add_library(gUIO OBJECT
 "../../lib/GBuffer.cpp"
 "../../lib/GFiFo.cpp"
 "../../lib/GPacket.cpp"
+"../../lib/GMessage.cpp"
 "../../lib/GUdpClient.cpp"
 "../../lib/GUdpServer.cpp"
 "../../src/GLogger.cpp"
