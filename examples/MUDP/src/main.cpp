@@ -39,7 +39,6 @@ void f_ctrlx_server(GUdpServer &p_server, GUdpClient &p_client) {
     while (p_server.Receive(buffer, &bytes)) {
 
         if (GPacket::IsValid(buffer, bytes)) {
-
             auto packet = (TPacket *)buffer;
 
             if (GPacket::IsSingle(packet)) {
@@ -49,7 +48,9 @@ void f_ctrlx_server(GUdpServer &p_server, GUdpClient &p_client) {
                 else {
                     message.Initialize(packet);
                     message.Append(packet);
-                    // decode message
+                    if (message.IsValid()) {
+                        // decode message
+                    }
                 }
                 continue;
             }
