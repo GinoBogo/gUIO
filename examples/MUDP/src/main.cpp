@@ -6,11 +6,13 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "GFiFo.hpp"
 #include "GLogger.hpp"
 #include "GMessage.hpp"
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"
 
+#include <condition_variable>
 #include <thread>
 
 #define GM_MC_SERVER_ADDR "127.0.0.1"
@@ -36,48 +38,82 @@
 void f_gm_mc_server(GUdpServer &p_server, GUdpClient &p_client) {
     LOG_WRITE(trace, "Thread STARTED (gm_mc_server)");
 
+    // SECTION: decoder thread
+
+    auto                    fifo  = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
+    bool                    _exit = false;
+    std::mutex              _mutex;
+    std::condition_variable _order;
+
+    std::thread t_decode([&]() {
+        auto    message = GMessage();
+        uint8_t data[GPacket::PACKET_FULL_SIZE];
+
+        while (!_exit) {
+            std::unique_lock<std::mutex> _lock(_mutex);
+            _order.wait(_lock, [&]() { return _exit; });
+
+            while (!_exit && !fifo.IsEmpty()) {
+                auto _bytes = fifo.Pop(data, sizeof(data));
+
+                if (_bytes > 0) {
+                    auto packet = (TPacket *)data;
+
+                    if (GPacket::IsSingle(packet)) {
+                        if (GPacket::IsShort(packet)) {
+                            // decode packet
+                        }
+                        else {
+                            message.Initialize(packet);
+                            message.Append(packet);
+                            if (message.IsValid()) {
+                                // decode message
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (GPacket::IsFirst(packet)) {
+                        message.Initialize(packet);
+                        message.Append(packet);
+                        continue;
+                    }
+
+                    if (GPacket::IsMiddle(packet)) {
+                        message.Append(packet);
+                        continue;
+                    }
+
+                    if (GPacket::IsLast(packet)) {
+                        message.Append(packet);
+                        if (message.IsValid()) {
+                            // decode message
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // SECTION: socket thread
+
     uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
     size_t  bytes;
 
-    auto message = GMessage();
-
-    while (p_server.Receive(buffer, &bytes)) {
-
-        if (GPacket::IsValid(buffer, bytes)) {
-            auto packet = (TPacket *)buffer;
-
-            if (GPacket::IsSingle(packet)) {
-                if (GPacket::IsShort(packet)) {
-                    // decode packet head
+    while (!_exit) {
+        if (p_server.Receive(buffer, &bytes)) {
+            if (GPacket::IsValid(buffer, bytes)) {
+                if (fifo.Push(buffer, bytes)) {
+                    _order.notify_one();
                 }
-                else {
-                    message.Initialize(packet);
-                    message.Append(packet);
-                    if (message.IsValid()) {
-                        // decode message
-                    }
-                }
-                continue;
             }
-
-            if (GPacket::IsFirst(packet)) {
-                message.Initialize(packet);
-                message.Append(packet);
-                continue;
-            }
-
-            if (GPacket::IsMiddle(packet)) {
-                message.Append(packet);
-                continue;
-            }
-
-            if (GPacket::IsLast(packet)) {
-                message.Append(packet);
-                // decode message
+            else {
+                LOG_FORMAT(error, "Wrong packet (%s)", __func__);
             }
         }
         else {
-            LOG_WRITE(error, "Wrong packet");
+            _exit = true;
+            _order.notify_one();
         }
     }
 
