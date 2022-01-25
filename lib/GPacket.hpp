@@ -9,11 +9,13 @@
 #ifndef GPACKET_HPP_
 #define GPACKET_HPP_
 
-#include <cstdint> // uint8_t, uint16_t, uint32_t
-#include <stddef.h>
+#include <cstdint>  // uint8_t, uint16_t, uint32_t
+#include <stddef.h> // size_t
 
-static const auto MAX_DATA_WORDS = 4091;
-static const auto MAX_DATA_BYTES = MAX_DATA_WORDS * 4;
+namespace GPacket {
+    static const auto MAX_DATA_WORDS = 4091;
+    static const auto MAX_DATA_BYTES = MAX_DATA_WORDS * 4;
+} // namespace GPacket
 
 typedef struct {
     uint8_t  spare_0;
@@ -29,8 +31,8 @@ typedef struct {
 } TPacketHead;
 
 typedef union {
-    uint8_t  bytes[MAX_DATA_BYTES];
-    uint32_t words[MAX_DATA_WORDS];
+    uint8_t  bytes[GPacket::MAX_DATA_BYTES];
+    uint32_t words[GPacket::MAX_DATA_WORDS];
 
 } TPacketData;
 
@@ -40,18 +42,17 @@ typedef struct {
 
 } TPacket;
 
-static const auto PACKET_HEAD_SIZE = sizeof(TPacketHead);
-static const auto PACKET_DATA_SIZE = sizeof(TPacketData);
-static const auto PACKET_FULL_SIZE = sizeof(TPacket);
+namespace GPacket {
+    const auto PACKET_HEAD_SIZE = sizeof(TPacketHead);
+    const auto PACKET_DATA_SIZE = sizeof(TPacketData);
+    const auto PACKET_FULL_SIZE = sizeof(TPacket);
 
-class GPacket {
-    public:
-    static bool IsValid(uint8_t *buffer, size_t bytes);
-    static bool IsSingle(TPacket *packet);
-    static bool IsShort(TPacket *packet);
-    static bool IsFirst(TPacket *packet);
-    static bool IsMiddle(TPacket *packet);
-    static bool IsLast(TPacket *packet);
-};
+    bool IsValid(uint8_t *buffer, size_t bytes);
+    bool IsSingle(TPacket *packet);
+    bool IsShort(TPacket *packet);
+    bool IsFirst(TPacket *packet);
+    bool IsMiddle(TPacket *packet);
+    bool IsLast(TPacket *packet);
+}; // namespace GPacket
 
 #endif /* GPACKET_HPP_ */
