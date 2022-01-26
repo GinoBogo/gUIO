@@ -34,6 +34,10 @@ class GMessage : public GBuffer {
         return m_errors_counter;
     }
 
+    auto packet_type() const {
+        return m_packet_type;
+    }
+
     private:
     bool     m_no_error;
     bool     m_is_valid;
