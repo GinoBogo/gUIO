@@ -6,11 +6,12 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "GDecoder.hpp"
 #include "GFiFo.hpp"
 #include "GLogger.hpp"
-#include "GMessage.hpp"
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"
+#include "f_gm_mc.hpp"
 
 #include <thread>
 
@@ -34,57 +35,24 @@
 #define HSSL1_CLIENT_ADDR "127.0.0.1"
 #define HSSL1_CLIENT_PORT 60101
 
-void f_gm_mc_server(GUdpServer &p_server, GUdpClient &p_client) {
+void f_gm_mc_server(GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (gm_mc_server)");
+
+    auto       _fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
+    bool       _exit = false;
+    std::mutex _gate;
 
     // SECTION: decoder thread
 
-    auto       fifo  = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
-    bool       _exit = false;
-    std::mutex _mutex;
+    auto decoder = GDecoder(f_gm_mc::decode_packet, f_gm_mc::decode_message, &client);
 
     std::thread t_decoder([&]() {
-        auto    message = GMessage();
-        uint8_t data[GPacket::PACKET_FULL_SIZE];
-
         while (!_exit) {
-            _mutex.lock();
+            _gate.lock();
 
-            while (!_exit && !fifo.IsEmpty()) {
-                if (fifo.Pop(data, sizeof(data)) > 0) {
-                    auto packet = (TPacket *)data;
-
-                    if (GPacket::IsSingle(packet)) {
-                        if (GPacket::IsShort(packet)) {
-                            // decode packet
-                        }
-                        else {
-                            message.Initialize(packet);
-                            message.Append(packet);
-                            if (message.IsValid()) {
-                                // decode message
-                            }
-                        }
-                        continue;
-                    }
-
-                    if (GPacket::IsFirst(packet)) {
-                        message.Initialize(packet);
-                        message.Append(packet);
-                        continue;
-                    }
-
-                    if (GPacket::IsMiddle(packet)) {
-                        message.Append(packet);
-                        continue;
-                    }
-
-                    if (GPacket::IsLast(packet)) {
-                        message.Append(packet);
-                        if (message.IsValid()) {
-                            // decode message
-                        }
-                    }
+            while (!_exit && !_fifo.IsEmpty()) {
+                if (_fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+                    decoder.Process();
                 }
             }
         }
@@ -96,10 +64,10 @@ void f_gm_mc_server(GUdpServer &p_server, GUdpClient &p_client) {
     size_t  bytes;
 
     while (!_exit) {
-        if (p_server.Receive(buffer, &bytes)) {
+        if (server.Receive(buffer, &bytes)) {
             if (GPacket::IsValid(buffer, bytes)) {
-                if (fifo.Push(buffer, bytes)) {
-                    _mutex.unlock();
+                if (_fifo.Push(buffer, bytes)) {
+                    _gate.unlock();
                 }
             }
             else {
@@ -110,24 +78,24 @@ void f_gm_mc_server(GUdpServer &p_server, GUdpClient &p_client) {
             _exit = true;
         }
     }
-    _mutex.unlock();
+    _gate.unlock();
 
     LOG_WRITE(trace, "Thread STOPPED (gm_mc_server)");
 }
 
-void f_gm_dh_server(GUdpServer &p_server, GUdpClient &p_client) {
+void f_gm_dh_server(GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (gm_dh_server)");
 
     LOG_WRITE(trace, "Thread STOPPED (gm_dh_server)");
 }
 
-void f_hssl0_server(GUdpServer &p_server, GUdpClient &p_client) {
+void f_hssl0_server(GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (hssl0_server)");
 
     LOG_WRITE(trace, "Thread STOPPED (hssl0_server)");
 }
 
-void f_hssl1_server(GUdpServer &p_server, GUdpClient &p_client) {
+void f_hssl1_server(GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (hssl1_server)");
 
     LOG_WRITE(trace, "Thread STOPPED (hssl1_server)");
