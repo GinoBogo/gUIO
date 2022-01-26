@@ -12,7 +12,6 @@
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"
 
-#include <condition_variable>
 #include <thread>
 
 #define GM_MC_SERVER_ADDR "127.0.0.1"
@@ -40,23 +39,19 @@ void f_gm_mc_server(GUdpServer &p_server, GUdpClient &p_client) {
 
     // SECTION: decoder thread
 
-    auto                    fifo  = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
-    bool                    _exit = false;
-    std::mutex              _mutex;
-    std::condition_variable _order;
+    auto       fifo  = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
+    bool       _exit = false;
+    std::mutex _mutex;
 
-    std::thread t_decode([&]() {
+    std::thread t_decoder([&]() {
         auto    message = GMessage();
         uint8_t data[GPacket::PACKET_FULL_SIZE];
 
         while (!_exit) {
-            std::unique_lock<std::mutex> _lock(_mutex);
-            _order.wait(_lock, [&]() { return _exit; });
+            _mutex.lock();
 
             while (!_exit && !fifo.IsEmpty()) {
-                auto _bytes = fifo.Pop(data, sizeof(data));
-
-                if (_bytes > 0) {
+                if (fifo.Pop(data, sizeof(data)) > 0) {
                     auto packet = (TPacket *)data;
 
                     if (GPacket::IsSingle(packet)) {
@@ -104,7 +99,7 @@ void f_gm_mc_server(GUdpServer &p_server, GUdpClient &p_client) {
         if (p_server.Receive(buffer, &bytes)) {
             if (GPacket::IsValid(buffer, bytes)) {
                 if (fifo.Push(buffer, bytes)) {
-                    _order.notify_one();
+                    _mutex.unlock();
                 }
             }
             else {
@@ -113,9 +108,9 @@ void f_gm_mc_server(GUdpServer &p_server, GUdpClient &p_client) {
         }
         else {
             _exit = true;
-            _order.notify_one();
         }
     }
+    _mutex.unlock();
 
     LOG_WRITE(trace, "Thread STOPPED (gm_mc_server)");
 }
