@@ -28,7 +28,7 @@ bool GPacket::IsSingle(TPacket *packet) {
 }
 
 bool GPacket::IsShort(TPacket *packet) {
-    return packet->head.data_length;
+    return packet->head.data_length == 0;
 }
 
 bool GPacket::IsFirst(TPacket *packet) {

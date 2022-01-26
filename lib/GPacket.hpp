@@ -53,6 +53,6 @@ namespace GPacket {
     bool IsFirst(TPacket *packet);
     bool IsMiddle(TPacket *packet);
     bool IsLast(TPacket *packet);
-}; // namespace GPacket
+} // namespace GPacket
 
 #endif /* GPACKET_HPP_ */
