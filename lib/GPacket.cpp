@@ -11,7 +11,7 @@
 bool GPacket::IsValid(uint8_t *buffer, size_t bytes) {
     if (buffer != nullptr && bytes >= GPacket::PACKET_HEAD_SIZE && bytes <= GPacket::PACKET_FULL_SIZE) {
         auto packet  = (TPacket *)buffer;
-        auto check_1 = packet->head.data_length <= GPacket::PACKET_DATA_SIZE;
+        auto check_1 = bytes == GPacket::PACKET_HEAD_SIZE + packet->head.data_length;
         auto check_2 = packet->head.current_segment <= packet->head.total_segments;
 
         return check_1 && check_2;
