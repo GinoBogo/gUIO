@@ -37,6 +37,7 @@ class GMessage : public GBuffer {
     private:
     bool     m_no_error;
     bool     m_is_valid;
+    uint8_t  m_packet_type;
     uint16_t m_file_id;
     uint32_t m_packet_counter;
     uint32_t m_errors_counter;
