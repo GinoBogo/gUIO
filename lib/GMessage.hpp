@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GMESSAGE_HPP_
-#define GMESSAGE_HPP_
+#ifndef GMESSAGE_HPP
+#define GMESSAGE_HPP
 
 #include "GBuffer.hpp"
 #include "GPacket.hpp"
@@ -49,4 +49,4 @@ class GMessage : public GBuffer {
     uint16_t m_total_segments;
 };
 
-#endif /* GMESSAGE_HPP_ */
+#endif // GMESSAGE_HPP

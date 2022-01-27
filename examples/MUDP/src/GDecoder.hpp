@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GDECODER_HPP_
-#define GDECODER_HPP_
+#ifndef GDECODER_HPP
+#define GDECODER_HPP
 
 #include "GMessage.hpp"
 
@@ -82,4 +82,4 @@ class GDecoder {
     WorkerFunc m_decode_message;
 };
 
-#endif /* GDECODER_HPP_ */
+#endif // GDECODER_HPP

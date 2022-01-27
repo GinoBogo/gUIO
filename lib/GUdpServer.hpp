@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GUDPSERVER_HPP_
-#define GUDPSERVER_HPP_
+#ifndef GUDPSERVER_HPP
+#define GUDPSERVER_HPP
 
 #include <cstdint>      // uint16_t
 #include <sys/socket.h> // sockaddr_storage, socklen_t
@@ -43,4 +43,4 @@ class GUdpServer {
     socklen_t               m_peer_addr_len{sizeof(struct sockaddr_storage)};
 };
 
-#endif // GUDPSERVER_HPP_
+#endif // GUDPSERVER_HPP

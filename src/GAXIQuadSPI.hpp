@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GAXIQUADSPI_HPP_
-#define GAXIQUADSPI_HPP_
+#ifndef GAXIQUADSPI_HPP
+#define GAXIQUADSPI_HPP
 
 #include "GMAPdevice.hpp"
 
@@ -37,4 +37,4 @@ class GAXIQuadSPI : public GMAPdevice {
     volatile uint32_t m_status_reg;
 };
 
-#endif /* GAXIQUADSPI_HPP_ */
+#endif // GAXIQUADSPI_HPP

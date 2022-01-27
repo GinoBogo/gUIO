@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef REGISTERS_HPP_
-#define REGISTERS_HPP_
+#ifndef REGISTERS_HPP
+#define REGISTERS_HPP
 
 #include <bitset>  // std::bitset
 #include <cstdint> // uint8_t, uint32_t
@@ -209,4 +209,4 @@ const auto spi_registers_num = 11;
 #define QSPI_getIpInterruptEnableRegister(base_addr)            __REG(base_addr, REG_SPI_IPIER)
 #define QSPI_setIpInterruptEnableRegister(base_addr, value)     __REG(base_addr, REG_SPI_IPIER) = value
 
-#endif /* REGISTERS_HPP_ */
+#endif // REGISTERS_HPP

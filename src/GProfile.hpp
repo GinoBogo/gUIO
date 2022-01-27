@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GPROFILE_HPP_
-#define GPROFILE_HPP_
+#ifndef GPROFILE_HPP
+#define GPROFILE_HPP
 
 #include <chrono>
 
@@ -38,4 +38,4 @@ class GProfile {
     std::chrono::time_point<std::chrono::system_clock> m_t1;
 };
 
-#endif /* GPROFILE_HPP_ */
+#endif // GPROFILE_HPP

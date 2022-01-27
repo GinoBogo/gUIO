@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GBUFFER_HPP_
-#define GBUFFER_HPP_
+#ifndef GBUFFER_HPP
+#define GBUFFER_HPP
 
 #include <cstdint> // uint8_t, uint32_t
 #include <cstring> // memset
@@ -89,4 +89,4 @@ inline void GBuffer::SmartClear() {
     }
 }
 
-#endif /* GBUFFER_HPP_ */
+#endif // GBUFFER_HPP

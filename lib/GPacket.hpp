@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GPACKET_HPP_
-#define GPACKET_HPP_
+#ifndef GPACKET_HPP
+#define GPACKET_HPP
 
 #include <cstdint>  // uint8_t, uint16_t, uint32_t
 #include <stddef.h> // size_t
@@ -55,4 +55,4 @@ namespace GPacket {
     bool IsLast(TPacket *packet);
 } // namespace GPacket
 
-#endif /* GPACKET_HPP_ */
+#endif // GPACKET_HPP

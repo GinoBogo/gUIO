@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GLOGGER_HPP_
-#define GLOGGER_HPP_
+#ifndef GLOGGER_HPP
+#define GLOGGER_HPP
 
 #include <cstddef> // size_t
 #include <cstdio>  // snprintf
@@ -39,4 +39,4 @@ namespace GLogger {
     char *AlignToRight(const char *src, char *dst, size_t span, char filler = ' ');
 } // namespace GLogger
 
-#endif // GLOGGER_HPP_
+#endif // GLOGGER_HPP

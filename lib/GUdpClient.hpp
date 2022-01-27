@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GUDPCLIENT_HPP_
-#define GUDPCLIENT_HPP_
+#ifndef GUDPCLIENT_HPP
+#define GUDPCLIENT_HPP
 
 #include <cstdint>  // uint16_t
 #include <stddef.h> // size_t
@@ -41,4 +41,4 @@ class GUdpClient {
     int  m_socket_fd{-1};
 };
 
-#endif // GUDPCLIENT_HPP_
+#endif // GUDPCLIENT_HPP

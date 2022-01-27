@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef F_GM_MC_HPP_
-#define F_GM_MC_HPP_
+#ifndef F_GM_MC_HPP
+#define F_GM_MC_HPP
 
 #include "GMessage.hpp"
 #include "GUdpClient.hpp"
@@ -41,4 +41,4 @@ namespace f_gm_mc {
 
 } // namespace f_gm_mc
 
-#endif /* F_GM_MC_HPP_ */
+#endif // F_GM_MC_HPP

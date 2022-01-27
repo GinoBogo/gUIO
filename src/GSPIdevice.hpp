@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GSPIDEVICE_HPP_
-#define GSPIDEVICE_HPP_
+#ifndef GSPIDEVICE_HPP
+#define GSPIDEVICE_HPP
 
 #include <cstdint>            // uint8_t, uint32_t
 #include <linux/spi/spidev.h> // SPI_MODE_*
@@ -48,4 +48,4 @@ class GSPIdevice {
     spi_device_t m_dev;
 };
 
-#endif /* GSPIDEVICE_HPP_ */
+#endif // GSPIDEVICE_HPP

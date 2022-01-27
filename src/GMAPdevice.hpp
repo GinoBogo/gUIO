@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GMAPDEVICE_HPP_
-#define GMAPDEVICE_HPP_
+#ifndef GMAPDEVICE_HPP
+#define GMAPDEVICE_HPP
 
 #include <cstddef> // size_t
 
@@ -75,4 +75,4 @@ class GMAPdevice {
     map_device_t m_dev;
 };
 
-#endif /* GMAPDEVICE_HPP_ */
+#endif // GMAPDEVICE_HPP

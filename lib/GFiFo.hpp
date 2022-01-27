@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GFIFO_HPP_
-#define GFIFO_HPP_
+#ifndef GFIFO_HPP
+#define GFIFO_HPP
 
 #include "GBuffer.hpp"
 
@@ -67,4 +67,4 @@ class GFiFo {
     std::mutex m_mutex;
 };
 
-#endif /* GFIFO_HPP_ */
+#endif // GFIFO_HPP

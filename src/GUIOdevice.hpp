@@ -6,8 +6,8 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GUIODEVICE_HPP_
-#define GUIODEVICE_HPP_
+#ifndef GUIODEVICE_HPP
+#define GUIODEVICE_HPP
 
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t, int32_t
@@ -85,4 +85,4 @@ class GUIOdevice {
     uio_device_t m_dev;
 };
 
-#endif /* GUIODEVICE_HPP_ */
+#endif // GUIODEVICE_HPP
