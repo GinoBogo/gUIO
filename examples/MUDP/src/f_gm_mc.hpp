@@ -16,16 +16,25 @@
 
 namespace f_gm_mc {
 
+    typedef struct {
+        bool       *quit;
+        GUdpClient *client;
+
+    } WorkerArgs;
+
     bool decode_packet(std::any data, std::any args) {
-        auto packet = std::any_cast<TPacket *>(data);
-        auto client = std::any_cast<GUdpClient *>(args);
+        auto _packet = std::any_cast<TPacket *>(data);
+        auto _args   = std::any_cast<WorkerArgs>(args);
+
+        if (_packet->head.packet_type == 0xFF) {
+            *_args.quit = true;
+        }
 
         return false;
     }
 
     bool decode_message(std::any data, std::any args) {
-        auto message = std::any_cast<GMessage *>(data);
-        auto client  = std::any_cast<GUdpClient *>(args);
+        // auto _args = std::any_cast<WorkerArgs>(args);
 
         return false;
     }

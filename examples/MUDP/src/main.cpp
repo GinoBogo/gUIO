@@ -35,27 +35,31 @@
 #define HSSL1_CLIENT_ADDR "127.0.0.1"
 #define HSSL1_CLIENT_PORT 60101
 
-void f_gm_mc_server(GUdpServer &server, GUdpClient &client) {
+void f_gm_mc_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (gm_mc_server)");
 
-    auto       _fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
-    bool       _exit = false;
-    std::mutex _gate;
+    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
+    std::mutex gate;
 
     // SECTION: decoder thread
 
-    auto decoder = GDecoder(f_gm_mc::decode_packet, f_gm_mc::decode_message, &client);
+    f_gm_mc::WorkerArgs args;
+    args.quit   = &quit;
+    args.client = &client;
+
+    auto decoder = GDecoder(f_gm_mc::decode_packet, f_gm_mc::decode_message, args);
 
     std::thread t_decoder([&]() {
-        while (!_exit) {
-            _gate.lock();
+        while (!quit) {
+            gate.lock();
 
-            while (!_exit && !_fifo.IsEmpty()) {
-                if (_fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+            while (!fifo.IsEmpty()) {
+                if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
                     decoder.Process();
                 }
             }
         }
+        server.Stop();
     });
 
     // SECTION: socket thread
@@ -63,11 +67,11 @@ void f_gm_mc_server(GUdpServer &server, GUdpClient &client) {
     uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
     size_t  bytes;
 
-    while (!_exit) {
+    while (!quit) {
         if (server.Receive(buffer, &bytes)) {
             if (GPacket::IsValid(buffer, bytes)) {
-                if (_fifo.Push(buffer, bytes)) {
-                    _gate.unlock();
+                if (fifo.Push(buffer, bytes)) {
+                    gate.unlock();
                 }
             }
             else {
@@ -75,28 +79,53 @@ void f_gm_mc_server(GUdpServer &server, GUdpClient &client) {
             }
         }
         else {
-            _exit = true;
+            quit = true;
         }
     }
-    _gate.unlock();
+    gate.unlock();
+    t_decoder.join();
 
     LOG_WRITE(trace, "Thread STOPPED (gm_mc_server)");
 }
 
-void f_gm_dh_server(GUdpServer &server, GUdpClient &client) {
+void f_gm_dh_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (gm_dh_server)");
+
+    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
+    size_t  bytes;
+
+    while (!quit) {
+        if (server.Receive(buffer, &bytes)) {
+        }
+    }
 
     LOG_WRITE(trace, "Thread STOPPED (gm_dh_server)");
 }
 
-void f_hssl0_server(GUdpServer &server, GUdpClient &client) {
+void f_hssl0_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (hssl0_server)");
+
+    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
+    size_t  bytes;
+
+    while (!quit) {
+        if (server.Receive(buffer, &bytes)) {
+        }
+    }
 
     LOG_WRITE(trace, "Thread STOPPED (hssl0_server)");
 }
 
-void f_hssl1_server(GUdpServer &server, GUdpClient &client) {
+void f_hssl1_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (hssl1_server)");
+
+    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
+    size_t  bytes;
+
+    while (!quit) {
+        if (server.Receive(buffer, &bytes)) {
+        }
+    }
 
     LOG_WRITE(trace, "Thread STOPPED (hssl1_server)");
 }
@@ -114,12 +143,19 @@ int main() {
     auto hssl1_server = GUdpServer(HSSL1_SERVER_ADDR, HSSL1_SERVER_PORT, "HSSL1");
     auto hssl1_client = GUdpClient(HSSL1_CLIENT_ADDR, HSSL1_CLIENT_PORT, "HSSL1");
 
-    std::thread t_gm_mc_server(f_gm_mc_server, std::ref(gm_mc_server), std::ref(gm_mc_client));
-    std::thread t_gm_dh_server(f_gm_dh_server, std::ref(gm_dh_server), std::ref(gm_dh_client));
-    std::thread t_hssl0_server(f_hssl0_server, std::ref(hssl0_server), std::ref(hssl0_client));
-    std::thread t_hssl1_server(f_hssl1_server, std::ref(hssl1_server), std::ref(hssl1_client));
+    auto quit = false;
+
+    std::thread t_gm_mc_server(f_gm_mc_server, std::ref(quit), std::ref(gm_mc_server), std::ref(gm_mc_client));
+    std::thread t_gm_dh_server(f_gm_dh_server, std::ref(quit), std::ref(gm_dh_server), std::ref(gm_dh_client));
+    std::thread t_hssl0_server(f_hssl0_server, std::ref(quit), std::ref(hssl0_server), std::ref(hssl0_client));
+    std::thread t_hssl1_server(f_hssl1_server, std::ref(quit), std::ref(hssl1_server), std::ref(hssl1_client));
 
     t_gm_mc_server.join();
+
+    gm_dh_server.Stop();
+    hssl0_server.Stop();
+    hssl1_server.Stop();
+
     t_gm_dh_server.join();
     t_hssl0_server.join();
     t_hssl1_server.join();
