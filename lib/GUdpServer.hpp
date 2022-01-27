@@ -33,6 +33,8 @@ class GUdpServer {
 
     bool Send(void *src_buffer, size_t src_bytes);
 
+    void Stop();
+
     private:
     char                    m_tag_name[64];
     bool                    m_is_ready{false};

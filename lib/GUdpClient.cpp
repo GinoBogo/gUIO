@@ -101,3 +101,11 @@ bool GUdpClient::Send(void *src_buffer, size_t src_bytes) {
 
     return true;
 }
+
+void GUdpClient::Stop() {
+    if (m_socket_fd != -1) {
+        close(m_socket_fd);
+        LOG_FORMAT(debug, "%s closed", m_tag_name);
+        m_socket_fd = -1;
+    }
+}
