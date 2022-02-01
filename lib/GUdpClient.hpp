@@ -36,6 +36,8 @@ class GUdpClient {
     void Stop();
 
     private:
+    char s_addr[32];
+    char s_port[16];
     char m_tag_name[64];
     bool m_is_ready{false};
     int  m_socket_fd{-1};

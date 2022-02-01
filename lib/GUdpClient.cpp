@@ -13,6 +13,7 @@
 #include <errno.h>  // errno
 #include <netdb.h>  // addrinfo
 #include <stdio.h>  // snprintf
+#include <stdlib.h> // atoi
 #include <string.h> // bzero
 #include <unistd.h> // close
 
@@ -29,9 +30,6 @@ GUdpClient::GUdpClient(const char *remote_addr, uint16_t remote_port, const char
     bzero(&hints, sizeof(hints));
     hints.ai_family   = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
-
-    char s_addr[32];
-    char s_port[16];
 
     bzero(s_addr, sizeof(s_addr));
     bzero(s_port, sizeof(s_port));
@@ -104,8 +102,9 @@ bool GUdpClient::Send(void *src_buffer, size_t src_bytes) {
 
 void GUdpClient::Stop() {
     if (m_socket_fd != -1) {
-        close(m_socket_fd);
-        LOG_FORMAT(debug, "%s closed", m_tag_name);
-        m_socket_fd = -1;
+        auto client{GUdpClient(s_addr, std::atoi(s_port))};
+
+        char msg;
+        client.Send(&msg, 0);
     }
 }
