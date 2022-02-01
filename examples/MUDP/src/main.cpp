@@ -56,7 +56,7 @@ void f_gm_mc_server(bool &quit, GUdpServer &server, GUdpClient &client) {
                 }
             }
             else {
-                LOG_FORMAT(error, "Wrong packet (%s)", __func__);
+                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
             }
         }
         else {

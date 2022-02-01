@@ -42,6 +42,29 @@ typedef struct {
 
 } TPacket;
 
+typedef enum {
+    wake_up_query,
+    wake_up_reply,
+    packet_stop_flow,
+    packet_start_flow,
+    packet_to_spacewire,
+    packet_from_spacewire,
+    canbus_add_event,
+    canbus_remove_event,
+    canbus_configure_interface,
+    canbus_event_reply,
+    packet_from_hssl_1,
+    packet_to_hssl_1,
+    packet_from_hssl_2,
+    packet_to_hssl_2,
+    packet_from_multi_io,
+    packet_to_multi_io,
+    packet_from_power_supply,
+    packet_to_power_supply,
+    packet_quit = 0xFF
+
+} TPacketType;
+
 namespace GPacket {
     const auto PACKET_HEAD_SIZE = sizeof(TPacketHead);
     const auto PACKET_DATA_SIZE = sizeof(TPacketData);
