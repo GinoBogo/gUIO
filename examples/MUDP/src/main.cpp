@@ -132,42 +132,42 @@ void load_options(const char *filename) {
     auto opts = GOptions();
 
     // clang-format off
-    opts.Insert<std::string>("GM_MC_SERVER_ADDR", "127.0.0.1");
-    opts.Insert<int        >("GM_MC_SERVER_PORT", 30001      );
-    opts.Insert<std::string>("GM_MC_CLIENT_ADDR", "127.0.0.1");
-    opts.Insert<int        >("GM_MC_CLIENT_PORT", 30101      );
-    opts.Insert<std::string>("GM_DH_SERVER_ADDR", "127.0.0.1");
-    opts.Insert<int        >("GM_DH_SERVER_PORT", 40001      );
-    opts.Insert<std::string>("GM_DH_CLIENT_ADDR", "127.0.0.1");
-    opts.Insert<int        >("GM_DH_CLIENT_PORT", 40101      );
-    opts.Insert<std::string>("HSSL0_SERVER_ADDR", "127.0.0.1");
-    opts.Insert<int        >("HSSL0_SERVER_PORT", 50001      );
-    opts.Insert<std::string>("HSSL0_CLIENT_ADDR", "127.0.0.1");
-    opts.Insert<int        >("HSSL0_CLIENT_PORT", 50101      );
-    opts.Insert<std::string>("HSSL1_SERVER_ADDR", "127.0.0.1");
-    opts.Insert<int        >("HSSL1_SERVER_PORT", 60001      );
-    opts.Insert<std::string>("HSSL1_CLIENT_ADDR", "127.0.0.1");
-    opts.Insert<int        >("HSSL1_CLIENT_PORT", 60101      );
+    opts.Insert<std::string>("socket.GM_MC_SERVER_ADDR", "127.0.0.1");
+    opts.Insert<int        >("socket.GM_MC_SERVER_PORT", 30001      );
+    opts.Insert<std::string>("socket.GM_MC_CLIENT_ADDR", "127.0.0.1");
+    opts.Insert<int        >("socket.GM_MC_CLIENT_PORT", 30101      );
+    opts.Insert<std::string>("socket.GM_DH_SERVER_ADDR", "127.0.0.1");
+    opts.Insert<int        >("socket.GM_DH_SERVER_PORT", 40001      );
+    opts.Insert<std::string>("socket.GM_DH_CLIENT_ADDR", "127.0.0.1");
+    opts.Insert<int        >("socket.GM_DH_CLIENT_PORT", 40101      );
+    opts.Insert<std::string>("socket.HSSL0_SERVER_ADDR", "127.0.0.1");
+    opts.Insert<int        >("socket.HSSL0_SERVER_PORT", 50001      );
+    opts.Insert<std::string>("socket.HSSL0_CLIENT_ADDR", "127.0.0.1");
+    opts.Insert<int        >("socket.HSSL0_CLIENT_PORT", 50101      );
+    opts.Insert<std::string>("socket.HSSL1_SERVER_ADDR", "127.0.0.1");
+    opts.Insert<int        >("socket.HSSL1_SERVER_PORT", 60001      );
+    opts.Insert<std::string>("socket.HSSL1_CLIENT_ADDR", "127.0.0.1");
+    opts.Insert<int        >("socket.HSSL1_CLIENT_PORT", 60101      );
     // clang-format on
 
     if (opts.Read(filename)) {
         // clang-format off
-        GM_MC_SERVER_ADDR = opts.Get<std::string>("GM_MC_SERVER_ADDR");
-        GM_MC_SERVER_PORT = opts.Get<int        >("GM_MC_SERVER_PORT");
-        GM_MC_CLIENT_ADDR = opts.Get<std::string>("GM_MC_CLIENT_ADDR");
-        GM_MC_CLIENT_PORT = opts.Get<int        >("GM_MC_CLIENT_PORT");
-        GM_DH_SERVER_ADDR = opts.Get<std::string>("GM_DH_SERVER_ADDR");
-        GM_DH_SERVER_PORT = opts.Get<int        >("GM_DH_SERVER_PORT");
-        GM_DH_CLIENT_ADDR = opts.Get<std::string>("GM_DH_CLIENT_ADDR");
-        GM_DH_CLIENT_PORT = opts.Get<int        >("GM_DH_CLIENT_PORT");
-        HSSL0_SERVER_ADDR = opts.Get<std::string>("HSSL0_SERVER_ADDR");
-        HSSL0_SERVER_PORT = opts.Get<int        >("HSSL0_SERVER_PORT");
-        HSSL0_CLIENT_ADDR = opts.Get<std::string>("HSSL0_CLIENT_ADDR");
-        HSSL0_CLIENT_PORT = opts.Get<int        >("HSSL0_CLIENT_PORT");
-        HSSL1_SERVER_ADDR = opts.Get<std::string>("HSSL1_SERVER_ADDR");
-        HSSL1_SERVER_PORT = opts.Get<int        >("HSSL1_SERVER_PORT");
-        HSSL1_CLIENT_ADDR = opts.Get<std::string>("HSSL1_CLIENT_ADDR");
-        HSSL1_CLIENT_PORT = opts.Get<int        >("HSSL1_CLIENT_PORT");
+        GM_MC_SERVER_ADDR = opts.Get<std::string>("socket.GM_MC_SERVER_ADDR");
+        GM_MC_SERVER_PORT = opts.Get<int        >("socket.GM_MC_SERVER_PORT");
+        GM_MC_CLIENT_ADDR = opts.Get<std::string>("socket.GM_MC_CLIENT_ADDR");
+        GM_MC_CLIENT_PORT = opts.Get<int        >("socket.GM_MC_CLIENT_PORT");
+        GM_DH_SERVER_ADDR = opts.Get<std::string>("socket.GM_DH_SERVER_ADDR");
+        GM_DH_SERVER_PORT = opts.Get<int        >("socket.GM_DH_SERVER_PORT");
+        GM_DH_CLIENT_ADDR = opts.Get<std::string>("socket.GM_DH_CLIENT_ADDR");
+        GM_DH_CLIENT_PORT = opts.Get<int        >("socket.GM_DH_CLIENT_PORT");
+        HSSL0_SERVER_ADDR = opts.Get<std::string>("socket.HSSL0_SERVER_ADDR");
+        HSSL0_SERVER_PORT = opts.Get<int        >("socket.HSSL0_SERVER_PORT");
+        HSSL0_CLIENT_ADDR = opts.Get<std::string>("socket.HSSL0_CLIENT_ADDR");
+        HSSL0_CLIENT_PORT = opts.Get<int        >("socket.HSSL0_CLIENT_PORT");
+        HSSL1_SERVER_ADDR = opts.Get<std::string>("socket.HSSL1_SERVER_ADDR");
+        HSSL1_SERVER_PORT = opts.Get<int        >("socket.HSSL1_SERVER_PORT");
+        HSSL1_CLIENT_ADDR = opts.Get<std::string>("socket.HSSL1_CLIENT_ADDR");
+        HSSL1_CLIENT_PORT = opts.Get<int        >("socket.HSSL1_CLIENT_PORT");
         // clang-format on
     }
 }
