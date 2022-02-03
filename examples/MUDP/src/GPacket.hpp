@@ -18,15 +18,15 @@ namespace GPacket {
 } // namespace GPacket
 
 typedef struct {
+    uint8_t  packet_type;
     uint8_t  spare_0;
     uint8_t  spare_1;
     uint8_t  spare_2;
-    uint8_t  packet_type;
     uint32_t packet_counter;
     uint32_t data_length;
     uint32_t file_id;
-    uint16_t current_segment;
     uint16_t total_segments;
+    uint16_t current_segment;
 
 } TPacketHead;
 
