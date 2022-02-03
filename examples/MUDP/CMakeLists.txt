@@ -66,6 +66,7 @@ add_library(gLIB OBJECT
 
 include_directories(
 "../../lib"
+"../../src"
 "./src"
 )
 

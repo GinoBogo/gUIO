@@ -8,7 +8,7 @@
 
 #include "GLogger.hpp"
 #include "GMAPdevice.hpp"
-#include "registers.hpp"
+#include "GRegisters.hpp"
 
 #include <strings.h> // bzero
 

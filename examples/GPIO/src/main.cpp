@@ -8,7 +8,7 @@
 
 #include "GLogger.hpp"
 #include "GUIOdevice.hpp"
-#include "registers.hpp"
+#include "GRegisters.hpp"
 
 void GPIO_printRegistersInfo(GUIOdevice *uio_dev) {
     register_info info_list[gpio_registers_number];

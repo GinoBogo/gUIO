@@ -45,6 +45,7 @@ add_compile_options(
     -Wextra
     -Wfloat-equal
     -Wno-unused-parameter
+    -Wno-unused-result
     -Wno-unused-variable
     -Wshadow
     -Wsign-conversion
@@ -55,13 +56,20 @@ if (COMPILE_LANGUAGE:CXX)
     add_compile_options(-Wold-style-cast)
 endif()
 
-add_library(gUIO OBJECT
-"../../src/GLogger.cpp"
-"../../src/GUIOdevice.cpp"
-"../../src/registers.cpp"
+add_library(gLIB OBJECT
+"../../lib/GLogger.cpp"
 )
 
-include_directories("../../src")
+add_library(gUIO OBJECT
+"../../src/GUIOdevice.cpp"
+"../../src/GRegisters.cpp"
+)
+
+include_directories(
+"../../lib"
+"../../src"
+"./src"
+)
 
 add_executable(example_GPIO "./src/main.cpp")
-target_link_libraries(example_GPIO pthread gUIO)
+target_link_libraries(example_GPIO pthread gLIB gUIO)

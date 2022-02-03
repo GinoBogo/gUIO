@@ -55,13 +55,20 @@ if (COMPILE_LANGUAGE:CXX)
     add_compile_options(-Wold-style-cast)
 endif()
 
-add_library(gUIO OBJECT
-"../../src/GLogger.cpp"
-"../../src/GMAPdevice.cpp"
-"../../src/registers.cpp"
+add_library(gLIB OBJECT
+"../../lib/GLogger.cpp"
 )
 
-include_directories("../../src")
+add_library(gUIO OBJECT
+"../../src/GMAPdevice.cpp"
+"../../src/GRegisters.cpp"
+)
+
+include_directories(
+"../../lib"
+"../../src"
+"./src"
+)
 
 add_executable(example_MMAP "./src/main.cpp")
-target_link_libraries(example_MMAP pthread gUIO)
+target_link_libraries(example_MMAP pthread gLIB gUIO)
