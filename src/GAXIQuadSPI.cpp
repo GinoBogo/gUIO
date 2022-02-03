@@ -9,7 +9,7 @@
 #include "GAXIQuadSPI.hpp"
 
 #include "GLogger.hpp"
-#include "registers.hpp"
+#include "GRegisters.hpp"
 
 #define enable_system       BIT_SPI_CR_SPE
 #define inhibit_master      BIT_SPI_CR_MTI

@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file      registers.cpp
+/// \file      GRegisters.cpp
 /// \version   0.1
 /// \date      November, 2021
 /// \author    Gino Francesco Bogo
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "registers.hpp"
+#include "GRegisters.hpp"
 
 #include <cstdio> // snprintf
 

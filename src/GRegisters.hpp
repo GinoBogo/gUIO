@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file      registers.hpp
+/// \file      GRegisters.hpp
 /// \version   0.1
 /// \date      September, 2021
 /// \author    Gino Francesco Bogo
