@@ -9,6 +9,7 @@
 #ifndef GDECODER_HPP
 #define GDECODER_HPP
 
+#include "GLogger.hpp"
 #include "GMessage.hpp"
 
 #include <any>

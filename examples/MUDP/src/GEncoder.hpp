@@ -10,6 +10,7 @@
 #define GENCODER_HPP
 
 #include "GFiFo.hpp"
+#include "GLogger.hpp"
 #include "GMessage.hpp"
 
 #include <string.h> // bzero
