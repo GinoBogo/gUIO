@@ -102,7 +102,7 @@ bool GUdpClient::Send(void *src_buffer, size_t src_bytes) {
 
 void GUdpClient::Stop() {
     if (m_socket_fd != -1) {
-        auto client{GUdpClient(s_addr, std::atoi(s_port))};
+        auto client = GUdpClient(s_addr, std::atoi(s_port));
 
         char msg;
         client.Send(&msg, 0);

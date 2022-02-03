@@ -112,7 +112,7 @@ template <typename T> void GOptions::Insert(const std::string &label, const std:
 template <typename T> T GOptions::Get(const std::string &label) {
     T type{};
 
-    auto found{this->find(label)};
+    auto found = this->find(label);
     if (found != this->end()) {
         const auto &value{found->second};
         if (value.type() == typeid(T)) {

@@ -81,7 +81,7 @@ template <typename T> auto string_to_type(const std::string &value, bool &is_val
         return type;
     }
 
-    static auto integers{std::regex("^((-?)|(\\+?))\\d+(u?l?l?)$")};
+    static auto integers = std::regex("^((-?)|(\\+?))\\d+(u?l?l?)$");
 
     if (std::regex_match(value, integers)) {
 
@@ -138,7 +138,7 @@ template <typename T> auto string_to_type(const std::string &value, bool &is_val
         }
     }
 
-    static auto decimals{std::regex("^((-?)|(\\+?))((\\d+\\.\\d*)|(\\d*\\.\\d+))(((e)|(E))((-?)|(\\+?))0?\\d+|)$")};
+    static auto decimals = std::regex("^((-?)|(\\+?))((\\d+\\.\\d*)|(\\d*\\.\\d+))(((e)|(E))((-?)|(\\+?))0?\\d+|)$");
 
     if (std::regex_match(value, decimals)) {
 
@@ -197,7 +197,7 @@ template <typename T> auto string_to_type(const std::string &value, bool &is_val
 GOptions::Pairs GOptions::ToPairs() {
     Pairs pairs{};
 
-    for (auto it{this->begin()}; it != this->end(); ++it) {
+    for (auto it = this->begin(); it != this->end(); ++it) {
         const auto &label{it->first};
         const auto &value{it->second};
 
@@ -289,23 +289,22 @@ GOptions::Pairs GOptions::ToPairs() {
 GOptions::Sections GOptions::ToSections() {
     Sections sections{};
 
-    auto pairs{ToPairs()};
-    for (auto it{pairs.begin()}; it != pairs.end(); ++it) {
-        auto tokens{split(it->label, "[. \\t]")};
-        auto tokens_size{tokens.size()};
+    auto pairs = ToPairs();
+    for (auto it = pairs.begin(); it != pairs.end(); ++it) {
+        auto tokens      = split(it->label, "[. \\t]");
+        auto tokens_size = tokens.size();
         if (tokens_size >= 1U) {
             auto                     index(static_cast<ssize_t>(tokens_size - 1));
             std::vector<std::string> upper(tokens.begin(), tokens.begin() + index);
             std::vector<std::string> lower(tokens.begin() + index, tokens.end());
 
-            const auto title{join(upper, ".")};
-            const auto label{join(lower, ".")};
-            const auto _pair{Pair(label, it->value)};
+            const auto title = join(upper, ".");
+            const auto label = join(lower, ".");
+            const auto _pair = Pair(label, it->value);
 
-            auto found{
-            std::find_if(sections.begin(), sections.end(), [title](const Section s) { return (s.title == title); })};
+            auto found = std::find_if(sections.begin(), sections.end(), [title](const Section s) { return (s.title == title); });
             if (found == sections.end()) {
-                auto _section{Section(title)};
+                auto _section = Section(title);
                 _section.pairs.push_back(_pair);
                 sections.push_back(_section);
             }
@@ -332,21 +331,21 @@ bool GOptions::Read(const std::string &filename) {
                 auto check_1{line.find("[")};
                 auto check_2{line.rfind("]")};
                 if (check_1 < check_2) {
-                    auto tokens{split(line, "[\\[\\] \\t\\r]")};
-                    auto title{tokens[0]};
+                    auto tokens = split(line, "[\\[\\] \\t\\r]");
+                    auto title  = tokens[0];
 
                     auto filter = [title](const Section s) { return (s.title == title); };
-                    auto found{std::find_if(sections.begin(), sections.end(), filter)};
+                    auto found  = std::find_if(sections.begin(), sections.end(), filter);
                     if (found == sections.end()) {
-                        auto section{Section(title)};
+                        auto section = Section(title);
                         sections.push_back(section);
                     }
                 }
                 else {
-                    auto tokens{split(line, "[= \\t\\r]")};
+                    auto tokens = split(line, "[= \\t\\r]");
                     if (tokens.size() == 2) {
-                        auto pair{Pair(tokens[0], tokens[1])};
-                        auto last{--sections.end()};
+                        auto pair = Pair(tokens[0], tokens[1]);
+                        auto last = --sections.end();
                         last->pairs.push_back(pair);
                     }
                 }
@@ -422,7 +421,7 @@ bool GOptions::Read(const std::string &filename) {
                 jmp_insert_or_assign:
 
                     if (is_valid) {
-                        auto label{item.title + "." + pair.label};
+                        auto label = item.title + "." + pair.label;
                         this->insert_or_assign(label, value);
                     }
                 }
@@ -437,8 +436,8 @@ bool GOptions::Write(const std::string &filename) {
     const auto filepath{std::filesystem::path(filename)};
 
     if (!std::filesystem::is_directory(filepath)) {
-        auto stream{std::ofstream(filename)};
-        auto sections{ToSections()};
+        auto stream   = std::ofstream(filename);
+        auto sections = ToSections();
 
         for (const auto &section : sections) {
             stream << "[" << section.title << "]" << std::endl;
