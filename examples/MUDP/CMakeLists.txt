@@ -55,21 +55,23 @@ if (COMPILE_LANGUAGE:CXX)
     add_compile_options(-Wold-style-cast)
 endif()
 
-add_library(gUIO OBJECT
+add_library(gLIB OBJECT
 "../../lib/GBuffer.cpp"
 "../../lib/GFiFo.cpp"
 "../../lib/GLogger.cpp"
 "../../lib/GMessage.cpp"
 "../../lib/GOptions.cpp"
-"../../lib/GPacket.cpp"
 "../../lib/GUdpClient.cpp"
 "../../lib/GUdpServer.cpp"
 )
 
 include_directories(
 "../../lib"
-"../../src"
+"./src"
 )
 
-add_executable(example_MUDP "./src/main.cpp")
-target_link_libraries(example_MUDP pthread gUIO)
+add_executable(example_MUDP
+"./src/GPacket.cpp"
+"./src/main.cpp"
+)
+target_link_libraries(example_MUDP pthread gLIB)
