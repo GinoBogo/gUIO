@@ -58,12 +58,12 @@ endif()
 add_library(gUIO OBJECT
 "../../lib/GBuffer.cpp"
 "../../lib/GFiFo.cpp"
+"../../lib/GLogger.cpp"
 "../../lib/GMessage.cpp"
 "../../lib/GOptions.cpp"
 "../../lib/GPacket.cpp"
 "../../lib/GUdpClient.cpp"
 "../../lib/GUdpServer.cpp"
-"../../src/GLogger.cpp"
 )
 
 include_directories(
