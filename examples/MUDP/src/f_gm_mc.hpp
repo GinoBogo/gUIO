@@ -48,7 +48,15 @@ namespace f_gm_mc {
     }
 
     bool decode_message(std::any data, std::any args) {
-        // auto _args = std::any_cast<WorkerArgs>(args);
+        auto _message = std::any_cast<GMessage *>(data);
+        auto _args    = std::any_cast<WorkerArgs>(args);
+        auto _client  = _args.client;
+
+        switch (_message->packet_type()) {
+            default: {
+                LOG_FORMAT(warning, "Invalid message type [%d]", _message->packet_type());
+            } break;
+        }
 
         return false;
     }

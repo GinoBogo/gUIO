@@ -47,6 +47,12 @@ namespace f_gm_dh {
         auto _args    = std::any_cast<WorkerArgs>(args);
         auto _client  = _args.client;
 
+        switch (_message->packet_type()) {
+            default: {
+                LOG_FORMAT(warning, "Invalid message type [%d]", _message->packet_type());
+            } break;
+        }
+
         return false;
     }
 
