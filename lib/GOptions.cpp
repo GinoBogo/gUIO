@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <fstream>
 #include <regex>
+#include <sstream>
 
 auto split = [](const std::string &data, const std::string &regex) {
     std::vector<std::string> tokens;
@@ -302,7 +303,8 @@ GOptions::Sections GOptions::ToSections() {
             const auto label = join(lower, ".");
             const auto _pair = Pair(label, it->value);
 
-            auto found = std::find_if(sections.begin(), sections.end(), [title](const Section s) { return (s.title == title); });
+            auto found =
+            std::find_if(sections.begin(), sections.end(), [title](const Section s) { return (s.title == title); });
             if (found == sections.end()) {
                 auto _section = Section(title);
                 _section.pairs.push_back(_pair);
