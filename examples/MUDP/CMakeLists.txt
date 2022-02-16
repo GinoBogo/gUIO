@@ -64,9 +64,25 @@ add_library(gLIB OBJECT
 "../../lib/GUdpServer.cpp"
 )
 
+add_library(gUIO OBJECT
+"../../src/GAXIQuadSPI.cpp"
+"../../src/GMAPdevice.cpp"
+"../../src/GRegisters.cpp"
+"../../src/GUIOdevice.cpp"
+)
+
+add_library(gSDR OBJECT
+"./sdr/sdr_ad9361.cpp"
+"./sdr/sdr_ad9361_api.cpp"
+"./sdr/sdr_if.cpp"
+"./sdr/spi_if.cpp"
+"./sdr/stime.cpp"
+)
+
 include_directories(
 "../../lib"
 "../../src"
+"./sdr"
 "./src"
 )
 
@@ -75,4 +91,4 @@ add_executable(example_MUDP
 "./src/GPacket.cpp"
 "./src/main.cpp"
 )
-target_link_libraries(example_MUDP pthread gLIB)
+target_link_libraries(example_MUDP pthread gLIB gUIO gSDR)
