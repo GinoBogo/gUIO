@@ -112,12 +112,10 @@ int32_t ad9361_init(ad9361_rf_phy_t **ad9361_phy, AD9361_init_parameters_t *init
 
     // rate & BW control
     for (i = 0; i < 6; i++) {
-
         phy->pdata.rx_path_clks[i] = init_param->rx_path_clock_frequencies[i];
     }
 
     for (i = 0; i < 6; i++) {
-
         phy->pdata.tx_path_clks[i] = init_param->tx_path_clock_frequencies[i];
     }
     phy->pdata.rf_rx_bandwidth_Hz = init_param->rf_rx_bandwidth_hz;
@@ -362,7 +360,7 @@ int32_t ad9361_init(ad9361_rf_phy_t **ad9361_phy, AD9361_init_parameters_t *init
     ret = SPI_SDR_Read(phy->id_no, REG_PRODUCT_ID);
 
     if ((ret & PRODUCT_ID_MASK) != PRODUCT_ID_9361) {
-        LOG_FORMAT(error, "SDR: %d - ad9361_init : Unsupported PRODUCT_ID 0x%02X", phy->id_no, ret);
+        LOG_FORMAT(error, "[%s] Unsupported PRODUCT_ID 0x%02X for SDR %d", __func__, ret, phy->id_no);
         ret = -ENODEV;
         goto out;
     }
@@ -372,7 +370,6 @@ int32_t ad9361_init(ad9361_rf_phy_t **ad9361_phy, AD9361_init_parameters_t *init
 
     ret = register_clocks(phy);
     if (ret < 0) {
-
         goto out;
     }
 
@@ -382,18 +379,16 @@ int32_t ad9361_init(ad9361_rf_phy_t **ad9361_phy, AD9361_init_parameters_t *init
     ret = ad9361_setup(phy);
 
     if (ret < 0) {
-
         goto out;
     }
 
     ret = ad9361_post_setup(phy);
 
     if (ret < 0) {
-
         goto out;
     }
 
-    LOG_FORMAT(info, "SDR: d9361_init : AD9361 Rev %d successfully initialized.", rev);
+    LOG_FORMAT(info, "[%s] AD9361 Rev %d successfully initialized.", __func__, rev);
 
     *ad9361_phy = phy;
 
@@ -401,7 +396,7 @@ int32_t ad9361_init(ad9361_rf_phy_t **ad9361_phy, AD9361_init_parameters_t *init
 
 out:
 
-    LOG_WRITE(error, "SDR: ad9361_init : AD9361 initialization error.");
+    LOG_FORMAT(error, "[%s] AD9361 initialization error.", __func__);
 
     return -ENODEV;
 }
@@ -492,7 +487,6 @@ int32_t ad9361_set_tx_lo_freq(ad9361_rf_phy_t *phy, uint64_t lo_freq_hz) {
 int32_t ad9361_get_tx_lo_freq(ad9361_rf_phy_t *phy, uint64_t *lo_freq_hz) {
 
     *lo_freq_hz = ad9361_from_clk(clk_get_rate(phy, &(phy->ref_clk_scale[TX_RFPLL])));
-
     return 0;
 }
 
@@ -504,9 +498,7 @@ int32_t ad9361_get_tx_lo_freq(ad9361_rf_phy_t *phy, uint64_t *lo_freq_hz) {
  */
 int32_t ad9361_set_tx_fir_config(ad9361_rf_phy_t *phy, AD9361_TX_FIR_config_t fir_cfg) {
 
-    int32_t ret;
-
-    ret = ad9361_load_fir_filter_coef(phy, (fir_dest_t)fir_cfg.tx, fir_cfg.tx_gain, fir_cfg.tx_coef_size, fir_cfg.tx_coef);
+    auto ret = ad9361_load_fir_filter_coef(phy, (fir_dest_t)fir_cfg.tx, fir_cfg.tx_gain, fir_cfg.tx_coef_size, fir_cfg.tx_coef);
 
     phy->tx_fir_int = fir_cfg.tx_int;
 

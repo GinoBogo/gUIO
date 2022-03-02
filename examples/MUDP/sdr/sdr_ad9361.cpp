@@ -252,7 +252,7 @@ int32_t ad9361_check_cal_done(ad9361_rf_phy_t *phy, uint32_t reg, uint32_t mask,
 
     } while (timeout--);
 
-    LOG_FORMAT(debug, "SDR (%s): Calibration Timeout (0x%, 0x%)", __func__, reg, mask);
+    LOG_FORMAT(debug, "[%s] Calibration Timeout (0x%, 0x%)", __func__, reg, mask);
 
     return -ETIMEDOUT;
 }
@@ -276,7 +276,7 @@ int32_t ad9361_run_calibration(ad9361_rf_phy_t *phy, uint32_t mask) {
 
     SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CTRL, mask);
 
-    LOG_FORMAT(debug, "SDR (%s): Calibration Mask 0x%", __func__, mask);
+    LOG_FORMAT(debug, "[%s] Calibration Mask 0x%", __func__, mask);
 
     return ad9361_check_cal_done(phy, REG_CALIBRATION_CTRL, mask, 0);
 }
@@ -331,11 +331,11 @@ int32_t ad9361_load_gt(ad9361_rf_phy_t *phy, uint64_t freq, uint32_t dest) {
     rx_gain_table_name_t band;
     uint32_t             index_max, i;
 
-    LOG_FORMAT(debug, "SDR (%s): Frequency %d [SET]", __func__, freq);
+    LOG_FORMAT(debug, "[%s] Frequency %d [SET]", __func__, freq);
 
     band = ad9361_gt_tableindex(freq);
 
-    LOG_FORMAT(debug, "SDR (%s): Frequency %d (Band %d) [GET]", __func__, freq, band);
+    LOG_FORMAT(debug, "[%s] Frequency %d (Band %d) [GET]", __func__, freq, band);
 
     // check if table is present
     if (phy->current_table == band) {
@@ -356,19 +356,19 @@ int32_t ad9361_load_gt(ad9361_rf_phy_t *phy, uint64_t freq, uint32_t dest) {
     SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_CONFIG, START_GAIN_TABLE_CLOCK | RECEIVER_SELECT(dest)); // Start Gain Table Clock
 
     for (i = 0; i < index_max; i++) {
-        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_ADDRESS, i);             // Gain Table Index
-        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_WRITE_DATA1, tab[i][0]); // Ext LNA, Int LNA, & Mixer Gain Word
-        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_WRITE_DATA2, tab[i][1]); // TIA & LPF Word
-        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_WRITE_DATA3, tab[i][2]); // DC Cal bit & Dig Gain Word
+        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_ADDRESS, i);                                                                // Gain Table Index
+        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_WRITE_DATA1, tab[i][0]);                                                    // Ext LNA, Int LNA, & Mixer Gain Word
+        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_WRITE_DATA2, tab[i][1]);                                                    // TIA & LPF Word
+        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_WRITE_DATA3, tab[i][2]);                                                    // DC Cal bit & Dig Gain Word
         SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_CONFIG, START_GAIN_TABLE_CLOCK | WRITE_GAIN_TABLE | RECEIVER_SELECT(dest)); // Gain Table Index
-        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_READ_DATA1, 0); // Dummy Write to delay 3 ADCCLK/16 cycles
-        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_READ_DATA1, 0); // Dummy Write to delay ~1u
+        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_READ_DATA1, 0);                                                             // Dummy Write to delay 3 ADCCLK/16 cycles
+        SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_READ_DATA1, 0);                                                             // Dummy Write to delay ~1u
     }
 
     SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_CONFIG, START_GAIN_TABLE_CLOCK | RECEIVER_SELECT(dest)); // Clear Write Bit
-    SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_READ_DATA1, 0); // Dummy Write to delay ~1u
-    SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_READ_DATA1, 0); // Dummy Write to delay ~1u
-    SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_CONFIG, 0);     // Stop Gain Table Clock
+    SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_READ_DATA1, 0);                                          // Dummy Write to delay ~1u
+    SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_READ_DATA1, 0);                                          // Dummy Write to delay ~1u
+    SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_CONFIG, 0);                                              // Stop Gain Table Clock
 
     phy->current_table = band;
 
@@ -448,18 +448,18 @@ int32_t ad9361_load_mixer_gm_subtable(ad9361_rf_phy_t *phy) {
 
     int32_t i, addr;
 
-    LOG_FORMAT(debug, "SDR: %s", __func__);
+    LOG_FORMAT(debug, "[%s] Start", __func__);
 
     SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_CONFIG, START_GM_SUB_TABLE_CLOCK); // Start Clock
 
     for (i = 0, addr = ARRAY_SIZE(gm_st_ctrl); i < (int64_t)ARRAY_SIZE(gm_st_ctrl); i++) {
-        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_ADDRESS, --addr);           // Gain Table Index
-        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_BIAS_WRITE, 0);             // Bias
-        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_GAIN_WRITE, gm_st_gain[i]); // Gain
-        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_CTRL_WRITE, gm_st_ctrl[i]); // Control
+        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_ADDRESS, --addr);                                       // Gain Table Index
+        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_BIAS_WRITE, 0);                                         // Bias
+        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_GAIN_WRITE, gm_st_gain[i]);                             // Gain
+        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_CTRL_WRITE, gm_st_ctrl[i]);                             // Control
         SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_CONFIG, WRITE_GM_SUB_TABLE | START_GM_SUB_TABLE_CLOCK); // Write Words
-        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_GAIN_READ, 0); // Dummy Delay
-        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_GAIN_READ, 0); // Dummy Delay
+        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_GAIN_READ, 0);                                          // Dummy Delay
+        SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_GAIN_READ, 0);                                          // Dummy Delay
     }
 
     SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_CONFIG, START_GM_SUB_TABLE_CLOCK); // Clear Write
@@ -525,7 +525,7 @@ int32_t ad9361_rfpll_vco_init(ad9361_rf_phy_t *phy, bool tx, uint64_t vco_freq, 
 
     range = ad9361_rfvco_tableindex(ref_clk);
 
-    LOG_FORMAT(debug, "SDR (%s): vco_freq %" PRIu64 " : ref_clk %" PRIu32 " : range %" PRIu32 "\r\n", //
+    LOG_FORMAT(debug, "[%s] vco_freq %" PRIu64 " : ref_clk %" PRIu32 " : range %" PRIu32 "", //
                __func__, vco_freq, ref_clk, range);
 
     int_do_div(&vco_freq, 1000000UL); // vco_freq in MHz
@@ -545,7 +545,7 @@ int32_t ad9361_rfpll_vco_init(ad9361_rf_phy_t *phy, bool tx, uint64_t vco_freq, 
         i++;
     }
 
-    LOG_FORMAT(debug, "SDR (%s): freq %d MHz : index %d", __func__, tab[i].VCO_MHz, i);
+    LOG_FORMAT(debug, "[%s] freq %d MHz : index %d", __func__, tab[i].VCO_MHz, i);
 
     SPI_SDR_Write(phy->id_no, REG_RX_VCO_OUTPUT + offs, VCO_OUTPUT_LEVEL(tab[i].VCO_Output_Level) | PORB_VCO_LOGIC);
     SPI_SDR_WriteF(phy->id_no, REG_RX_ALC_VARACTOR + offs, VCO_VARACTOR(~0), tab[i].VCO_Varactor);
@@ -590,11 +590,11 @@ void ad9361_ensm_force_state(ad9361_rf_phy_t *phy, uint8_t ensm_state) {
     phy->prev_ensm_state = dev_ensm_state;
 
     if (dev_ensm_state == ensm_state) {
-        LOG_FORMAT(debug, "SDR (%s): Nothing to do, device is already in %d state", __func__, ensm_state);
+        LOG_FORMAT(debug, "[%s] Nothing to do, device is already in %d state", __func__, ensm_state);
         goto out;
     }
 
-    LOG_FORMAT(debug, "SDR (%s): Device is in %x state, forcing to %x", __func__, dev_ensm_state, ensm_state);
+    LOG_FORMAT(debug, "[%s] Device is in %x state, forcing to %x", __func__, dev_ensm_state, ensm_state);
 
     val = SPI_SDR_Read(phy->id_no, REG_ENSM_CONFIG_1);
 
@@ -628,7 +628,7 @@ void ad9361_ensm_force_state(ad9361_rf_phy_t *phy, uint8_t ensm_state) {
             break;
 
         default:
-            LOG_FORMAT(debug, "SDR (%s): No handling for forcing %d ensm state", __func__, ensm_state);
+            LOG_FORMAT(debug, "[%s] No handling for forcing %d ensm state", __func__, ensm_state);
             goto out;
     }
 
@@ -676,11 +676,11 @@ void ad9361_ensm_restore_prev_state(ad9361_rf_phy_t *phy) {
             break;
 
         case ENSM_STATE_INVALID:
-            LOG_FORMAT(debug, "SDR (%s): No need to restore, ENSM state wasn't saved", __func__);
+            LOG_FORMAT(debug, "[%s] No need to restore, ENSM state wasn't saved", __func__);
             goto out;
 
         default:
-            LOG_FORMAT(debug, "SDR (%s): Could not restore to %d ENSM state", __func__, phy->prev_ensm_state);
+            LOG_FORMAT(debug, "[%s] Could not restore to %d ENSM state", __func__, phy->prev_ensm_state);
             goto out;
     }
 
@@ -717,13 +717,7 @@ out:
   Remarks:
     None.
 */
-void ad9361_init_gain_info(rx_gain_info_t *rx_gain,
-                           rx_gain_table_t type,
-                           int32_t         starting_gain,
-                           int32_t         max_gain,
-                           int32_t         gain_step,
-                           int32_t         max_idx,
-                           int32_t         idx_offset) {
+void ad9361_init_gain_info(rx_gain_info_t *rx_gain, rx_gain_table_t type, int32_t starting_gain, int32_t max_gain, int32_t gain_step, int32_t max_idx, int32_t idx_offset) {
 
     rx_gain->tbl_type         = type;
     rx_gain->starting_gain_db = starting_gain;
@@ -864,8 +858,7 @@ int32_t ad9361_gc_update(ad9361_rf_phy_t *phy) {
     }
 
     // Power Measurement Duration
-    SPI_SDR_WriteF(phy->id_no, REG_DEC_POWER_MEASURE_DURATION_0, DEC_POWER_MEASUREMENT_DURATION(~0),
-                   int_log2(dec_pow_meas_dur / 16));
+    SPI_SDR_WriteF(phy->id_no, REG_DEC_POWER_MEASURE_DURATION_0, DEC_POWER_MEASUREMENT_DURATION(~0), int_log2(dec_pow_meas_dur / 16));
 
     SPI_SDR_WriteF(phy->id_no, REG_DIGITAL_SAT_COUNTER, DOUBLE_GAIN_COUNTER, reg > 65535);
 
@@ -904,8 +897,7 @@ int32_t ad9361_gc_update(ad9361_rf_phy_t *phy) {
 */
 int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, uint32_t bbpll_freq, uint32_t adc_sampl_freq_Hz) {
 
-    uint32_t scale_snr_1e3, maxsnr, sqrt_inv_rc_tconst_1e3, tmp_1e3, scaled_adc_clk_1e6, inv_scaled_adc_clk_1e3,
-    sqrt_term_1e3, min_sqrt_term_1e3, bb_bw_Hz;
+    uint32_t scale_snr_1e3, maxsnr, sqrt_inv_rc_tconst_1e3, tmp_1e3, scaled_adc_clk_1e6, inv_scaled_adc_clk_1e3, sqrt_term_1e3, min_sqrt_term_1e3, bb_bw_Hz;
     uint64_t tmp, invrc_tconst_1e6;
     uint8_t  data[40];
     uint32_t i;
@@ -920,9 +912,9 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, uint32_t bbpll_freq, uint32_t 
     int_do_div(&tmp, 126906UL * phy->rxbbf_div);
     bb_bw_Hz = tmp;
 
-    LOG_FORMAT(debug, "SDR (%s): BBBW %" PRIu32 " : ADCfreq %" PRIu32 "", __func__, bb_bw_Hz, adc_sampl_freq_Hz);
+    LOG_FORMAT(debug, "[%s] BBBW %" PRIu32 " : ADCfreq %" PRIu32 "", __func__, bb_bw_Hz, adc_sampl_freq_Hz);
 
-    LOG_FORMAT(debug, "SDR (%s): c3_msb 0x%X : c3_lsb 0x%X : r2346 0x%X", __func__, c3_msb, c3_lsb, r2346);
+    LOG_FORMAT(debug, "[%s] c3_msb 0x%X : c3_lsb 0x%X : r2346 0x%X", __func__, c3_msb, c3_lsb, r2346);
 
     bb_bw_Hz = clamp(bb_bw_Hz, 200000UL, 28000000UL);
 
@@ -934,8 +926,7 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, uint32_t bbpll_freq, uint32_t 
     }
 
     if (bb_bw_Hz >= 18000000) {
-        invrc_tconst_1e6 = (160975ULL * r2346 * ((160 * c3_msb) + (10 * c3_lsb) + 140) * (bb_bw_Hz) *
-                            (1000 + (10 * (bb_bw_Hz - 18000000) / 1000000)));
+        invrc_tconst_1e6 = (160975ULL * r2346 * ((160 * c3_msb) + (10 * c3_lsb) + 140) * (bb_bw_Hz) * (1000 + (10 * (bb_bw_Hz - 18000000) / 1000000)));
         int_do_div(&invrc_tconst_1e6, 1000UL);
     }
     else {
@@ -945,7 +936,7 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, uint32_t bbpll_freq, uint32_t 
     int_do_div(&invrc_tconst_1e6, 1000000000UL);
 
     if (invrc_tconst_1e6 > ULONG_MAX) {
-        LOG_FORMAT(error, "SDR (%s): invrc_tconst_1e6 > ULONG_MAX", __func__);
+        LOG_FORMAT(error, "[%s] invrc_tconst_1e6 > ULONG_MAX", __func__);
     }
 
     sqrt_inv_rc_tconst_1e3 = int_sqrt((uint32_t)invrc_tconst_1e6);
@@ -962,11 +953,11 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, uint32_t bbpll_freq, uint32_t 
 
     min_sqrt_term_1e3 = min_t(uint32_t, 1000U, int_sqrt(maxsnr * scaled_adc_clk_1e6));
 
-    LOG_FORMAT(debug, "SDR (%s): invrc_tconst_1e6 %" PRIu64 ", sqrt_inv_rc_tconst_1e3 %" PRIu32 "", //
+    LOG_FORMAT(debug, "[%s] invrc_tconst_1e6 %" PRIu64 ", sqrt_inv_rc_tconst_1e3 %" PRIu32 "", //
                __func__, invrc_tconst_1e6, sqrt_inv_rc_tconst_1e3);
-    LOG_FORMAT(debug, "SDR (%s): scaled_adc_clk_1e6 %" PRIu32 ", inv_scaled_adc_clk_1e3 %" PRIu32 "", //
+    LOG_FORMAT(debug, "[%s] scaled_adc_clk_1e6 %" PRIu32 ", inv_scaled_adc_clk_1e3 %" PRIu32 "", //
                __func__, scaled_adc_clk_1e6, inv_scaled_adc_clk_1e3);
-    LOG_FORMAT(debug, "SDR (%s): tmp_1e3 %" PRIu32 ", sqrt_term_1e3 %" PRIu32 ", min_sqrt_term_1e3 %" PRIu32 "", //
+    LOG_FORMAT(debug, "[%s] tmp_1e3 %" PRIu32 ", sqrt_term_1e3 %" PRIu32 ", min_sqrt_term_1e3 %" PRIu32 "", //
                __func__, tmp_1e3, sqrt_term_1e3, min_sqrt_term_1e3);
 
     data[0] = 0;
@@ -1066,7 +1057,7 @@ int32_t ad9361_rx_tia_calib(ad9361_rf_phy_t *phy, uint32_t bb_bw_Hz) {
     uint8_t  reg1E6 = SPI_SDR_Read(phy->id_no, REG_RX_BBF_R2346);
     uint8_t  reg1DB, reg1DF, reg1DD, reg1DC, reg1DE, temp;
 
-    LOG_FORMAT(debug, "SDR (%s): bb_bw_Hz %" PRIu32 "", __func__, bb_bw_Hz);
+    LOG_FORMAT(debug, "[%s] bb_bw_Hz %" PRIu32 "", __func__, bb_bw_Hz);
 
     bb_bw_Hz = clamp(bb_bw_Hz, 200000UL, 20000000UL);
 
@@ -1132,7 +1123,7 @@ int32_t ad9361_rx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, uint32_t rx_bb_bw
     uint8_t  tmp;
     int32_t  rvalue;
 
-    LOG_FORMAT(debug, "SDR: %s : rx_bb_bw %" PRIu32 " bbpll_freq %" PRIu32 "", __func__, rx_bb_bw, bbpll_freq);
+    LOG_FORMAT(debug, "[%s] rx_bb_bw %" PRIu32 " bbpll_freq %" PRIu32 "", __func__, rx_bb_bw, bbpll_freq);
 
     rx_bb_bw = clamp(rx_bb_bw, 200000UL, 28000000UL);
 
@@ -1188,7 +1179,7 @@ int32_t ad9361_tx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, uint32_t tx_bb_bw
     uint32_t target, txbbf_div;
     int32_t  rvalue;
 
-    LOG_FORMAT(debug, "SDR: %s : tx_bb_bw %" PRIu32 " bbpll_freq %" PRIu32 "", __func__, tx_bb_bw, bbpll_freq);
+    LOG_FORMAT(debug, "[%s] tx_bb_bw %" PRIu32 " bbpll_freq %" PRIu32 "", __func__, tx_bb_bw, bbpll_freq);
 
     tx_bb_bw = clamp(tx_bb_bw, 625000UL, 20000000UL);
 
@@ -1235,7 +1226,7 @@ int32_t ad9361_tx_bb_second_filter_calib(ad9361_rf_phy_t *phy, uint32_t tx_bb_bw
     uint32_t reg_conf, reg_res;
     int32_t  i;
 
-    LOG_FORMAT(debug, "SDR (%s): tx_bb_bw %" PRIu32 "", __func__, tx_bb_bw);
+    LOG_FORMAT(debug, "[%s] tx_bb_bw %" PRIu32 "", __func__, tx_bb_bw);
 
     tx_bb_bw = clamp(tx_bb_bw, 530000UL, 20000000UL);
 
@@ -1322,7 +1313,7 @@ int32_t ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t *phy, uint32_t ref_clk_hz, bo
     uint32_t offs = tx ? 0x40 : 0;
     uint32_t vco_cal_cnt;
 
-    LOG_FORMAT(debug, "SDR (%s) : ref_clk_hz %" PRIu32 " : is_tx %d", __func__, ref_clk_hz, tx);
+    LOG_FORMAT(debug, "[%s] ref_clk_hz %" PRIu32 " : is_tx %d", __func__, ref_clk_hz, tx);
 
     // REVIST:
     SPI_SDR_Write(phy->id_no, REG_RX_DSM_SETUP_1 + offs, 0x00);
@@ -1379,7 +1370,7 @@ int32_t ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t *phy, uint32_t ref_clk_hz, bo
 */
 int32_t ad9361_bb_dc_offset_calib(ad9361_rf_phy_t *phy) {
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     SPI_SDR_Write(phy->id_no, REG_BB_DC_OFFSET_COUNT, 0x3F);
     SPI_SDR_Write(phy->id_no, REG_BB_DC_OFFSET_SHIFT, BB_DC_M_SHIFT(0x0F));
@@ -1405,7 +1396,7 @@ int32_t ad9361_bb_dc_offset_calib(ad9361_rf_phy_t *phy) {
 */
 int32_t ad9361_rf_dc_offset_calib(ad9361_rf_phy_t *phy, uint64_t rx_freq) {
 
-    LOG_FORMAT(debug, "SDR (%s): rx_freq %" PRIu64 "", __func__, rx_freq);
+    LOG_FORMAT(debug, "[%s] rx_freq %" PRIu64 "", __func__, rx_freq);
 
     SPI_SDR_Write(phy->id_no, REG_WAIT_COUNT, 0x20);
 
@@ -1423,7 +1414,7 @@ int32_t ad9361_rf_dc_offset_calib(ad9361_rf_phy_t *phy, uint64_t rx_freq) {
     SPI_SDR_Write(phy->id_no, REG_DC_OFFSET_CONFIG2, USE_WAIT_COUNTER_FOR_RF_DC_INIT_CAL | DC_OFFSET_UPDATE(3));
 
     if (phy->pdata.rx1rx2_phase_inversion_en || (phy->pdata.port_ctrl.pp_conf[1] & INVERT_RX2)) {
-        SPI_SDR_Write(phy->id_no, REG_INVERT_BITS, INVERT_RX1_RF_DC_CGOUT_WORD);
+        SPI_SDR_Write(phy->id_no, REG_INVERT_BITS, (1 << 4));
     }
     else {
         SPI_SDR_Write(phy->id_no, REG_INVERT_BITS, INVERT_RX1_RF_DC_CGOUT_WORD | INVERT_RX2_RF_DC_CGOUT_WORD);
@@ -1455,7 +1446,7 @@ int32_t ad9361_update_rf_bandwidth(ad9361_rf_phy_t *phy, uint32_t rf_rx_bw, uint
     uint32_t bbpll_freq;
     int32_t  rvalue;
 
-    LOG_FORMAT(debug, "SDR (%s): %" PRIu32 " %" PRIu32 "", __func__, rf_rx_bw, rf_tx_bw);
+    LOG_FORMAT(debug, "[%s] %" PRIu32 " %" PRIu32 "", __func__, rf_rx_bw, rf_tx_bw);
 
     bbpll_freq = clk_get_rate(phy, &(phy->ref_clk_scale[BBPLL_CLK]));
 
@@ -1515,10 +1506,8 @@ int32_t __ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t phase, uint32_t rx
     int32_t rvalue;
 
     SPI_SDR_Write(phy->id_no, REG_QUAD_CAL_NCO_FREQ_PHASE_OFFSET, RX_NCO_FREQ(rxnco_word) | RX_NCO_PHASE_OFFSET(phase));
-    SPI_SDR_Write(phy->id_no, REG_QUAD_CAL_CTRL,
-                  SETTLE_MAIN_ENABLE | DC_OFFSET_ENABLE | QUAD_CAL_SOFT_RESET | GAIN_ENABLE | PHASE_ENABLE | M_DECIM(decim));
-    SPI_SDR_Write(phy->id_no, REG_QUAD_CAL_CTRL,
-                  SETTLE_MAIN_ENABLE | DC_OFFSET_ENABLE | GAIN_ENABLE | PHASE_ENABLE | M_DECIM(decim));
+    SPI_SDR_Write(phy->id_no, REG_QUAD_CAL_CTRL, SETTLE_MAIN_ENABLE | DC_OFFSET_ENABLE | QUAD_CAL_SOFT_RESET | GAIN_ENABLE | PHASE_ENABLE | M_DECIM(decim));
+    SPI_SDR_Write(phy->id_no, REG_QUAD_CAL_CTRL, SETTLE_MAIN_ENABLE | DC_OFFSET_ENABLE | GAIN_ENABLE | PHASE_ENABLE | M_DECIM(decim));
 
     rvalue = ad9361_run_calibration(phy, TX_QUAD_CAL);
 
@@ -1554,7 +1543,7 @@ int32_t ad9361_tx_quad_phase_search(ad9361_rf_phy_t *phy, uint32_t rxnco_word, u
     uint8_t  field[64], val;
     uint32_t start;
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     for (i = 0; i < (int64_t)(ARRAY_SIZE(field) / 2); i++) {
         rvalue = __ad9361_tx_quad_calib(phy, i, rxnco_word, decim, &val);
@@ -1614,14 +1603,15 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t bw_rx, uint32_t bw_t
     clkrf = clk_get_rate(phy, &(phy->ref_clk_scale[CLKRF_CLK]));
     clktf = clk_get_rate(phy, &(phy->ref_clk_scale[CLKTF_CLK]));
 
-    LOG_FORMAT(debug, "SDR (%s): bw_tx %" PRIu32 " clkrf %" PRIu32 " clktf %" PRIu32 "", __func__, bw_tx, clkrf, clktf);
+    LOG_FORMAT(debug, "[%s] bw_tx %" PRIu32 " clkrf %" PRIu32 " clktf %" PRIu32 "", //
+               __func__, bw_tx, clkrf, clktf);
 
     txnco_word = DIV_ROUND_CLOSEST(bw_tx * 8, clktf) - 1;
     txnco_word = clamp_t(int, txnco_word, 0, 3);
     rxnco_word = txnco_word;
 
-    LOG_FORMAT(debug, "SDR: Tx NCO frequency: %" PRIu32 " (BW/4: %" PRIu32 ") txnco_word %" PRId32 "",
-               clktf * (txnco_word + 1) / 32, bw_tx / 4, txnco_word);
+    LOG_FORMAT(debug, "[%s] Tx NCO frequency: %" PRIu32 " (BW/4: %" PRIu32 ") txnco_word %" PRId32 "", //
+               __func__, clktf * (txnco_word + 1) / 32, bw_tx / 4, txnco_word);
 
     if (clktf <= 4000000UL) {
         decim = 2;
@@ -1685,7 +1675,8 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t bw_rx, uint32_t bw_t
         }
     }
     else {
-        LOG_FORMAT(debug, "SDR (%s): Unhandled case in line %d clkrf %" PRIu32 " clktf %" PRIu32 "", __func__, __LINE__, clkrf, clktf);
+        LOG_FORMAT(debug, "[%s] Unhandled case in line %d clkrf %" PRIu32 " clktf %" PRIu32 "", //
+                   __func__, __LINE__, clkrf, clktf);
     }
 
     if (rx_phase >= 0) {
@@ -1736,7 +1727,7 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t bw_rx, uint32_t bw_t
     }
 
     if (i >= index_max) {
-        LOG_FORMAT(error, "SDR (%s): failed to find suitable LPF TIA value in gain table", __func__);
+        LOG_FORMAT(error, "[%s] failed to find suitable LPF TIA value in gain table", __func__);
     }
 
     SPI_SDR_Write(phy->id_no, REG_QUAD_SETTLE_COUNT, 0xF0);
@@ -1744,7 +1735,7 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t bw_rx, uint32_t bw_t
 
     rvalue = __ad9361_tx_quad_calib(phy, __rx_phase, rxnco_word, decim, &val);
 
-    LOG_FORMAT(debug, "SDR (%s): LO leakage: %d Quadrature Calibration: %d : rx_phase %d", //
+    LOG_FORMAT(debug, "[%s] LO leakage: %d Quadrature Calibration: %d : rx_phase %d", //
                __func__, !!(val & TX1_LO_CONV), !!(val & TX1_SSB_CONV), __rx_phase);
 
     // Calibration failed -> try last phase offset
@@ -1800,24 +1791,22 @@ int32_t ad9361_tracking_control(ad9361_rf_phy_t *phy, bool bbdc_track, bool rfdc
 
     uint32_t qtrack = 0;
 
-    LOG_FORMAT(debug, "SDR (%s): bbdc_track=%d, rfdc_track=%d, rxquad_track=%d", __func__, bbdc_track, rfdc_track, rxquad_track);
+    LOG_FORMAT(debug, "[%s] bbdc_track=%d, rfdc_track=%d, rxquad_track=%d", //
+               __func__, bbdc_track, rfdc_track, rxquad_track);
 
     SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CONFIG_2, CALIBRATION_CONFIG2_DFLT | K_EXP_PHASE(0x15));
+
     SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CONFIG_3, PREVENT_POS_LOOP_GAIN | K_EXP_AMPLITUDE(0x15));
 
-    SPI_SDR_Write(phy->id_no, REG_DC_OFFSET_CONFIG2,
-                  USE_WAIT_COUNTER_FOR_RF_DC_INIT_CAL | DC_OFFSET_UPDATE(phy->pdata.dc_offset_update_events) |
-                  (bbdc_track ? ENABLE_BB_DC_OFFSET_TRACKING : 0) | (rfdc_track ? ENABLE_RF_OFFSET_TRACKING : 0));
+    SPI_SDR_Write(phy->id_no, REG_DC_OFFSET_CONFIG2, USE_WAIT_COUNTER_FOR_RF_DC_INIT_CAL | DC_OFFSET_UPDATE(phy->pdata.dc_offset_update_events) | (bbdc_track ? ENABLE_BB_DC_OFFSET_TRACKING : 0) | (rfdc_track ? ENABLE_RF_OFFSET_TRACKING : 0));
 
-    SPI_SDR_WriteF(phy->id_no, REG_RX_QUAD_GAIN2, CORRECTION_WORD_DECIMATION_M(~0),
-                   (phy->pdata.qec_tracking_slow_mode_en ? 4 : 0));
+    SPI_SDR_WriteF(phy->id_no, REG_RX_QUAD_GAIN2, CORRECTION_WORD_DECIMATION_M(~0), (phy->pdata.qec_tracking_slow_mode_en ? 4 : 0));
 
     if (rxquad_track) {
         qtrack = ENABLE_TRACKING_MODE_CH1 | (phy->pdata.rx2tx2 ? ENABLE_TRACKING_MODE_CH2 : 0);
     }
 
-    SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CONFIG_1,
-                  ENABLE_PHASE_CORR | ENABLE_GAIN_CORR | FREE_RUN_MODE | ENABLE_CORR_WORD_DECIMATION | qtrack);
+    SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CONFIG_1, ENABLE_PHASE_CORR | ENABLE_GAIN_CORR | FREE_RUN_MODE | ENABLE_CORR_WORD_DECIMATION | qtrack);
 
     return 0;
 }
@@ -1995,7 +1984,6 @@ int32_t clk_set_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_priv, uint32_t ra
                 break;
 
             default:
-
                 break;
         }
 
@@ -2003,17 +1991,14 @@ int32_t clk_set_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_priv, uint32_t ra
             phy->clks[i].rate = ad9361_clk_factor_recalc_rate(phy, &(phy->ref_clk_scale[i]), phy->clk_refin.rate);
         }
 
-        phy->clks[BBPLL_CLK].rate = ad9361_bbpll_recalc_rate(phy, &(phy->ref_clk_scale[BBPLL_CLK]),
-                                                             phy->clks[phy->ref_clk_scale[BBPLL_CLK].parent_source].rate);
+        phy->clks[BBPLL_CLK].rate = ad9361_bbpll_recalc_rate(phy, &(phy->ref_clk_scale[BBPLL_CLK]), phy->clks[phy->ref_clk_scale[BBPLL_CLK].parent_source].rate);
 
         for (i = ADC_CLK; i < RX_RFPLL; i++) {
-            phy->clks[i].rate =
-            ad9361_clk_factor_recalc_rate(phy, &(phy->ref_clk_scale[i]), phy->clks[phy->ref_clk_scale[i].parent_source].rate);
+            phy->clks[i].rate = ad9361_clk_factor_recalc_rate(phy, &(phy->ref_clk_scale[i]), phy->clks[phy->ref_clk_scale[i].parent_source].rate);
         }
 
         for (i = RX_RFPLL; i < NUM_AD9361_CLKS; i++) {
-            phy->clks[i].rate =
-            ad9361_rfpll_recalc_rate(phy, &(phy->ref_clk_scale[i]), phy->clks[phy->ref_clk_scale[i].parent_source].rate);
+            phy->clks[i].rate = ad9361_rfpll_recalc_rate(phy, &(phy->ref_clk_scale[i]), phy->clks[phy->ref_clk_scale[i].parent_source].rate);
         }
     }
 
@@ -2036,7 +2021,7 @@ int32_t ad9361_set_bist_loopback(ad9361_rf_phy_t *phy, int32_t mode) {
 
     uint32_t sp_hd, reg;
 
-    LOG_FORMAT(debug, "SDR (%s): mode %" PRId32 "", __func__, mode);
+    LOG_FORMAT(debug, "[%s] mode %" PRId32 "", __func__, mode);
 
     reg = SPI_SDR_Read(phy->id_no, REG_OBSERVE_CONFIG);
 
@@ -2106,7 +2091,7 @@ int32_t ad9361_bist_prbs(ad9361_rf_phy_t *phy, ad9361_bist_mode_t mode) {
 
     uint32_t reg = 0;
 
-    LOG_FORMAT(debug, "SDR (%s): mode %d", __func__, mode);
+    LOG_FORMAT(debug, "[%s] mode %d", __func__, mode);
 
     phy->bist_prbs_mode = mode;
 
@@ -2194,7 +2179,7 @@ int32_t ad9361_set_tx_atten(ad9361_rf_phy_t *phy, uint32_t atten_mdb, bool tx1, 
 
     uint8_t buf[2];
 
-    LOG_FORMAT(debug, "SDR (%s): attenuation %" PRIu32 " mdB tx1=%d tx2=%d", __func__, atten_mdb, tx1, tx2);
+    LOG_FORMAT(debug, "[%s] attenuation %" PRIu32 " mdB tx1=%d tx2=%d", __func__, atten_mdb, tx1, tx2);
 
     if (atten_mdb > 89750) { // 89.75 dB
         return -EINVAL;
@@ -2292,7 +2277,7 @@ int32_t ad9361_init_gain_tables(ad9361_rf_phy_t *phy) {
  */
 int32_t ad9361_trx_vco_cal_control(ad9361_rf_phy_t *phy, bool tx, bool enable) {
 
-    LOG_FORMAT(debug, "SDR (%s): state %d", __func__, enable);
+    LOG_FORMAT(debug, "[%s] state %d", __func__, enable);
 
     SPI_SDR_WriteF(phy->id_no, tx ? REG_TX_PFD_CONFIG : REG_RX_PFD_CONFIG, BYPASS_LD_SYNTH, !enable);
 
@@ -2310,15 +2295,14 @@ int32_t ad9361_trx_ext_lo_control(ad9361_rf_phy_t *phy, bool tx, bool enable) {
 
     int32_t val = enable ? ~0 : 0;
 
-    LOG_FORMAT(debug, "SDR (%s): state %d", __func__, enable);
+    LOG_FORMAT(debug, "[%s] state %d", __func__, enable);
 
     if (tx) {
         SPI_SDR_WriteF(phy->id_no, REG_ENSM_CONFIG_2, POWER_DOWN_TX_SYNTH, enable);
 
         SPI_SDR_WriteF(phy->id_no, REG_RFPLL_DIVIDERS, TX_VCO_DIVIDER(~0), 0x07);
 
-        SPI_SDR_Write(phy->id_no, REG_TX_SYNTH_POWER_DOWN_OVERRIDE,
-                      enable ? TX_SYNTH_VCO_ALC_POWER_DOWN | TX_SYNTH_PTAT_POWER_DOWN | TX_SYNTH_VCO_POWER_DOWN : 0x00);
+        SPI_SDR_Write(phy->id_no, REG_TX_SYNTH_POWER_DOWN_OVERRIDE, enable ? TX_SYNTH_VCO_ALC_POWER_DOWN | TX_SYNTH_PTAT_POWER_DOWN | TX_SYNTH_VCO_POWER_DOWN : 0x00);
 
         SPI_SDR_WriteF(phy->id_no, REG_ANALOG_POWER_DOWN_OVERRIDE, TX_EXT_VCO_BUFFER_POWER_DOWN, !enable);
 
@@ -2329,8 +2313,7 @@ int32_t ad9361_trx_ext_lo_control(ad9361_rf_phy_t *phy, bool tx, bool enable) {
 
         SPI_SDR_WriteF(phy->id_no, REG_RFPLL_DIVIDERS, RX_VCO_DIVIDER(~0), 0x07);
 
-        SPI_SDR_Write(phy->id_no, REG_RX_SYNTH_POWER_DOWN_OVERRIDE,
-                      enable ? RX_SYNTH_VCO_ALC_POWER_DOWN | RX_SYNTH_PTAT_POWER_DOWN | RX_SYNTH_VCO_POWER_DOWN : 0x00);
+        SPI_SDR_Write(phy->id_no, REG_RX_SYNTH_POWER_DOWN_OVERRIDE, enable ? RX_SYNTH_VCO_ALC_POWER_DOWN | RX_SYNTH_PTAT_POWER_DOWN | RX_SYNTH_VCO_POWER_DOWN : 0x00);
 
         SPI_SDR_WriteF(phy->id_no, REG_ANALOG_POWER_DOWN_OVERRIDE, RX_EXT_VCO_BUFFER_POWER_DOWN, !enable);
 
@@ -2348,7 +2331,7 @@ int32_t ad9361_trx_ext_lo_control(ad9361_rf_phy_t *phy, bool tx, bool enable) {
  */
 int32_t ad9361_set_ref_clk_cycles(ad9361_rf_phy_t *phy, uint32_t ref_clk_hz) {
 
-    LOG_FORMAT(debug, "SDR: %s : ref_clk_hz %" PRIu32 "", __func__, ref_clk_hz);
+    LOG_FORMAT(debug, "[%s] ref_clk_hz %" PRIu32 "", __func__, ref_clk_hz);
 
     SPI_SDR_Write(phy->id_no, REG_REFERENCE_CLOCK_CYCLES, REFERENCE_CLOCK_CYCLES_PER_US((ref_clk_hz / 1000000UL) - 1));
 
@@ -2364,7 +2347,7 @@ int32_t ad9361_set_ref_clk_cycles(ad9361_rf_phy_t *phy, uint32_t ref_clk_hz) {
  */
 void ad9361_set_dcxo_tune(ad9361_rf_phy_t *phy, uint32_t coarse, uint32_t fine) {
 
-    LOG_FORMAT(debug, "SDR (%s): coarse %" PRIu32 " fine %" PRIu32 "", __func__, coarse, fine);
+    LOG_FORMAT(debug, "[%s] coarse %" PRIu32 " fine %" PRIu32 "", __func__, coarse, fine);
 
     SPI_SDR_Write(phy->id_no, REG_DCXO_COARSE_TUNE, DCXO_TUNE_COARSE(coarse));
     SPI_SDR_Write(phy->id_no, REG_DCXO_FINE_TUNE_LOW, DCXO_TUNE_FINE_LOW(fine));
@@ -2379,14 +2362,14 @@ void ad9361_set_dcxo_tune(ad9361_rf_phy_t *phy, uint32_t coarse, uint32_t fine) 
  */
 int32_t ad9361_txmon_setup(ad9361_rf_phy_t *phy, tx_monitor_control_t *ctrl) {
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
-    SPI_SDR_Write(phy->id_no, REG_TPM_MODE_ENABLE,
-                  (ctrl->one_shot_mode_en ? ONE_SHOT_MODE : 0) | TX_MON_DURATION(int_log2(ctrl->tx_mon_duration / 16)));
+    SPI_SDR_Write(phy->id_no, REG_TPM_MODE_ENABLE, (ctrl->one_shot_mode_en ? ONE_SHOT_MODE : 0) | TX_MON_DURATION(int_log2(ctrl->tx_mon_duration / 16)));
 
     SPI_SDR_Write(phy->id_no, REG_TX_MON_DELAY, ctrl->tx_mon_delay);
 
     SPI_SDR_Write(phy->id_no, REG_TX_MON_1_CONFIG, TX_MON_1_LO_CM(ctrl->tx1_mon_lo_cm) | TX_MON_1_GAIN(ctrl->tx1_mon_front_end_gain));
+
     SPI_SDR_Write(phy->id_no, REG_TX_MON_2_CONFIG, TX_MON_2_LO_CM(ctrl->tx2_mon_lo_cm) | TX_MON_2_GAIN(ctrl->tx2_mon_front_end_gain));
 
     SPI_SDR_Write(phy->id_no, REG_TX_ATTEN_THRESH, ctrl->low_high_gain_threshold_mdB / 250);
@@ -2406,7 +2389,7 @@ int32_t ad9361_txmon_setup(ad9361_rf_phy_t *phy, tx_monitor_control_t *ctrl) {
  */
 int32_t ad9361_txmon_control(ad9361_rf_phy_t *phy, int32_t en_mask) {
 
-    LOG_FORMAT(debug, "SDR (%s): mask 0x%" PRIx32 "", __func__, en_mask);
+    LOG_FORMAT(debug, "[%s] mask 0x%" PRIx32 "", __func__, en_mask);
 
     SPI_SDR_WriteF(phy->id_no, REG_ANALOG_POWER_DOWN_OVERRIDE, TX_MONITOR_POWER_DOWN(~0), ~en_mask);
 
@@ -2467,7 +2450,7 @@ int32_t ad9361_rf_port_setup(ad9361_rf_phy_t *phy, bool is_out, uint32_t rx_inpu
         val |= TX_OUTPUT; // Select TX1B , TX2B
     }
 
-    LOG_FORMAT(debug, "SDR (%s): INPUT_SELECT 0x%" PRIx32 "", __func__, val);
+    LOG_FORMAT(debug, "[%s] INPUT_SELECT 0x%" PRIx32 "", __func__, val);
 
     SPI_SDR_Write(phy->id_no, REG_INPUT_SELECT, val);
 
@@ -2485,7 +2468,7 @@ int32_t ad9361_pp_port_setup(ad9361_rf_phy_t *phy, bool restore_c3) {
 
     ad9361_phy_platform_data_t *pd = &(phy->pdata);
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     if (restore_c3) {
         SPI_SDR_Write(phy->id_no, REG_PARALLEL_PORT_CONF_3, pd->port_ctrl.pp_conf[2]);
@@ -2529,7 +2512,7 @@ int32_t ad9361_gc_setup(ad9361_rf_phy_t *phy, gain_control_t *ctrl) {
 
     uint32_t reg, tmp1, tmp2;
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     reg = DEC_PWR_FOR_GAIN_LOCK_EXIT | DEC_PWR_FOR_LOCK_LEVEL | DEC_PWR_FOR_LOW_PWR;
 
@@ -2596,8 +2579,7 @@ int32_t ad9361_gc_setup(ad9361_rf_phy_t *phy, gain_control_t *ctrl) {
     SPI_SDR_Write(phy->id_no, REG_PEAK_WAIT_TIME, reg); // Decr Step Size, Peak Overload Time
 
     if (ctrl->dig_gain_en) {
-        SPI_SDR_Write(phy->id_no, REG_DIGITAL_GAIN,
-                      MAXIMUM_DIGITAL_GAIN(ctrl->max_dig_gain) | DIG_GAIN_STP_SIZE(ctrl->dig_gain_step_size));
+        SPI_SDR_Write(phy->id_no, REG_DIGITAL_GAIN, MAXIMUM_DIGITAL_GAIN(ctrl->max_dig_gain) | DIG_GAIN_STP_SIZE(ctrl->dig_gain_step_size));
     }
 
     if (ctrl->adc_large_overload_thresh >= ctrl->adc_small_overload_thresh) {
@@ -2663,35 +2645,28 @@ int32_t ad9361_gc_setup(ad9361_rf_phy_t *phy, gain_control_t *ctrl) {
 
     SPI_SDR_Write(phy->id_no, REG_OUTER_POWER_THRESHS, reg);
 
-    reg = AGC_OUTER_HIGH_THRESH_EXED_STP_SIZE(ctrl->agc_outer_thresh_high_dec_steps) |
-          AGC_OUTER_LOW_THRESH_EXED_STP_SIZE(ctrl->agc_outer_thresh_low_inc_steps);
+    reg = AGC_OUTER_HIGH_THRESH_EXED_STP_SIZE(ctrl->agc_outer_thresh_high_dec_steps) | AGC_OUTER_LOW_THRESH_EXED_STP_SIZE(ctrl->agc_outer_thresh_low_inc_steps);
 
     SPI_SDR_Write(phy->id_no, REG_GAIN_STP_2, reg);
 
-    reg = ((ctrl->immed_gain_change_if_large_adc_overload) ? IMMED_GAIN_CHANGE_IF_LG_ADC_OVERLOAD : 0) |
-          ((ctrl->immed_gain_change_if_large_lmt_overload) ? IMMED_GAIN_CHANGE_IF_LG_LMT_OVERLOAD : 0) |
-          AGC_INNER_HIGH_THRESH_EXED_STP_SIZE(ctrl->agc_inner_thresh_high_dec_steps) |
-          AGC_INNER_LOW_THRESH_EXED_STP_SIZE(ctrl->agc_inner_thresh_low_inc_steps);
+    reg = ((ctrl->immed_gain_change_if_large_adc_overload) ? IMMED_GAIN_CHANGE_IF_LG_ADC_OVERLOAD : 0) | ((ctrl->immed_gain_change_if_large_lmt_overload) ? IMMED_GAIN_CHANGE_IF_LG_LMT_OVERLOAD : 0) |
+          AGC_INNER_HIGH_THRESH_EXED_STP_SIZE(ctrl->agc_inner_thresh_high_dec_steps) | AGC_INNER_LOW_THRESH_EXED_STP_SIZE(ctrl->agc_inner_thresh_low_inc_steps);
 
     SPI_SDR_Write(phy->id_no, REG_GAIN_STP1, reg);
 
-    reg = LARGE_ADC_OVERLOAD_EXED_COUNTER(ctrl->adc_large_overload_exceed_counter) |
-          SMALL_ADC_OVERLOAD_EXED_COUNTER(ctrl->adc_small_overload_exceed_counter);
+    reg = LARGE_ADC_OVERLOAD_EXED_COUNTER(ctrl->adc_large_overload_exceed_counter) | SMALL_ADC_OVERLOAD_EXED_COUNTER(ctrl->adc_small_overload_exceed_counter);
 
     SPI_SDR_Write(phy->id_no, REG_ADC_OVERLOAD_COUNTERS, reg);
 
-    SPI_SDR_WriteF(phy->id_no, REG_GAIN_STP_CONFIG_2, LARGE_LPF_GAIN_STEP(~0),
-                   LARGE_LPF_GAIN_STEP(ctrl->adc_large_overload_inc_steps));
+    SPI_SDR_WriteF(phy->id_no, REG_GAIN_STP_CONFIG_2, LARGE_LPF_GAIN_STEP(~0), LARGE_LPF_GAIN_STEP(ctrl->adc_large_overload_inc_steps));
 
-    reg = LARGE_LMT_OVERLOAD_EXED_COUNTER(ctrl->lmt_overload_large_exceed_counter) |
-          SMALL_LMT_OVERLOAD_EXED_COUNTER(ctrl->lmt_overload_small_exceed_counter);
+    reg = LARGE_LMT_OVERLOAD_EXED_COUNTER(ctrl->lmt_overload_large_exceed_counter) | SMALL_LMT_OVERLOAD_EXED_COUNTER(ctrl->lmt_overload_small_exceed_counter);
 
     SPI_SDR_Write(phy->id_no, REG_LMT_OVERLOAD_COUNTERS, reg);
 
     SPI_SDR_WriteF(phy->id_no, REG_GAIN_STP_CONFIG1, DEC_STP_SIZE_FOR_LARGE_LMT_OVERLOAD(~0), ctrl->lmt_overload_large_inc_steps);
 
-    reg = DIG_SATURATION_EXED_COUNTER(ctrl->dig_saturation_exceed_counter) |
-          (ctrl->sync_for_gain_counter_en ? ENABLE_SYNC_FOR_GAIN_COUNTER : 0);
+    reg = DIG_SATURATION_EXED_COUNTER(ctrl->dig_saturation_exceed_counter) | (ctrl->sync_for_gain_counter_en ? ENABLE_SYNC_FOR_GAIN_COUNTER : 0);
 
     SPI_SDR_Write(phy->id_no, REG_DIGITAL_SAT_COUNTER, reg);
 
@@ -2709,8 +2684,7 @@ int32_t ad9361_gc_setup(ad9361_rf_phy_t *phy, gain_control_t *ctrl) {
 
     // Fast AGC - Lock Level
     // Dual use see also agc_inner_thresh_high
-    SPI_SDR_WriteF(phy->id_no, REG_FAST_CONFIG_2_SETTLING_DELAY, ENABLE_LMT_GAIN_INC_FOR_LOCK_LEVEL,
-                   ctrl->f_agc_lock_level_lmt_gain_increase_en);
+    SPI_SDR_WriteF(phy->id_no, REG_FAST_CONFIG_2_SETTLING_DELAY, ENABLE_LMT_GAIN_INC_FOR_LOCK_LEVEL, ctrl->f_agc_lock_level_lmt_gain_increase_en);
 
     reg = ctrl->f_agc_lock_level_gain_increase_upper_limit;
     reg = clamp_t(uint32_t, reg, 0U, 63U);
@@ -2744,17 +2718,15 @@ int32_t ad9361_gc_setup(ad9361_rf_phy_t *phy, gain_control_t *ctrl) {
     SPI_SDR_WriteF(phy->id_no, REG_FAST_CONFIG_1, GOTO_SET_GAIN_IF_EXIT_RX_STATE, reg == SET_GAIN);
     SPI_SDR_WriteF(phy->id_no, REG_FAST_CONFIG_1, GOTO_OPTIMIZED_GAIN_IF_EXIT_RX_STATE, reg == OPTIMIZED_GAIN);
 
-    SPI_SDR_WriteF(phy->id_no, REG_FAST_CONFIG_2_SETTLING_DELAY, USE_LAST_LOCK_LEVEL_FOR_SET_GAIN,
-                   ctrl->f_agc_use_last_lock_level_for_set_gain_en);
+    SPI_SDR_WriteF(phy->id_no, REG_FAST_CONFIG_2_SETTLING_DELAY, USE_LAST_LOCK_LEVEL_FOR_SET_GAIN, ctrl->f_agc_use_last_lock_level_for_set_gain_en);
 
     reg = ctrl->f_agc_optimized_gain_offset;
     reg = clamp_t(uint32_t, reg, 0U, 15U);
 
     SPI_SDR_WriteF(phy->id_no, REG_FAST_FINAL_OVER_RANGE_AND_OPT_GAIN, OPTIMIZE_GAIN_OFFSET(~0), reg);
 
-    tmp1 = !ctrl->f_agc_rst_gla_stronger_sig_thresh_exceeded_en ||
-           !ctrl->f_agc_rst_gla_engergy_lost_sig_thresh_exceeded_en || !ctrl->f_agc_rst_gla_large_adc_overload_en ||
-           !ctrl->f_agc_rst_gla_large_lmt_overload_en || ctrl->f_agc_rst_gla_en_agc_pulled_high_en;
+    tmp1 = !ctrl->f_agc_rst_gla_stronger_sig_thresh_exceeded_en || !ctrl->f_agc_rst_gla_engergy_lost_sig_thresh_exceeded_en || !ctrl->f_agc_rst_gla_large_adc_overload_en || !ctrl->f_agc_rst_gla_large_lmt_overload_en ||
+           ctrl->f_agc_rst_gla_en_agc_pulled_high_en;
 
     SPI_SDR_WriteF(phy->id_no, REG_AGC_CONFIG_2, AGC_GAIN_UNLOCK_CTRL, tmp1);
 
@@ -2822,7 +2794,7 @@ int32_t ad9361_gc_setup(ad9361_rf_phy_t *phy, gain_control_t *ctrl) {
                 break;
 
             default:
-                LOG_FORMAT(error, "[%s]: Wrong AGC pulled high mode", __func__);
+                LOG_FORMAT(error, "[%s] Wrong AGC pulled high mode", __func__);
                 break;
         }
     }
@@ -2851,7 +2823,7 @@ int32_t ad9361_auxdac_set(ad9361_rf_phy_t *phy, int32_t dac, int32_t val_mV) {
 
     uint32_t val, tmp;
 
-    LOG_FORMAT(debug, "SDR (%s): DAC%" PRId32 " = %" PRId32 " mV", __func__, dac, val_mV);
+    LOG_FORMAT(debug, "[%s] DAC%" PRId32 " = %" PRId32 " mV", __func__, dac, val_mV);
 
     SPI_SDR_WriteF(phy->id_no, REG_AUXDAC_ENABLE_CTRL, AUXDAC_MANUAL_BAR(dac), val_mV ? 0 : 1);
 
@@ -2924,17 +2896,14 @@ int32_t ad9361_auxdac_setup(ad9361_rf_phy_t *phy, auxdac_control_t *ctrl) {
 
     uint8_t tmp;
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     ad9361_auxdac_set(phy, 1, ctrl->dac1_default_value);
     ad9361_auxdac_set(phy, 2, ctrl->dac2_default_value);
 
-    tmp = ~(AUXDAC_AUTO_TX_BAR(ctrl->dac2_in_tx_en << 1 | ctrl->dac1_in_tx_en) |
-            AUXDAC_AUTO_RX_BAR(ctrl->dac2_in_rx_en << 1 | ctrl->dac1_in_rx_en) |
-            AUXDAC_INIT_BAR(ctrl->dac2_in_alert_en << 1 | ctrl->dac1_in_alert_en));
+    tmp = ~(AUXDAC_AUTO_TX_BAR(ctrl->dac2_in_tx_en << 1 | ctrl->dac1_in_tx_en) | AUXDAC_AUTO_RX_BAR(ctrl->dac2_in_rx_en << 1 | ctrl->dac1_in_rx_en) | AUXDAC_INIT_BAR(ctrl->dac2_in_alert_en << 1 | ctrl->dac1_in_alert_en));
 
-    SPI_SDR_WriteF(phy->id_no, REG_AUXDAC_ENABLE_CTRL,
-                   AUXDAC_AUTO_TX_BAR(~0) | AUXDAC_AUTO_RX_BAR(~0) | AUXDAC_INIT_BAR(~0), tmp); // Auto Control
+    SPI_SDR_WriteF(phy->id_no, REG_AUXDAC_ENABLE_CTRL, AUXDAC_AUTO_TX_BAR(~0) | AUXDAC_AUTO_RX_BAR(~0) | AUXDAC_INIT_BAR(~0), tmp); // Auto Control
 
     SPI_SDR_WriteF(phy->id_no, REG_EXTERNAL_LNA_CTRL, AUXDAC_MANUAL_SELECT, ctrl->auxdac_manual_mode_en);
     SPI_SDR_Write(phy->id_no, REG_AUXDAC1_RX_DELAY, ctrl->dac1_rx_delay_us);
@@ -2956,14 +2925,13 @@ int32_t ad9361_auxadc_setup(ad9361_rf_phy_t *phy, auxadc_control_t *ctrl, uint32
 
     uint32_t val;
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     val = DIV_ROUND_CLOSEST(ctrl->temp_time_inteval_ms * (bbpll_freq / 1000UL), (1 << 29));
 
     SPI_SDR_Write(phy->id_no, REG_TEMP_OFFSET, ctrl->offset);
     SPI_SDR_Write(phy->id_no, REG_START_TEMP_READING, 0x00);
-    SPI_SDR_Write(phy->id_no, REG_TEMP_SENSE2,
-                  MEASUREMENT_TIME_INTERVAL(val) | (ctrl->periodic_temp_measuremnt ? TEMP_SENSE_PERIODIC_ENABLE : 0));
+    SPI_SDR_Write(phy->id_no, REG_TEMP_SENSE2, MEASUREMENT_TIME_INTERVAL(val) | (ctrl->periodic_temp_measuremnt ? TEMP_SENSE_PERIODIC_ENABLE : 0));
     SPI_SDR_Write(phy->id_no, REG_TEMP_SENSOR_CONFIG, TEMP_SENSOR_DECIMATION(int_log2(ctrl->temp_sensor_decimation) - 8));
     SPI_SDR_Write(phy->id_no, REG_AUXADC_CLOCK_DIVIDER, bbpll_freq / ctrl->auxadc_clock_rate);
     SPI_SDR_Write(phy->id_no, REG_AUXADC_CONFIG, AUX_ADC_DECIMATION(int_log2(ctrl->auxadc_decimation) - 8));
@@ -2979,7 +2947,7 @@ int32_t ad9361_auxadc_setup(ad9361_rf_phy_t *phy, auxadc_control_t *ctrl, uint32
  */
 int32_t ad9361_ctrl_outs_setup(ad9361_rf_phy_t *phy, ctrl_outs_control_t *ctrl) {
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     SPI_SDR_Write(phy->id_no, REG_CTRL_OUTPUT_POINTER, ctrl->index);  // Ctrl Out index
     SPI_SDR_Write(phy->id_no, REG_CTRL_OUTPUT_ENABLE, ctrl->en_mask); // Ctrl Out [7:0] output enable
@@ -2994,17 +2962,13 @@ int32_t ad9361_ctrl_outs_setup(ad9361_rf_phy_t *phy, ctrl_outs_control_t *ctrl) 
  */
 int32_t ad9361_gpo_setup(ad9361_rf_phy_t *phy, gpo_control_t *ctrl) {
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     SPI_SDR_Write(phy->id_no, REG_AUTO_GPO,
-                  GPO_ENABLE_AUTO_RX(ctrl->gpo0_slave_rx_en | (ctrl->gpo1_slave_rx_en << 1) |
-                                     (ctrl->gpo2_slave_rx_en << 2) | (ctrl->gpo3_slave_rx_en << 3)) |
-                  GPO_ENABLE_AUTO_TX(ctrl->gpo0_slave_tx_en | (ctrl->gpo1_slave_tx_en << 1) |
-                                     (ctrl->gpo2_slave_tx_en << 2) | (ctrl->gpo3_slave_tx_en << 3)));
+                  GPO_ENABLE_AUTO_RX(ctrl->gpo0_slave_rx_en | (ctrl->gpo1_slave_rx_en << 1) | (ctrl->gpo2_slave_rx_en << 2) | (ctrl->gpo3_slave_rx_en << 3)) |
+                  GPO_ENABLE_AUTO_TX(ctrl->gpo0_slave_tx_en | (ctrl->gpo1_slave_tx_en << 1) | (ctrl->gpo2_slave_tx_en << 2) | (ctrl->gpo3_slave_tx_en << 3)));
 
-    SPI_SDR_Write(phy->id_no, REG_GPO_FORCE_AND_INIT,
-                  GPO_INIT_STATE(ctrl->gpo0_inactive_state_high_en | (ctrl->gpo1_inactive_state_high_en << 1) |
-                                 (ctrl->gpo2_inactive_state_high_en << 2) | (ctrl->gpo3_inactive_state_high_en << 3)));
+    SPI_SDR_Write(phy->id_no, REG_GPO_FORCE_AND_INIT, GPO_INIT_STATE(ctrl->gpo0_inactive_state_high_en | (ctrl->gpo1_inactive_state_high_en << 1) | (ctrl->gpo2_inactive_state_high_en << 2) | (ctrl->gpo3_inactive_state_high_en << 3)));
 
     SPI_SDR_Write(phy->id_no, REG_GPO0_RX_DELAY, ctrl->gpo0_rx_delay_us);
     SPI_SDR_Write(phy->id_no, REG_GPO0_TX_DELAY, ctrl->gpo0_tx_delay_us);
@@ -3035,7 +2999,7 @@ int32_t ad9361_rssi_setup(ad9361_rf_phy_t *phy, rssi_control_t *ctrl, bool is_up
     uint32_t rssi_duration;
     uint32_t rate;
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     if (ctrl->rssi_unit_is_rx_samples) {
         if (is_update) {
@@ -3136,11 +3100,11 @@ int32_t ad9361_ensm_set_state(ad9361_rf_phy_t *phy, uint8_t ensm_state, bool pin
     uint32_t tmp;
 
     if (phy->curr_ensm_state == ensm_state) {
-        LOG_FORMAT(debug, "SDR (%s): Nothing to do, device is already in %d state", __func__, ensm_state);
+        LOG_FORMAT(debug, "[%s] Nothing to do, device is already in %d state", __func__, ensm_state);
         goto out;
     }
 
-    LOG_FORMAT(debug, "SDR (%s): Device is in %x state, moving to %x", __func__, phy->curr_ensm_state, ensm_state);
+    LOG_FORMAT(debug, "[%s] Device is in %x state, moving to %x", __func__, phy->curr_ensm_state, ensm_state);
 
     if (phy->curr_ensm_state == ENSM_STATE_SLEEP) {
 
@@ -3155,8 +3119,7 @@ int32_t ad9361_ensm_set_state(ad9361_rf_phy_t *phy, uint8_t ensm_state, bool pin
         ad9361_trx_vco_cal_control(phy, true, true);
     }
 
-    val = (phy->pdata.ensm_pin_pulse_mode ? 0 : LEVEL_MODE) | (pinctrl ? ENABLE_ENSM_PIN_CTRL : 0) |
-          (phy->txmon_tdd_en ? ENABLE_RX_DATA_PORT_FOR_CAL : 0) | TO_ALERT;
+    val = (phy->pdata.ensm_pin_pulse_mode ? 0 : LEVEL_MODE) | (pinctrl ? ENABLE_ENSM_PIN_CTRL : 0) | (phy->txmon_tdd_en ? ENABLE_RX_DATA_PORT_FOR_CAL : 0) | TO_ALERT;
 
     switch (ensm_state) {
 
@@ -3219,12 +3182,12 @@ int32_t ad9361_ensm_set_state(ad9361_rf_phy_t *phy, uint8_t ensm_state, bool pin
             return 0;
 
         default:
-            LOG_FORMAT(error, "SDR (%s): No handling for forcing %d ensm state", __func__, ensm_state);
+            LOG_FORMAT(error, "[%s] No handling for forcing %d ensm state", __func__, ensm_state);
             goto out;
     }
 
     if (rc) {
-        LOG_FORMAT(error, "SDR (%s): Invalid ENSM state transition in %s mode", __func__, phy->pdata.fdd ? "FDD" : "TDD");
+        LOG_FORMAT(error, "[%s] Invalid ENSM state transition in %s mode", __func__, phy->pdata.fdd ? "FDD" : "TDD");
         goto out;
     }
 
@@ -3233,9 +3196,7 @@ int32_t ad9361_ensm_set_state(ad9361_rf_phy_t *phy, uint8_t ensm_state, bool pin
     if ((val & FORCE_RX_ON) && ((phy->agc_mode[0] == RF_GAIN_MGC) || (phy->agc_mode[1] == RF_GAIN_MGC))) {
         tmp = SPI_SDR_Read(phy->id_no, REG_SMALL_LMT_OVERLOAD_THRESH);
 
-        SPI_SDR_Write(phy->id_no, REG_SMALL_LMT_OVERLOAD_THRESH,
-                      (tmp & SMALL_LMT_OVERLOAD_THRESH(~0)) | (phy->agc_mode[0] == RF_GAIN_MGC ? FORCE_PD_RESET_RX1 : 0) |
-                      (phy->agc_mode[1] == RF_GAIN_MGC ? FORCE_PD_RESET_RX2 : 0));
+        SPI_SDR_Write(phy->id_no, REG_SMALL_LMT_OVERLOAD_THRESH, (tmp & SMALL_LMT_OVERLOAD_THRESH(~0)) | (phy->agc_mode[0] == RF_GAIN_MGC ? FORCE_PD_RESET_RX1 : 0) | (phy->agc_mode[1] == RF_GAIN_MGC ? FORCE_PD_RESET_RX2 : 0));
 
         SPI_SDR_Write(phy->id_no, REG_SMALL_LMT_OVERLOAD_THRESH, tmp & SMALL_LMT_OVERLOAD_THRESH(~0));
     }
@@ -3266,7 +3227,7 @@ int32_t ad9361_validate_trx_clock_chain(ad9361_rf_phy_t *phy, uint32_t *rx_path_
         }
     }
 
-    LOG_FORMAT(error, "SDR (%s): Failed - at least one of the clock rates must be equal to the DATA_CLK (lvds) rate", __func__);
+    LOG_FORMAT(error, "[%s] Failed - at least one of the clock rates must be equal to the DATA_CLK (lvds) rate", __func__);
     return -EINVAL;
 }
 
@@ -3281,19 +3242,17 @@ int32_t ad9361_set_trx_clock_chain(ad9361_rf_phy_t *phy, uint32_t *rx_path_clks,
 
     int32_t rvalue, i, j, n;
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     if (!rx_path_clks || !tx_path_clks) {
         return -EINVAL;
     }
 
-    LOG_FORMAT(debug, "SDR (%s): %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 "", //
-               __func__, rx_path_clks[BBPLL_FREQ], rx_path_clks[ADC_FREQ], rx_path_clks[R2_FREQ], rx_path_clks[R1_FREQ],
-               rx_path_clks[CLKRF_FREQ], rx_path_clks[RX_SAMPL_FREQ]);
+    LOG_FORMAT(debug, "[%s] %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 "", //
+               __func__, rx_path_clks[BBPLL_FREQ], rx_path_clks[ADC_FREQ], rx_path_clks[R2_FREQ], rx_path_clks[R1_FREQ], rx_path_clks[CLKRF_FREQ], rx_path_clks[RX_SAMPL_FREQ]);
 
-    LOG_FORMAT(debug, "SDR (%s): %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 "", //
-               __func__, tx_path_clks[BBPLL_FREQ], tx_path_clks[ADC_FREQ], tx_path_clks[R2_FREQ], tx_path_clks[R1_FREQ],
-               tx_path_clks[CLKRF_FREQ], tx_path_clks[RX_SAMPL_FREQ]);
+    LOG_FORMAT(debug, "[%s] %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 "", //
+               __func__, tx_path_clks[BBPLL_FREQ], tx_path_clks[ADC_FREQ], tx_path_clks[R2_FREQ], tx_path_clks[R1_FREQ], tx_path_clks[CLKRF_FREQ], tx_path_clks[RX_SAMPL_FREQ]);
 
     rvalue = ad9361_validate_trx_clock_chain(phy, rx_path_clks);
     if (rvalue < 0) {
@@ -3308,13 +3267,13 @@ int32_t ad9361_set_trx_clock_chain(ad9361_rf_phy_t *phy, uint32_t *rx_path_clks,
     for (i = ADC_CLK, j = DAC_CLK, n = ADC_FREQ; i <= RX_SAMPL_CLK; i++, j++, n++) {
         rvalue = clk_set_rate(phy, &(phy->ref_clk_scale[i]), rx_path_clks[n]);
         if (rvalue < 0) {
-            LOG_FORMAT(error, "SDR (%s): Failed to set BB ref clock rate (%" PRId32 ")", __func__, rvalue);
+            LOG_FORMAT(error, "[%s] Failed to set BB ref clock rate (%" PRId32 ")", __func__, rvalue);
             return rvalue;
         }
 
         rvalue = clk_set_rate(phy, &(phy->ref_clk_scale[j]), tx_path_clks[n]);
         if (rvalue < 0) {
-            LOG_FORMAT(error, "SDR (%s): Failed to set BB ref clock rate (%" PRId32 ")", __func__, rvalue);
+            LOG_FORMAT(error, "[%s] Failed to set BB ref clock rate (%" PRId32 ")", __func__, rvalue);
             return rvalue;
         }
     }
@@ -3331,8 +3290,7 @@ int32_t ad9361_set_trx_clock_chain(ad9361_rf_phy_t *phy, uint32_t *rx_path_clks,
  * @param tx_path_clks TX path rates buffer.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t
-ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, uint32_t tx_sample_rate, uint32_t rate_gov, uint32_t *rx_path_clks, uint32_t *tx_path_clks) {
+int32_t ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, uint32_t tx_sample_rate, uint32_t rate_gov, uint32_t *rx_path_clks, uint32_t *tx_path_clks) {
 
     uint32_t     clktf, clkrf, adc_rate = 0, dac_rate = 0;
     uint64_t     bbpll_rate;
@@ -3361,7 +3319,7 @@ ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, uint32_t tx_sample_rate, u
         rate_gov  = 0;
     }
 
-    LOG_FORMAT(debug, "SDR (%s): requested rate %" PRIu32 " TXFIR int %" PRIu32 " RXFIR dec %" PRIu32 " mode %s",
+    LOG_FORMAT(debug, "[%s] requested rate %" PRIu32 " TXFIR int %" PRIu32 " RXFIR dec %" PRIu32 " mode %s", //
                __func__, tx_sample_rate, tx_intdec, rx_intdec, (rate_gov ? "Nominal" : "Highest OSR"));
 
     if (tx_sample_rate > (phy->pdata.rx2tx2 ? 61440000UL : 122880000UL)) {
@@ -3410,7 +3368,7 @@ ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, uint32_t tx_sample_rate, u
         return ad9361_calculate_rf_clock_chain(phy, tx_sample_rate, ++rate_gov, rx_path_clks, tx_path_clks);
     }
     else if (((index_tx < 0) || (index_tx > 6) || (index_rx < 0) || (index_rx > 6))) {
-        LOG_FORMAT(error, "SDR (%s): Failed to find suitable dividers: %s", //
+        LOG_FORMAT(error, "[%s] Failed to find suitable dividers: %s", //
                    __func__, (adc_rate < MIN_ADC_CLK) ? "ADC clock below limit" : "BBPLL rate above limit");
         return -EINVAL;
     }
@@ -3484,13 +3442,10 @@ int32_t ad9361_set_ensm_mode(ad9361_rf_phy_t *phy, bool fdd, bool pinctrl) {
     }
 
     if (fdd) {
-        SPI_SDR_Write(phy->id_no, REG_ENSM_CONFIG_2,
-                      val | DUAL_SYNTH_MODE | (pd->fdd_independent_mode ? FDD_EXTERNAL_CTRL_ENABLE : 0));
+        SPI_SDR_Write(phy->id_no, REG_ENSM_CONFIG_2, val | DUAL_SYNTH_MODE | (pd->fdd_independent_mode ? FDD_EXTERNAL_CTRL_ENABLE : 0));
     }
     else {
-        SPI_SDR_Write(phy->id_no, REG_ENSM_CONFIG_2,
-                      val | (pd->tdd_use_dual_synth ? DUAL_SYNTH_MODE : 0) |
-                      (pd->tdd_use_dual_synth ? 0 : (pinctrl ? SYNTH_ENABLE_PIN_CTRL_MODE : TXNRX_SPI_CTRL)));
+        SPI_SDR_Write(phy->id_no, REG_ENSM_CONFIG_2, val | (pd->tdd_use_dual_synth ? DUAL_SYNTH_MODE : 0) | (pd->tdd_use_dual_synth ? 0 : (pinctrl ? SYNTH_ENABLE_PIN_CTRL_MODE : TXNRX_SPI_CTRL)));
     }
 
     return 0;
@@ -3513,8 +3468,7 @@ int32_t ad9361_fastlock_readval(uint8_t id_no, bool tx, uint32_t profile, uint32
         offs = REG_TX_FAST_LOCK_SETUP - REG_RX_FAST_LOCK_SETUP;
     }
 
-    SPI_SDR_Write(id_no, REG_RX_FAST_LOCK_PROGRAM_ADDR + offs,
-                  RX_FAST_LOCK_PROFILE_ADDR(profile) | RX_FAST_LOCK_PROFILE_WORD(word));
+    SPI_SDR_Write(id_no, REG_RX_FAST_LOCK_PROGRAM_ADDR + offs, RX_FAST_LOCK_PROFILE_ADDR(profile) | RX_FAST_LOCK_PROFILE_WORD(word));
 
     return SPI_SDR_Read(id_no, REG_RX_FAST_LOCK_PROGRAM_READ + offs);
 }
@@ -3533,7 +3487,7 @@ int32_t ad9361_fastlock_prepare(ad9361_rf_phy_t *phy, bool tx, uint32_t profile,
     uint32_t ready_mask;
     bool     is_prepared;
 
-    LOG_FORMAT(debug, "SDR (%s): %s profile %" PRIu32 ": %s", __func__, tx ? "TX" : "RX", profile, prepare ? "Prepare" : "Un-Prepare");
+    LOG_FORMAT(debug, "[%s] %s profile %" PRIu32 ": %s", __func__, tx ? "TX" : "RX", profile, prepare ? "Prepare" : "Un-Prepare");
 
     if (tx) {
         offs       = REG_TX_FAST_LOCK_SETUP - REG_RX_FAST_LOCK_SETUP;
@@ -3547,8 +3501,7 @@ int32_t ad9361_fastlock_prepare(ad9361_rf_phy_t *phy, bool tx, uint32_t profile,
     is_prepared = !!phy->fastlock.current_profile[tx];
 
     if (prepare && !is_prepared) {
-        SPI_SDR_Write(phy->id_no, REG_RX_FAST_LOCK_SETUP_INIT_DELAY + offs,
-                      (tx ? phy->pdata.tx_fastlock_delay_ns : phy->pdata.rx_fastlock_delay_ns) / 250);
+        SPI_SDR_Write(phy->id_no, REG_RX_FAST_LOCK_SETUP_INIT_DELAY + offs, (tx ? phy->pdata.tx_fastlock_delay_ns : phy->pdata.rx_fastlock_delay_ns) / 250);
         SPI_SDR_Write(phy->id_no, REG_RX_FAST_LOCK_SETUP_INIT_DELAY + offs, RX_FAST_LOCK_PROFILE(profile) | RX_FAST_LOCK_MODE_ENABLE);
         SPI_SDR_Write(phy->id_no, REG_RX_FAST_LOCK_SETUP_INIT_DELAY + offs, 0);
 
@@ -3615,14 +3568,14 @@ int32_t ad9361_setup(ad9361_rf_phy_t *phy) {
     uint32_t                    real_rx_bandwidth = pd->rf_rx_bandwidth_Hz / 2;
     uint32_t                    real_tx_bandwidth = pd->rf_tx_bandwidth_Hz / 2;
 
-    LOG_FORMAT(debug, "SDR (%s)", __func__);
+    LOG_FORMAT(debug, "[%s] start", __func__);
 
     if (pd->fdd) {
         // FDD mode
         pd->tdd_skip_vco_cal = false;
 
         if (pd->ensm_pin_ctrl && pd->fdd_independent_mode) {
-            LOG_FORMAT(warning, "SDR (%s): Either set ENSM PINCTRL or FDD Independent Mode", __func__);
+            LOG_FORMAT(warning, "[%s] Either set ENSM PINCTRL or FDD Independent Mode", __func__);
             pd->ensm_pin_ctrl = false;
         }
     }
@@ -3661,7 +3614,7 @@ int32_t ad9361_setup(ad9361_rf_phy_t *phy) {
     rvalue = clk_set_rate(phy, &(phy->ref_clk_scale[BB_REFCLK]), ref_freq);
 
     if (rvalue < 0) {
-        LOG_FORMAT(error, "SDR (%s): Failed to set BB ref clock rate (%" PRId32 ")", __func__, rvalue);
+        LOG_FORMAT(error, "[%s] Failed to set BB ref clock rate (%" PRId32 ")", __func__, rvalue);
         return rvalue;
     }
 
@@ -3730,13 +3683,13 @@ int32_t ad9361_setup(ad9361_rf_phy_t *phy) {
     rvalue = clk_set_rate(phy, &(phy->ref_clk_scale[RX_REFCLK]), ref_freq);
 
     if (rvalue < 0) {
-        LOG_FORMAT(error, "SDR (%s): Failed to set RX Synth ref clock rate (%" PRId32 ")", __func__, rvalue);
+        LOG_FORMAT(error, "[%s] Failed to set RX Synth ref clock rate (%" PRId32 ")", __func__, rvalue);
         return rvalue;
     }
 
     rvalue = clk_set_rate(phy, &(phy->ref_clk_scale[TX_REFCLK]), ref_freq);
     if (rvalue < 0) {
-        LOG_FORMAT(error, "SDR (%s): Failed to set TX Synth ref clock rate (%" PRId32 ")", __func__, rvalue);
+        LOG_FORMAT(error, "[%s] Failed to set TX Synth ref clock rate (%" PRId32 ")", __func__, rvalue);
         return rvalue;
     }
 
@@ -3752,7 +3705,7 @@ int32_t ad9361_setup(ad9361_rf_phy_t *phy) {
 
     rvalue = clk_set_rate(phy, &(phy->ref_clk_scale[RX_RFPLL]), ad9361_to_clk(pd->rx_synth_freq));
     if (rvalue < 0) {
-        LOG_FORMAT(error, "SDR (%s): Failed to set RX Synth rate (%" PRId32 ")", __func__, rvalue);
+        LOG_FORMAT(error, "[%s] Failed to set RX Synth rate (%" PRId32 ")", __func__, rvalue);
         return rvalue;
     }
 
@@ -3766,7 +3719,7 @@ int32_t ad9361_setup(ad9361_rf_phy_t *phy) {
 
     rvalue = clk_set_rate(phy, &(phy->ref_clk_scale[TX_RFPLL]), ad9361_to_clk(pd->tx_synth_freq));
     if (rvalue < 0) {
-        LOG_FORMAT(error, "SDR (%s): Failed to set TX Synth rate (%" PRId32 ")", __func__, rvalue);
+        LOG_FORMAT(error, "[%s] Failed to set TX Synth rate (%" PRId32 ")", __func__, rvalue);
         return rvalue;
     }
 
@@ -3930,7 +3883,7 @@ int32_t ad9361_verify_fir_filter_coef(ad9361_rf_phy_t *phy, fir_dest_t dest, uin
     uint32_t val, offs = 0, gain = 0, conf, sel, cnt;
     int32_t  rvalue = 0;
 
-    LOG_FORMAT(debug, "SDR (%s): TAPS %" PRIu32 ", dest %d", __func__, ntaps, dest);
+    LOG_FORMAT(debug, "[%s] TAPS %" PRIu32 ", dest %d", __func__, ntaps, dest);
 
     if (dest & FIR_IS_RX) {
         gain = SPI_SDR_Read(phy->id_no, REG_RX_FILTER_GAIN);
@@ -3958,11 +3911,10 @@ int32_t ad9361_verify_fir_filter_coef(ad9361_rf_phy_t *phy, fir_dest_t dest, uin
 
             SPI_SDR_Write(phy->id_no, REG_TX_FILTER_COEF_ADDR + offs, val);
 
-            tmp = (SPI_SDR_Read(phy->id_no, REG_TX_FILTER_COEF_READ_DATA_1 + offs) & 0xFF) |
-                  (SPI_SDR_Read(phy->id_no, REG_TX_FILTER_COEF_READ_DATA_2 + offs) << 8);
+            tmp = (SPI_SDR_Read(phy->id_no, REG_TX_FILTER_COEF_READ_DATA_1 + offs) & 0xFF) | (SPI_SDR_Read(phy->id_no, REG_TX_FILTER_COEF_READ_DATA_2 + offs) << 8);
 
             if (tmp != coef[val]) {
-                LOG_FORMAT(error, "SDR (%s): %s%" PRIu32 " read verify failed TAP%" PRIu32 " %d =! %d ", //
+                LOG_FORMAT(error, "[%s] %s%" PRIu32 " read verify failed TAP%" PRIu32 " %d =! %d ", //
                            __func__, (dest & FIR_IS_RX) ? "RX" : "TX", sel, val, tmp, coef[val]);
                 rvalue = -EIO;
             }
@@ -3991,11 +3943,11 @@ int32_t ad9361_load_fir_filter_coef(ad9361_rf_phy_t *phy, fir_dest_t dest, int32
 
     uint32_t val, offs = 0, fir_conf = 0, fir_enable = 0;
 
-    LOG_FORMAT(debug, "SDR (%s): TAPS %" PRIu32 ", gain %" PRId32 ", dest %d", //
+    LOG_FORMAT(debug, "[%s] TAPS %" PRIu32 ", gain %" PRId32 ", dest %d", //
                __func__, ntaps, gain_dB, dest);
 
     if ((coef == NULL) || !ntaps || (ntaps > 128) || (ntaps % 16)) {
-        LOG_FORMAT(error, "SDR (%s): Invalid parameters: TAPS %" PRIu32 ", gain %" PRId32 ", dest 0x%X", //
+        LOG_FORMAT(error, "[%s] Invalid parameters: TAPS %" PRIu32 ", gain %" PRId32 ", dest 0x%X", //
                    __func__, ntaps, gain_dB, dest);
         return -EINVAL;
     }
@@ -4011,8 +3963,7 @@ int32_t ad9361_load_fir_filter_coef(ad9361_rf_phy_t *phy, fir_dest_t dest, int32
 
         fir_enable = SPI_SDR_ReadF(phy->id_no, REG_RX_ENABLE_FILTER_CTRL, RX_FIR_ENABLE_DECIMATION(~0));
 
-        SPI_SDR_WriteF(phy->id_no, REG_RX_ENABLE_FILTER_CTRL, RX_FIR_ENABLE_DECIMATION(~0),
-                       (phy->rx_fir_dec == 4) ? 3 : phy->rx_fir_dec);
+        SPI_SDR_WriteF(phy->id_no, REG_RX_ENABLE_FILTER_CTRL, RX_FIR_ENABLE_DECIMATION(~0), (phy->rx_fir_dec == 4) ? 3 : phy->rx_fir_dec);
     }
     else {
         if (gain_dB == -6) {
@@ -4023,8 +3974,7 @@ int32_t ad9361_load_fir_filter_coef(ad9361_rf_phy_t *phy, fir_dest_t dest, int32
 
         fir_enable = SPI_SDR_ReadF(phy->id_no, REG_TX_ENABLE_FILTER_CTRL, TX_FIR_ENABLE_INTERPOLATION(~0));
 
-        SPI_SDR_WriteF(phy->id_no, REG_TX_ENABLE_FILTER_CTRL, TX_FIR_ENABLE_INTERPOLATION(~0),
-                       (phy->tx_fir_int == 4) ? 3 : phy->tx_fir_int);
+        SPI_SDR_WriteF(phy->id_no, REG_TX_ENABLE_FILTER_CTRL, TX_FIR_ENABLE_INTERPOLATION(~0), (phy->tx_fir_int == 4) ? 3 : phy->tx_fir_int);
     }
 
     val = ntaps / 16 - 1;
@@ -4446,7 +4396,7 @@ int32_t ad9361_clk_factor_round_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_p
         clk_priv->mult = 1;
 
         if (!clk_priv->div) {
-            LOG_FORMAT(error, "SDR (%s): divide by zero", __func__);
+            LOG_FORMAT(error, "[%s] divide by zero", __func__);
             clk_priv->div = 1;
         }
     }
@@ -4469,7 +4419,7 @@ int32_t ad9361_clk_factor_round_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_p
  */
 int32_t ad9361_clk_factor_set_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_priv, uint32_t rate, uint32_t parent_rate) {
 
-    LOG_FORMAT(debug, "SDR (%s): Rate %" PRIu32 " Hz Parent Rate %" PRIu32 " Hz", __func__);
+    LOG_FORMAT(debug, "[%s] Rate %" PRIu32 " Hz Parent Rate %" PRIu32 " Hz", __func__);
 
     if (rate >= parent_rate) {
         clk_priv->mult = DIV_ROUND_CLOSEST(rate, parent_rate);
@@ -4480,7 +4430,7 @@ int32_t ad9361_clk_factor_set_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_pri
         clk_priv->mult = 1;
 
         if (!clk_priv->div) {
-            LOG_FORMAT(error, "SDR (%s): divide by zero", __func__);
+            LOG_FORMAT(error, "[%s] divide by zero", __func__);
             clk_priv->div = 1;
         }
     }
@@ -4532,7 +4482,7 @@ int32_t ad9361_bbpll_set_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_priv, ui
     uint8_t  lf_defaults[3] = {0x35, 0x5B, 0xE8};
     uint64_t temp;
 
-    LOG_FORMAT(debug, "SDR (%s): Rate %" PRIu32 " Hz Parent Rate %" PRIu32 " Hz", __func__, rate, parent_rate);
+    LOG_FORMAT(debug, "[%s] Rate %" PRIu32 " Hz Parent Rate %" PRIu32 " Hz", __func__, rate, parent_rate);
 
     // Setup Loop Filter and CP Current
     // Scale is 150uA @ (1280MHz BBPLL, 40MHz REFCLK)
@@ -4544,6 +4494,7 @@ int32_t ad9361_bbpll_set_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_priv, ui
     icp_val = clamp(icp_val, 1, 64);
 
     SPI_SDR_Write(phy->id_no, REG_CP_CURRENT, icp_val);
+
     SPI_SDR_WriteM(phy->id_no, REG_LOOP_FILTER_3, lf_defaults, ARRAY_SIZE(lf_defaults));
 
     // Allow calibration to occur and set cal count to 1024 for max accuracy
@@ -4554,18 +4505,14 @@ int32_t ad9361_bbpll_set_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_priv, ui
 
     // Calculate and set BBPLL frequency word
     temp = rate;
-
-    tmp = int_do_div(&temp, parent_rate);
-
+    tmp  = int_do_div(&temp, parent_rate);
     rate = temp;
-
-    tmp = tmp * (uint64_t)BBPLL_MODULUS + (parent_rate >> 1);
+    tmp  = tmp * (uint64_t)BBPLL_MODULUS + (parent_rate >> 1);
 
     int_do_div(&tmp, parent_rate);
 
     integer = rate;
-
-    fract = tmp;
+    fract   = tmp;
 
     SPI_SDR_Write(phy->id_no, REG_INTEGER_BB_FREQ_WORD, integer);
     SPI_SDR_Write(phy->id_no, REG_FRACT_BB_FREQ_WORD_3, fract);
@@ -4654,7 +4601,7 @@ uint32_t ad9361_rfpll_recalc_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_priv
     uint8_t  buf[5];
     uint32_t reg, div_mask, vco_div, profile;
 
-    LOG_FORMAT(debug, "SDR (%s): parent rate %" PRIu32 " Hz", __func__, parent_rate);
+    LOG_FORMAT(debug, "[%s] parent rate %" PRIu32 " Hz", __func__, parent_rate);
 
     switch (clk_priv->source) {
 
@@ -4710,7 +4657,7 @@ int32_t ad9361_rfpll_set_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_priv, ui
     uint32_t reg, div_mask, lock_reg, fract, integer;
     int32_t  vco_div, rvalue;
 
-    LOG_FORMAT(debug, "SDR (%s): Rate %" PRIu32 " Hz Parent Rate %" PRIu32 " Hz", __func__, parent_rate);
+    LOG_FORMAT(debug, "[%s] Rate %" PRIu32 " Hz Parent Rate %" PRIu32 " Hz", __func__, parent_rate);
 
     ad9361_fastlock_prepare(phy, clk_priv->source == TX_RFPLL, 0, false);
 
@@ -4767,7 +4714,7 @@ int32_t ad9361_rfpll_set_rate(ad9361_rf_phy_t *phy, refclk_scale_t *clk_priv, ui
         if (abs((int64_t)(phy->last_tx_quad_cal_freq - ad9361_from_clk(rate))) > (int64_t)phy->cal_threshold_freq) {
             rvalue = ad9361_do_calib_run(phy, TX_QUAD_CAL, -1);
             if (rvalue < 0) {
-                LOG_FORMAT(debug, "SDR: %s: TX QUAD cal failed", __func__);
+                LOG_FORMAT(debug, "[%s] TX QUAD cal failed", __func__);
             }
 
             phy->last_tx_quad_cal_freq = ad9361_from_clk(rate);
@@ -4943,8 +4890,7 @@ int32_t ad9361_dig_tune(ad9361_rf_phy_t *phy, uint32_t max_freq) {
 
             for (i = 0; i < 2; i++) {
                 for (j = 0; j < 16; j++) {
-                    SPI_SDR_Write(phy->id_no, REG_RX_CLOCK_DATA_DELAY + t,
-                                  RX_DATA_DELAY(i == 0 ? j : 0) | DATA_CLK_DELAY(i ? j : 0));
+                    SPI_SDR_Write(phy->id_no, REG_RX_CLOCK_DATA_DELAY + t, RX_DATA_DELAY(i == 0 ? j : 0) | DATA_CLK_DELAY(i ? j : 0));
 
                     STIME_mSleep(4);
 
@@ -4962,7 +4908,7 @@ int32_t ad9361_dig_tune(ad9361_rf_phy_t *phy, uint32_t max_freq) {
         c1 = ad9361_find_opt_delay(&field[1][0], 16, &s1);
 
         if (!c0 && !c1) {
-            LOG_FORMAT(error, "SDR (%s): Tuning %s FAILED!", __func__, t ? "TX" : "RX");
+            LOG_FORMAT(error, "[%s] Tuning %s FAILED!", __func__, t ? "TX" : "RX");
             err |= -EIO;
         }
 

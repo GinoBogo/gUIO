@@ -57,11 +57,11 @@ bool SPI_SDR_Init(uint8_t id, bool clock_phase, bool clock_polarity) {
         ad9361_qspi->Initialize(clock_phase, clock_polarity);
         ad9361_qspi->Start();
 
-        LOG_FORMAT(info, "%s: SPI device created", __func__);
+        LOG_FORMAT(info, "[%s] SPI device created", __func__);
         return true;
     }
 
-    LOG_FORMAT(error, "%s: SPI device failure", __func__);
+    LOG_FORMAT(error, "[%s] SPI device failure", __func__);
     return false;
 }
 
@@ -70,7 +70,7 @@ uint8_t SPI_SDR_Read(uint8_t id, uint32_t reg, bool *error) {
     uint8_t _buf{0};
 
     if (!SPI_SDR_ReadM(id, reg, &_buf, 1)) {
-        LOG_FORMAT(error, "%s: Read Error [reg: 0x%04X]", __func__, reg);
+        LOG_FORMAT(error, "[%s] Read Error (reg: 0x%04X)", __func__, reg);
         _ret = false;
     }
 
@@ -85,13 +85,13 @@ uint8_t SPI_SDR_ReadF(uint8_t id, uint32_t reg, uint8_t mask, bool *error) {
     uint8_t _buf{0};
 
     if (!mask) {
-        LOG_FORMAT(error, "%s: Wrong Mask [mask: 0x%04X]", __func__, mask);
+        LOG_FORMAT(error, "[%s] Wrong Mask (mask: 0x%04X)", __func__, mask);
         _ret = false;
         goto _exit;
     }
 
     if (!SPI_SDR_ReadM(id, reg, &_buf, 1)) {
-        LOG_FORMAT(error, "%s: Read Error [reg: 0x%04X]", __func__, reg);
+        LOG_FORMAT(error, "[%s] Read Error (reg: 0x%04X)", __func__, reg);
         _ret = false;
         goto _exit;
     }
@@ -120,7 +120,7 @@ bool SPI_SDR_ReadM(uint8_t id, uint32_t reg, uint8_t *rx_buf, uint32_t rx_buf_le
         return true;
     }
 
-    LOG_FORMAT(error, "%s: Read Error [reg: 0x%04X, num: %d]", __func__, reg, rx_buf_len);
+    LOG_FORMAT(error, "[%s] Read Error (reg: 0x%04X, num: %d)", __func__, reg, rx_buf_len);
     return false;
 }
 
@@ -128,7 +128,7 @@ bool SPI_SDR_Write(uint8_t id, uint32_t reg, uint8_t val) {
     UNUSED(id);
 
     if (!SPI_SDR_WriteM(id, reg, &val, 1)) {
-        LOG_FORMAT(error, "%s: Write Error [reg: 0x%04X, num: %d]", __func__, reg, 1);
+        LOG_FORMAT(error, "[%s] Write Error (reg: 0x%04X, num: %d)", __func__, reg, 1);
         return false;
     }
 
@@ -139,14 +139,14 @@ bool SPI_SDR_WriteF(uint8_t id, uint32_t reg, uint8_t mask, uint8_t val) {
     UNUSED(id);
 
     if (!mask) {
-        LOG_FORMAT(error, "%s: Wrong Mask [mask: 0x%04X]", __func__, mask);
+        LOG_FORMAT(error, "[%s] Wrong Mask (mask: 0x%04X)", __func__, mask);
         return false;
     }
 
     uint8_t _buf;
 
     if (!SPI_SDR_ReadM(id, reg, &_buf, 1)) {
-        LOG_FORMAT(error, "%s: Read Error [reg: 0x%04X]", __func__, reg);
+        LOG_FORMAT(error, "[%s] Read Error (reg: 0x%04X)", __func__, reg);
         return false;
     }
 
@@ -161,7 +161,7 @@ bool SPI_SDR_WriteM(uint8_t id, uint32_t reg, uint8_t *tx_buf, uint32_t tx_buf_l
 
     if (tx_buf != nullptr && ad9361_qspi != nullptr) {
         if (tx_buf_len > MAX_MBYTE_SPI) {
-            LOG_FORMAT(error, "%s: Writing Capacity overcoming [num > max: %d > %d]", __func__, tx_buf_len, MAX_MBYTE_SPI);
+            LOG_FORMAT(error, "[%s] Writing Capacity overcoming (num > max: %d > %d)", __func__, tx_buf_len, MAX_MBYTE_SPI);
             return false;
         }
 
@@ -177,7 +177,7 @@ bool SPI_SDR_WriteM(uint8_t id, uint32_t reg, uint8_t *tx_buf, uint32_t tx_buf_l
         return true;
     }
 
-    LOG_FORMAT(error, "%s: Write Error [reg: 0x%04X, num: %d]", __func__, reg, tx_buf_len);
+    LOG_FORMAT(error, "[%s] Write Error (reg: 0x%04X, num: %d)", __func__, reg, tx_buf_len);
     return false;
 }
 
