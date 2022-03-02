@@ -419,7 +419,7 @@ void SDR_Reset(uint8_t module) {
 }
 
 // *****************************************************************************
-/* void SDR_Softreset ( uint8_t module )
+/* void SDR_SoftReset ( uint8_t module )
 
   Summary:
     Software reset SDR (AD9361) module.
@@ -430,7 +430,7 @@ void SDR_Reset(uint8_t module) {
   Remarks:
     None.
 */
-void SDR_Softreset(uint8_t module) {
+void SDR_SoftReset(uint8_t module) {
     LOG_FORMAT(debug, "[%s] Assert soft-reset for module %d", __func__, module);
     SPI_SDR_Write(module, REG_SPI_CONF, SOFT_RESET | _SOFT_RESET);
 
@@ -439,7 +439,7 @@ void SDR_Softreset(uint8_t module) {
 }
 
 // *****************************************************************************
-/* int8_t SDR_Selftest ( uint8_t module )
+/* int8_t SDR_SelfTest ( uint8_t module )
 
   Summary:
     SDR (AD9361) module selftest procedure.
@@ -451,7 +451,7 @@ void SDR_Softreset(uint8_t module) {
   Remarks:
     None.
 */
-int8_t SDR_Selftest(uint8_t module) {
+int8_t SDR_SelfTest(uint8_t module) {
     uint8_t _val_08 = 0;
 
     LOG_FORMAT(debug, "[%s] SDR (AD9361) configuration...", __func__);

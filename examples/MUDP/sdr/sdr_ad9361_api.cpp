@@ -351,7 +351,7 @@ int32_t ad9361_init(ad9361_rf_phy_t **ad9361_phy, AD9361_init_parameters_t *init
 
     SDR_Reset(phy->id_no);
 
-    SDR_Softreset(phy->id_no);
+    SDR_SoftReset(phy->id_no);
 
     // debug
     // SDR_Dump(SPI_SDR1_CS);

@@ -48,9 +48,9 @@ void SDR_Dump(uint8_t module);
 
 void SDR_Reset(uint8_t module);
 
-void SDR_Softreset(uint8_t module);
+void SDR_SoftReset(uint8_t module);
 
-void SDR_Selftest(uint8_t module);
+void SDR_SelfTest(uint8_t module);
 
 bool SDR_Configure(uint8_t module);
 
