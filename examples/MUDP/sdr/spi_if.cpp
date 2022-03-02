@@ -50,6 +50,16 @@ uint32_t __ffs(uint32_t word) {
 bool SPI_SDR_Init(uint8_t id, bool clock_phase, bool clock_polarity) {
     UNUSED(id);
 
+    if (ad9361_regs != nullptr) {
+        delete ad9361_regs;
+        ad9361_regs = nullptr;
+    }
+
+    if (ad9361_qspi != nullptr) {
+        delete ad9361_qspi;
+        ad9361_qspi = nullptr;
+    }
+
     ad9361_regs = new GMAPdevice(AD9361_REGS_ADDR, AD9361_REGS_SIZE);
     ad9361_qspi = new GAXIQuadSPI(AD9361_QSPI_ADDR, AD9361_QSPI_SIZE);
 
