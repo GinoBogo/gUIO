@@ -1601,7 +1601,7 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t bw_rx, uint32_t bw_t
 
     uint32_t clktf, clkrf;
     int32_t  txnco_word, rxnco_word, txnco_freq, rvalue;
-    uint8_t  __rx_phase = 0, reg_inv_bits = 0, val, decim;
+    uint8_t  __rx_phase = 0, reg_inv_bits = 0, val = 0, decim;
     uint32_t index_max, i, lpf_tia_mask;
 
     const uint8_t(*tab)[3];
@@ -2123,6 +2123,9 @@ int32_t ad9361_bist_prbs(ad9361_rf_phy_t *phy, ad9361_bist_mode_t mode) {
         case BIST_INJ_RX:
             reg = BIST_CTRL_POINT(2) | BIST_ENABLE;
             break;
+
+        default:
+            return -1;
     }
 
     SPI_SDR_Write(phy->id_no, REG_BIST_CONFIG, reg);
@@ -2816,6 +2819,10 @@ int32_t ad9361_gc_setup(ad9361_rf_phy_t *phy, gain_control_t *ctrl) {
             case NO_GAIN_CHANGE:
                 SPI_SDR_WriteF(phy->id_no, REG_FAST_CONFIG_1, GOTO_SET_GAIN_IF_EN_AGC_HIGH, 0);
                 SPI_SDR_WriteF(phy->id_no, REG_FAST_CONFIG_2_SETTLING_DELAY, GOTO_MAX_GAIN_OR_OPT_GAIN_IF_EN_AGC_HIGH, 0);
+                break;
+
+            default:
+                LOG_FORMAT(error, "[%s]: Wrong AGC pulled high mode", __func__);
                 break;
         }
     }
