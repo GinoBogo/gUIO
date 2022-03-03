@@ -12,6 +12,7 @@
 #include "GOptions.hpp"
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"
+#include "f_ad9361.hpp"
 #include "f_gm_dh.hpp"
 #include "f_gm_mc.hpp"
 #include "f_hssl0.hpp"

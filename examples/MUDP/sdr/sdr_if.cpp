@@ -454,7 +454,7 @@ void SDR_SoftReset(uint8_t module) {
 int8_t SDR_SelfTest(uint8_t module) {
     uint8_t _val_08 = 0;
 
-    LOG_FORMAT(debug, "[%s] SDR (AD9361) configuration...", __func__);
+    LOG_FORMAT(debug, "[%s] SDR (AD9361) test...", __func__);
 
     SDR_Reset(module);
 
