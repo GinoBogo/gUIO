@@ -98,15 +98,17 @@ bool GUIOdevice::IRQ_Wait(int timeout) {
 
     if (poll(&fds, 1, timeout) > 0) {
         // INFO: The only valid read() argument is a signed 32-bit integer.
-        read(m_dev.fd, &m_dev.irq_count, sizeof(m_dev.irq_count));
-        return true;
+        auto _ret{read(m_dev.fd, &m_dev.irq_count, sizeof(m_dev.irq_count))};
+        return _ret != -1;
     }
     return false;
 }
 
-void GUIOdevice::IRQ_Clear() {
+bool GUIOdevice::IRQ_Clear() {
     int32_t _val{0x00000001};
-    write(m_dev.fd, &_val, sizeof(_val));
+
+    auto _ret{write(m_dev.fd, &_val, sizeof(_val))};
+    return _ret != -1;
 }
 
 size_t GUIOdevice::GetMapAttribute(const char *attr_name, bool *error, char *dst_buff) {

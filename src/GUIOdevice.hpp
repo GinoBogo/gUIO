@@ -40,7 +40,7 @@ class GUIOdevice {
     bool MapToMemory();
 
     bool IRQ_Wait(int timeout = -1);
-    void IRQ_Clear();
+    bool IRQ_Clear();
 
     size_t GetMapAttribute(const char *attr_name, bool *error = nullptr, char *dst_buf = nullptr);
     void   PrintMapAttributes();
