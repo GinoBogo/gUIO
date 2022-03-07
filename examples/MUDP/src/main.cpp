@@ -20,6 +20,40 @@
 
 #include <thread> // thread, mutex
 
+void send_packet_start_flow(GFiFo &fifo, GUdpClient &client) {
+    GFiFo::fsm_state_t new_state, old_state;
+
+    if (fifo.IsStateChanged(&new_state, &old_state)) {
+        if (new_state == GFiFo::MIN_LEVEL_PASSED) {
+            TPacketHead packet;
+            packet.packet_type     = TPacketType::packet_start_flow;
+            packet.file_id         = 0;
+            packet.data_length     = 0;
+            packet.current_segment = 1;
+            packet.total_segments  = 1;
+
+            client.Send(&packet, GPacket::PACKET_HEAD_SIZE);
+        }
+    }
+}
+
+void send_packet_stop_flow(GFiFo &fifo, GUdpClient &client) {
+    GFiFo::fsm_state_t new_state, old_state;
+
+    if (fifo.IsStateChanged(&new_state, &old_state)) {
+        if (new_state == GFiFo::MAX_LEVEL_PASSED) {
+            TPacketHead packet;
+            packet.packet_type     = TPacketType::packet_stop_flow;
+            packet.file_id         = 0;
+            packet.data_length     = 0;
+            packet.current_segment = 1;
+            packet.total_segments  = 1;
+
+            client.Send(&packet, GPacket::PACKET_HEAD_SIZE);
+        }
+    }
+}
+
 void f_gm_mc_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (gm_mc_server)");
 
@@ -40,6 +74,7 @@ void f_gm_mc_server(bool &quit, GUdpServer &server, GUdpClient &client) {
 
             while (!fifo.IsEmpty()) {
                 if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+                    send_packet_start_flow(fifo, client);
                     decoder.Process();
                 }
             }
@@ -56,6 +91,7 @@ void f_gm_mc_server(bool &quit, GUdpServer &server, GUdpClient &client) {
         if (server.Receive(buffer, &bytes)) {
             if (GPacket::IsValid(buffer, bytes)) {
                 if (fifo.Push(buffer, bytes)) {
+                    send_packet_stop_flow(fifo, client);
                     gate.unlock();
                 }
             }
@@ -89,6 +125,7 @@ void f_gm_dh_server(bool &quit, GUdpServer &server, GUdpClient &client) {
 
             while (!fifo.IsEmpty()) {
                 if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+                    send_packet_start_flow(fifo, client);
                     decoder.Process();
                 }
             }
@@ -104,6 +141,7 @@ void f_gm_dh_server(bool &quit, GUdpServer &server, GUdpClient &client) {
         if (server.Receive(buffer, &bytes)) {
             if (GPacket::IsValid(buffer, bytes)) {
                 if (fifo.Push(buffer, bytes)) {
+                    send_packet_stop_flow(fifo, client);
                     gate.unlock();
                 }
             }
@@ -137,6 +175,7 @@ void f_hssl0_server(bool &quit, GUdpServer &server, GUdpClient &client) {
 
             while (!fifo.IsEmpty()) {
                 if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+                    send_packet_start_flow(fifo, client);
                     decoder.Process();
                 }
             }
@@ -152,6 +191,7 @@ void f_hssl0_server(bool &quit, GUdpServer &server, GUdpClient &client) {
         if (server.Receive(buffer, &bytes)) {
             if (GPacket::IsValid(buffer, bytes)) {
                 if (fifo.Push(buffer, bytes)) {
+                    send_packet_stop_flow(fifo, client);
                     gate.unlock();
                 }
             }
@@ -185,6 +225,7 @@ void f_hssl1_server(bool &quit, GUdpServer &server, GUdpClient &client) {
 
             while (!fifo.IsEmpty()) {
                 if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+                    send_packet_start_flow(fifo, client);
                     decoder.Process();
                 }
             }
@@ -200,6 +241,7 @@ void f_hssl1_server(bool &quit, GUdpServer &server, GUdpClient &client) {
         if (server.Receive(buffer, &bytes)) {
             if (GPacket::IsValid(buffer, bytes)) {
                 if (fifo.Push(buffer, bytes)) {
+                    send_packet_stop_flow(fifo, client);
                     gate.unlock();
                 }
             }
