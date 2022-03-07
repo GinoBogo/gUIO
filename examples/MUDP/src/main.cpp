@@ -23,7 +23,7 @@
 void f_gm_mc_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (gm_mc_server)");
 
-    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
+    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
     std::mutex gate;
 
     // SECTION: decoder thread
@@ -73,7 +73,7 @@ void f_gm_mc_server(bool &quit, GUdpServer &server, GUdpClient &client) {
 void f_gm_dh_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (gm_dh_server)");
 
-    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
+    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
     std::mutex gate;
 
     // SECTION: decoder thread
@@ -121,7 +121,7 @@ void f_gm_dh_server(bool &quit, GUdpServer &server, GUdpClient &client) {
 void f_hssl0_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (hssl0_server)");
 
-    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
+    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
     std::mutex gate;
 
     // SECTION: decoder thread
@@ -169,7 +169,7 @@ void f_hssl0_server(bool &quit, GUdpServer &server, GUdpClient &client) {
 void f_hssl1_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STARTED (hssl1_server)");
 
-    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20);
+    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
     std::mutex gate;
 
     // SECTION: decoder thread
@@ -214,43 +214,43 @@ void f_hssl1_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STOPPED (hssl1_server)");
 }
 
-std::string GM_MC_SERVER_ADDR;
-int         GM_MC_SERVER_PORT;
-std::string GM_MC_CLIENT_ADDR;
-int         GM_MC_CLIENT_PORT;
-std::string GM_DH_SERVER_ADDR;
-int         GM_DH_SERVER_PORT;
-std::string GM_DH_CLIENT_ADDR;
-int         GM_DH_CLIENT_PORT;
-std::string HSSL0_SERVER_ADDR;
-int         HSSL0_SERVER_PORT;
-std::string HSSL0_CLIENT_ADDR;
-int         HSSL0_CLIENT_PORT;
-std::string HSSL1_SERVER_ADDR;
-int         HSSL1_SERVER_PORT;
-std::string HSSL1_CLIENT_ADDR;
-int         HSSL1_CLIENT_PORT;
+std::string GM_MC_SERVER_ADDR = "127.0.0.1";
+int         GM_MC_SERVER_PORT = 30001;
+std::string GM_MC_CLIENT_ADDR = "127.0.0.1";
+int         GM_MC_CLIENT_PORT = 30101;
+std::string GM_DH_SERVER_ADDR = "127.0.0.1";
+int         GM_DH_SERVER_PORT = 40001;
+std::string GM_DH_CLIENT_ADDR = "127.0.0.1";
+int         GM_DH_CLIENT_PORT = 40101;
+std::string HSSL0_SERVER_ADDR = "127.0.0.1";
+int         HSSL0_SERVER_PORT = 50001;
+std::string HSSL0_CLIENT_ADDR = "127.0.0.1";
+int         HSSL0_CLIENT_PORT = 50101;
+std::string HSSL1_SERVER_ADDR = "127.0.0.1";
+int         HSSL1_SERVER_PORT = 60001;
+std::string HSSL1_CLIENT_ADDR = "127.0.0.1";
+int         HSSL1_CLIENT_PORT = 60101;
 
 void load_options(const char *filename) {
     auto opts = GOptions();
 
     // clang-format off
-    opts.Insert<std::string>("socket.GM_MC_SERVER_ADDR", "127.0.0.1");
-    opts.Insert<int        >("socket.GM_MC_SERVER_PORT", 30001      );
-    opts.Insert<std::string>("socket.GM_MC_CLIENT_ADDR", "127.0.0.1");
-    opts.Insert<int        >("socket.GM_MC_CLIENT_PORT", 30101      );
-    opts.Insert<std::string>("socket.GM_DH_SERVER_ADDR", "127.0.0.1");
-    opts.Insert<int        >("socket.GM_DH_SERVER_PORT", 40001      );
-    opts.Insert<std::string>("socket.GM_DH_CLIENT_ADDR", "127.0.0.1");
-    opts.Insert<int        >("socket.GM_DH_CLIENT_PORT", 40101      );
-    opts.Insert<std::string>("socket.HSSL0_SERVER_ADDR", "127.0.0.1");
-    opts.Insert<int        >("socket.HSSL0_SERVER_PORT", 50001      );
-    opts.Insert<std::string>("socket.HSSL0_CLIENT_ADDR", "127.0.0.1");
-    opts.Insert<int        >("socket.HSSL0_CLIENT_PORT", 50101      );
-    opts.Insert<std::string>("socket.HSSL1_SERVER_ADDR", "127.0.0.1");
-    opts.Insert<int        >("socket.HSSL1_SERVER_PORT", 60001      );
-    opts.Insert<std::string>("socket.HSSL1_CLIENT_ADDR", "127.0.0.1");
-    opts.Insert<int        >("socket.HSSL1_CLIENT_PORT", 60101      );
+    opts.Insert<std::string>("socket.GM_MC_SERVER_ADDR", GM_MC_SERVER_ADDR);
+    opts.Insert<int        >("socket.GM_MC_SERVER_PORT", GM_MC_SERVER_PORT);
+    opts.Insert<std::string>("socket.GM_MC_CLIENT_ADDR", GM_MC_CLIENT_ADDR);
+    opts.Insert<int        >("socket.GM_MC_CLIENT_PORT", GM_MC_CLIENT_PORT);
+    opts.Insert<std::string>("socket.GM_DH_SERVER_ADDR", GM_DH_SERVER_ADDR);
+    opts.Insert<int        >("socket.GM_DH_SERVER_PORT", GM_DH_SERVER_PORT);
+    opts.Insert<std::string>("socket.GM_DH_CLIENT_ADDR", GM_DH_CLIENT_ADDR);
+    opts.Insert<int        >("socket.GM_DH_CLIENT_PORT", GM_DH_CLIENT_PORT);
+    opts.Insert<std::string>("socket.HSSL0_SERVER_ADDR", HSSL0_SERVER_ADDR);
+    opts.Insert<int        >("socket.HSSL0_SERVER_PORT", HSSL0_SERVER_PORT);
+    opts.Insert<std::string>("socket.HSSL0_CLIENT_ADDR", HSSL0_CLIENT_ADDR);
+    opts.Insert<int        >("socket.HSSL0_CLIENT_PORT", HSSL0_CLIENT_PORT);
+    opts.Insert<std::string>("socket.HSSL1_SERVER_ADDR", HSSL1_SERVER_ADDR);
+    opts.Insert<int        >("socket.HSSL1_SERVER_PORT", HSSL1_SERVER_PORT);
+    opts.Insert<std::string>("socket.HSSL1_CLIENT_ADDR", HSSL1_CLIENT_ADDR);
+    opts.Insert<int        >("socket.HSSL1_CLIENT_PORT", HSSL1_CLIENT_PORT);
     // clang-format on
 
     if (opts.Read(filename)) {
@@ -290,7 +290,7 @@ int main() {
     auto hssl1_server = GUdpServer(HSSL1_SERVER_ADDR.c_str(), HSSL1_SERVER_PORT, "HSSL1");
     auto hssl1_client = GUdpClient(HSSL1_CLIENT_ADDR.c_str(), HSSL1_CLIENT_PORT, "HSSL1");
 
-    auto quit = false;
+    auto quit{false};
 
     std::thread t_gm_mc_server(f_gm_mc_server, std::ref(quit), std::ref(gm_mc_server), std::ref(gm_mc_client));
     std::thread t_gm_dh_server(f_gm_dh_server, std::ref(quit), std::ref(gm_dh_server), std::ref(gm_dh_client));

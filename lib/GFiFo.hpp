@@ -15,7 +15,14 @@
 
 class GFiFo {
     public:
-    GFiFo(const uint32_t item_size, const uint32_t fifo_depth);
+    typedef enum {
+        TRANSITION_OFF, // Disable the Finite-State Machine
+        REGULAR_LEVEL,
+        MAX_LEVEL_PASSED,
+        MIN_LEVEL_PASSED
+    } fsm_state_t;
+
+    GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_level = -1, const int min_level = -1);
 
     ~GFiFo();
 
@@ -32,6 +39,8 @@ class GFiFo {
     bool Pop(GBuffer *dst_buff);
 
     int32_t Pop(uint8_t *dst_data, const uint32_t dst_size);
+
+    bool IsStateChanged(fsm_state_t *new_state = nullptr, fsm_state_t *old_state = nullptr);
 
     inline bool IsEmpty() {
         return !m_count;
@@ -58,13 +67,16 @@ class GFiFo {
     }
 
     private:
-    uint32_t   m_size;
-    uint32_t   m_depth;
-    uint32_t   m_count;
-    uint32_t   m_iR;
-    uint32_t   m_iW;
-    GBuffer   **p_fifo;
-    std::mutex m_mutex;
+    uint32_t    m_size;
+    uint32_t    m_depth;
+    uint32_t    m_count;
+    uint32_t    m_iR;
+    uint32_t    m_iW;
+    GBuffer **  p_fifo;
+    std::mutex  m_mutex;
+    int         m_max_level;
+    int         m_min_level;
+    fsm_state_t m_fsm_state;
 };
 
 #endif // GFIFO_HPP
