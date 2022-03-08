@@ -17,14 +17,12 @@ GFiFo::GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_
     p_fifo  = nullptr;
 
     m_max_level = max_level < 1 ? -1 : std::min(max_level, static_cast<int>(fifo_depth));
-    m_min_level = min_level < 0 ? -1 : std::max(min_level, 0);
+    m_min_level = min_level < 0 ? -1 : std::min(min_level, static_cast<int>(fifo_depth));
 
-    if (max_level == min_level) {
-        m_max_level = -1;
-        m_min_level = -1;
-    }
+    auto check_1{m_max_level == m_min_level};
+    auto check_2{m_max_level > 0 && m_max_level < m_min_level};
 
-    if (m_max_level < 0 && m_min_level < 0) {
+    if (check_1 || check_2) {
         m_fsm_state = TRANSITION_OFF;
     }
     else {
