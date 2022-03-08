@@ -15,8 +15,8 @@
                                                                               */
 /* ************************************************************************** */
 
-#ifndef _SDR_AD9361_H
-#define _SDR_AD9361_H
+#ifndef SDR_AD9361_HPP
+#define SDR_AD9361_HPP
 
 // *****************************************************************************
 // *****************************************************************************
@@ -2870,7 +2870,7 @@ int32_t  ad9361_tracking_control(ad9361_rf_phy_t *phy, bool bbdc_track, bool rfd
 int32_t  ad9361_rf_port_setup(ad9361_rf_phy_t *phy, bool is_out, uint32_t rx_inputs, uint32_t txb);
 int32_t  ad9361_do_calib_run(ad9361_rf_phy_t *phy, uint32_t cal, int32_t arg);
 
-#endif /* _SDR_AD9361_H */
+#endif /* SDR_AD9361_HPP */
 
 /* *****************************************************************************
  End of File

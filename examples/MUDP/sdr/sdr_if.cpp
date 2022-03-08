@@ -28,6 +28,7 @@
 
 // project libraries
 #include "GLogger.hpp"
+#include "GRegisters.hpp"     // to_bits
 #include "sdr_ad9361_api.hpp" // SDR AD9361 API
 #include "spi_if.hpp"         // SPI interface API
 
@@ -43,7 +44,9 @@
 // *****************************************************************************
 // *****************************************************************************
 
-AD9361_init_parameters_t SDR_init_params = {
+ad9361_rf_phy_t ad9361_phy[SPI_SDR_NUM];
+
+ad9361_init_parameters_t init_params = {
     // identification number
     (uInt08)SPI_SDR1_CS, // id_no
 
@@ -308,7 +311,7 @@ AD9361_init_parameters_t SDR_init_params = {
     (uInt32)48     // tx2_mon_lo_cm
 };
 
-AD9361_TX_FIR_config_t tx_fir_config = {
+ad9361_tx_fir_config_t tx_fir_config = {
     // BPF PASSBAND 3/20 fs to 1/4 fs
     (uInt32)3,  // tx
     (sInt32)-6, // tx_gain
@@ -334,7 +337,7 @@ AD9361_TX_FIR_config_t tx_fir_config = {
     (uInt08)64 // tx_coef_size
 };
 
-AD9361_RX_FIR_config_t rx_fir_config = {
+ad9361_rx_fir_config_t rx_fir_config = {
     // BPF PASSBAND 3/20 fs to 1/4 fs
     (uInt32)3, // rx
     (uInt32)0, // rx_gain
@@ -360,8 +363,6 @@ AD9361_RX_FIR_config_t rx_fir_config = {
     (uInt08)64 // rx_coef_size
 };
 
-ad9361_rf_phy_t *ad9361_phy[SPI_SDR_NUM];
-
 // *****************************************************************************
 // *****************************************************************************
 // Section: local functions
@@ -369,7 +370,7 @@ ad9361_rf_phy_t *ad9361_phy[SPI_SDR_NUM];
 // *****************************************************************************
 
 // *****************************************************************************
-/* void SDR_Dump ( uint8_t module )
+/* void SDR_DumpRegs(uint8_t module)
 
   Summary:
     Dump to UART a full SDR (AD9361) internal registers image.
@@ -381,14 +382,16 @@ ad9361_rf_phy_t *ad9361_phy[SPI_SDR_NUM];
   Remarks:
     None.
 */
-void SDR_Dump(uint8_t module) {
-    LOG_FORMAT(debug, "[%s] Registers image for module %d ...", __func__, module);
+void SDR_DumpRegs(uint8_t module) {
+    LOG_FORMAT(debug, "[%s] SDR (AD9361) dump started", __func__);
 
     // loop over all SDR internal registers...
-    for (uint16_t reg = 0x0000; reg < 0x0400; ++reg) {
+    for (uint16_t reg{0x000}; reg < 0x400; ++reg) {
         auto value = SPI_SDR_Read(module, reg);
-        LOG_FORMAT(debug, "  - REG 0x%03X   VAL 0x%02X (%3d)", reg, value, value);
+        LOG_FORMAT(debug, "  GET register 0x%03X : 0x%02X (%3d)", reg, value, value);
     }
+
+    LOG_FORMAT(debug, "[%s] SDR (AD9361) dump stopped", __func__);
 }
 
 // *****************************************************************************
@@ -398,7 +401,7 @@ void SDR_Dump(uint8_t module) {
 // *****************************************************************************
 
 // *****************************************************************************
-/* void SDR_Reset ( uint8_t module )
+/* void SDR_Reset(uint8_t module)
 
   Summary:
     Reset SDR (AD9361) module.
@@ -419,7 +422,7 @@ void SDR_Reset(uint8_t module) {
 }
 
 // *****************************************************************************
-/* void SDR_SoftReset ( uint8_t module )
+/* void SDR_SoftReset(uint8_t module)
 
   Summary:
     Software reset SDR (AD9361) module.
@@ -439,108 +442,91 @@ void SDR_SoftReset(uint8_t module) {
 }
 
 // *****************************************************************************
-/* int8_t SDR_SelfTest ( uint8_t module )
+/* void SDR_SelfTest(uint8_t module, bool pre_reset)
 
   Summary:
-    SDR (AD9361) module selftest procedure.
+    SDR (AD9361) module self-test procedure.
 
   Description:
-    SDR (AD9361) module selftest procedure. Selected module is defined by 'module'
+    SDR (AD9361) module self-test procedure. Selected module is defined by 'module'
     input parameter.
 
   Remarks:
     None.
 */
-int8_t SDR_SelfTest(uint8_t module) {
-    uint8_t _val_08 = 0;
+void SDR_SelfTest(uint8_t module, bool pre_reset) {
+    uint8_t _val{0};
 
-    LOG_FORMAT(debug, "[%s] SDR (AD9361) test...", __func__);
+    LOG_FORMAT(debug, "[%s] SDR (AD9361) test started", __func__);
 
-    SDR_Reset(module);
+    if (pre_reset) {
+        SDR_Reset(module);
 
-    /*
-        uint32_t _val_32 = 0;
+        SDR_SoftReset(module);
+    }
 
-        LOG_WRITE(info, "select SPI master: MCU...");
-
-        // select SPI master - MCU
-        SPI_FPGA_Write(0x00, 0x80000001);
-
-        // debug: FPGA SPI
-        _val_32 = SPI_FPGA_Read(0x00);
-        LOG_FORMAT(info, "FPGA - read  - 0x00 : 0x%08X", _val_32);
-
-        _val_32 = SPI_FPGA_Read(0x01);
-        LOG_FORMAT(info, "FPGA - read  - 0x01 : 0x%08X", _val_32);
-
-        SPI_FPGA_Write(0x01, 0xF5A91101);
-
-        _val_32 = SPI_FPGA_Read(0x01);
-        LOG_FORMAT(info, "FPGA - read  - 0x01 : 0x%08X", _val_32);
-    */
-
-    // debug : SDR read/write functions' test
-
-    _val_08 = SPI_SDR_Read(module, 0x0028);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : 0x%02X", _val_08);
+    // write then read SDR internal register: 0x0028
+    SPI_SDR_Write(module, 0x028, 0);
+    _val = SPI_SDR_Read(module, 0x028);
+    LOG_FORMAT(debug, "  SET register 0x028 : %s", to_bits<8>(_val).c_str());
 
     // write SDR internal register field: 0x028, bit D4 = 1
-    SPI_SDR_WriteF(module, 0x0028, 0x10, 1);
-    _val_08 = SPI_SDR_Read(module, 0x0028);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : 0x%02X", _val_08);
+    SPI_SDR_WriteF(module, 0x028, 0x10, 1);
+    _val = SPI_SDR_Read(module, 0x028);
+    LOG_FORMAT(debug, "  SET bit D4 - 0x028 : %s", to_bits<8>(_val).c_str());
 
     // write SDR internal register field: 0x028, bit D7 = 1
-    SPI_SDR_WriteF(module, 0x0028, 0x80, 1);
-    _val_08 = SPI_SDR_Read(module, 0x0028);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : 0x%02X", _val_08);
+    SPI_SDR_WriteF(module, 0x028, 0x80, 1);
+    _val = SPI_SDR_Read(module, 0x028);
+    LOG_FORMAT(debug, "  SET bit D7 - 0x028 : %s", to_bits<8>(_val).c_str());
 
     // write SDR internal register field: 0x028, bit D3 = 1
-    SPI_SDR_WriteF(module, 0x0028, 0x08, 1);
-    _val_08 = SPI_SDR_Read(module, 0x0028);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : 0x%02X", _val_08);
+    SPI_SDR_WriteF(module, 0x028, 0x08, 1);
+    _val = SPI_SDR_Read(module, 0x028);
+    LOG_FORMAT(debug, "  SET bit D3 - 0x028 : %s", to_bits<8>(_val).c_str());
 
     // write SDR internal register field: 0x028, bit D2 = 1
-    SPI_SDR_WriteF(module, 0x0028, 0x04, 1);
-    _val_08 = SPI_SDR_Read(module, 0x0028);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : 0x%02X", _val_08);
+    SPI_SDR_WriteF(module, 0x028, 0x04, 1);
+    _val = SPI_SDR_Read(module, 0x028);
+    LOG_FORMAT(debug, "  SET bit D2 - 0x028 : %s", to_bits<8>(_val).c_str());
 
-    // write SDR internal register field: 0x028 , bit D3 = 0
-    SPI_SDR_WriteF(module, 0x0028, 0x08, 0);
+    // write SDR internal register field: 0x028, bit D3 = 0
+    SPI_SDR_WriteF(module, 0x028, 0x08, 0);
     // read SDR internal register (single location)
-    _val_08 = SPI_SDR_Read(module, 0x0028);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : 0x%02X", _val_08);
+    _val = SPI_SDR_Read(module, 0x028);
+    LOG_FORMAT(debug, "  CLS bit D3 - 0x028 : %s", to_bits<8>(_val).c_str());
 
-    // read SDR internal register field: 0x028 , bit D7
-    _val_08 = SPI_SDR_ReadF(module, 0x0028, 0x80);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : bit D7 : %d", _val_08);
+    // read SDR internal register field: 0x028, bit D7
+    _val = SPI_SDR_ReadF(module, 0x028, 0x80);
+    LOG_FORMAT(debug, "  GET bit D7 - 0x028 : %d", _val);
 
-    // read SDR internal register field: 0x028 , bit D6
-    _val_08 = SPI_SDR_ReadF(module, 0x0028, 0x40);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : bit D6 : %d", _val_08);
+    // read SDR internal register field: 0x028, bit D6
+    _val = SPI_SDR_ReadF(module, 0x028, 0x40);
+    LOG_FORMAT(debug, "  GET bit D6 - 0x028 : %d", _val);
 
-    // read SDR internal register field: 0x028 , bit D5
-    _val_08 = SPI_SDR_ReadF(module, 0x0028, 0x20);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : bit D5 : %d", _val_08);
+    // read SDR internal register field: 0x028, bit D5
+    _val = SPI_SDR_ReadF(module, 0x028, 0x20);
+    LOG_FORMAT(debug, "  GET bit D5 - 0x028 : %d", _val);
 
-    // read SDR internal register field: 0x028 , bit D4
-    _val_08 = SPI_SDR_ReadF(module, 0x0028, 0x10);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : bit D4 : %d", _val_08);
+    // read SDR internal register field: 0x028, bit D4
+    _val = SPI_SDR_ReadF(module, 0x028, 0x10);
+    LOG_FORMAT(debug, "  GET bit D4 - 0x028 : %d", _val);
 
-    // read SDR internal register field: 0x028 , bit D3
-    _val_08 = SPI_SDR_ReadF(module, 0x0028, 0x08);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : bit D3 : %d", _val_08);
+    // read SDR internal register field: 0x028, bit D3
+    _val = SPI_SDR_ReadF(module, 0x028, 0x08);
+    LOG_FORMAT(debug, "  GET bit D3 - 0x028 : %d", _val);
 
-    // read SDR internal register field: 0x028 , bit D2
-    _val_08 = SPI_SDR_ReadF(module, 0x0028, 0x04);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : bit D2 : %d", _val_08);
+    // read SDR internal register field: 0x028, bit D2
+    _val = SPI_SDR_ReadF(module, 0x028, 0x04);
+    LOG_FORMAT(debug, "  GET bit D2 - 0x028 : %d", _val);
 
-    // read SDR internal register field: 0x028 , bit D1
-    _val_08 = SPI_SDR_ReadF(module, 0x0028, 0x02);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : bit D1 : %d", _val_08);
+    // read SDR internal register field: 0x028, bit D1
+    _val = SPI_SDR_ReadF(module, 0x028, 0x02);
+    LOG_FORMAT(debug, "  GET bit D1 - 0x028 : %d", _val);
 
-    // read SDR internal register field: 0x028 , bit D0
-    _val_08 = SPI_SDR_ReadF(module, 0x0028, 0x01);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : bit D0 : %d", _val_08);
+    // read SDR internal register field: 0x028, bit D0
+    _val = SPI_SDR_ReadF(module, 0x028, 0x01);
+    LOG_FORMAT(debug, "  GET bit D0 - 0x028 : %d", _val);
 
     // multiple read/write buffers
     uint8_t sdr_wr_data[4] = {0x01, 0x02, 0x03, 0x04};
@@ -548,58 +534,52 @@ int8_t SDR_SelfTest(uint8_t module) {
 
     // multiple write
     SPI_SDR_WriteM(module, 0x02B, sdr_wr_data, sizeof(sdr_wr_data));
-
     // read back values
-    for (uint8_t i = 0; i < 8; i += 1) {
-        // read SDR internal registers (single location)
-        _val_08 = SPI_SDR_Read(module, 0x0028 + i);
-        LOG_FORMAT(info, "SDR - read  - 0x%03X : 0x%02X", (0x0028 + i), _val_08);
+    for (uint8_t i{0}; i < sizeof(sdr_rd_data); ++i) {
+        _val = SPI_SDR_Read(module, 0x028 + i);
+        LOG_FORMAT(debug, "  SET register 0x%03X : 0x%02X", (0x0028 + i), _val);
     }
 
     // multiple read
     SPI_SDR_ReadM(module, 0x02F, sdr_rd_data, sizeof(sdr_rd_data));
-
-    // log read back values
-    LOG_WRITE(info, "SDR - read  - 0x02F (8 bytes) : ");
-    for (uint8_t i = 0; i < sizeof(sdr_rd_data); i += 1) {
-        LOG_FORMAT(info, "0x%02X ", sdr_rd_data[i]);
+    // read back values
+    LOG_WRITE(debug, "  SDR read block - 0x02F (8 bytes) : ");
+    for (uint8_t i{0}; i < sizeof(sdr_rd_data); ++i) {
+        LOG_FORMAT(debug, "  (%d) 0x%02X ", i, sdr_rd_data[i]);
     }
-    LOG_WRITE(info, "");
-
-    // debug
 
     // write SDR internal register (single location)
-    SPI_SDR_Write(module, 0x0028, 0xA5);
+    SPI_SDR_Write(module, 0x028, 0xA5);
 
     // read SDR internal register (single location)
-    _val_08 = SPI_SDR_Read(module, 0x0028);
-    LOG_FORMAT(info, "SDR - read  - 0x028 : 0x%02X", _val_08);
+    _val = SPI_SDR_Read(module, 0x028);
+    LOG_FORMAT(debug, "  GET register 0x028 : 0x%02X", _val);
 
     // read SDR internal register (single location)
-    _val_08 = SPI_SDR_Read(module, 0x028B);
-    LOG_FORMAT(info, "SDR - read  - 0x28B : 0x%02X", _val_08);
+    _val = SPI_SDR_Read(module, 0x28B);
+    LOG_FORMAT(debug, "  GET register 0x28B : 0x%02X", _val);
 
     // read SDR internal register (single location)
-    _val_08 = SPI_SDR_Read(module, 0x0037);
-    LOG_FORMAT(info, "SDR - read  - 0x037 : 0x%02X", _val_08);
+    _val = SPI_SDR_Read(module, 0x037);
+    LOG_FORMAT(debug, "  GET register 0x037 : 0x%02X", _val);
 
     // read SDR internal register (single location)
-    _val_08 = SPI_SDR_Read(module, 0x0002);
-    LOG_FORMAT(info, "SDR - read  - 0x002 : 0x%02X", _val_08);
+    _val = SPI_SDR_Read(module, 0x002);
+    LOG_FORMAT(debug, "  GET register 0x002 : 0x%02X", _val);
 
     // read SDR internal register (single location)
-    _val_08 = SPI_SDR_Read(module, 0x0009);
-    LOG_FORMAT(info, "SDR - read  - 0x009 : 0x%02X", _val_08);
+    _val = SPI_SDR_Read(module, 0x009);
+    LOG_FORMAT(debug, "  GET register 0x009 : 0x%02X", _val);
 
     // read SDR internal register (single location)
-    _val_08 = SPI_SDR_Read(module, 0x000B);
-    LOG_FORMAT(info, "SDR - read  - 0x00B : 0x%02X", _val_08);
+    _val = SPI_SDR_Read(module, 0x00B);
+    LOG_FORMAT(debug, "  GET register 0x00B : 0x%02X", _val);
 
-    return 0;
+    LOG_FORMAT(debug, "[%s] SDR (AD9361) test stopped", __func__);
 }
 
 // *****************************************************************************
-/* void SDR_Configure ( uint8_t module )
+/* bool SDR_Configure(uint8_t module)
 
   Summary:
     Configure SDR (AD9361) module.
@@ -616,31 +596,30 @@ bool SDR_Configure(uint8_t module) {
     // check module parameter is in allowed range
     if (module < SPI_SDR_NUM) {
         // AD9361 initialize device
-        ad9361_init(&ad9361_phy[module], &SDR_init_params);
+        ad9361_init(&ad9361_phy[module], &init_params);
 
         // AD9361 set TX fir configuration
-        ad9361_set_tx_fir_config(ad9361_phy[module], tx_fir_config);
+        ad9361_set_tx_fir_config(&ad9361_phy[module], tx_fir_config);
 
         // AD9361 set RX fir configuration
-        ad9361_set_rx_fir_config(ad9361_phy[module], rx_fir_config);
+        ad9361_set_rx_fir_config(&ad9361_phy[module], rx_fir_config);
 
         // check ENSM internal state
         uint8_t ENSM_state = ENSM_STATE(SPI_SDR_Read(SPI_SDR1_CS, REG_STATE));
-
         if (ENSM_state == ENSM_STATE_FDD) {
-            LOG_FORMAT(debug, "[%s] ENSM in FDD state!", __func__);
+            LOG_FORMAT(info, "[%s] ENSM in FDD state!", __func__);
             return true;
         }
         else {
             LOG_FORMAT(error, "[%s] ENSM in state %d", __func__, ENSM_state);
-            LOG_FORMAT(error, "[%s] ENSM in FDD state (10) expected!", __func__);
+            LOG_FORMAT(error, "[%s] ENSM in FDD state (%d) expected!", __func__, ENSM_STATE_FDD);
         }
     }
     return false;
 }
 
 // *****************************************************************************
-/* void SDR_BIST_Start ( uint8_t module )
+/* void SDR_BIST_Start(uint8_t module)
 
   Summary:
     Start SDR (AD9361) module BIST.
@@ -667,7 +646,7 @@ void SDR_BIST_Start(uint8_t module, bool prbs_mode) {
 }
 
 // *****************************************************************************
-/* void SDR_BIST_Stop  ( uint8_t module )
+/* void SDR_BIST_Stop(uint8_t module)
 
   Summary:
     Stop SDR (AD9361) module BIST.
@@ -689,7 +668,7 @@ void SDR_BIST_Stop(uint8_t module) {
 }
 
 // *****************************************************************************
-/* void SDR_TXRX_LO_Test ( uint8_t module , uint32_t rx_lo_offset , bool bist_mode )
+/* void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode)
 
   Summary:
     SDR (AD9361) module LO TX frequencies frequencies tests.
@@ -710,7 +689,7 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
     // RX LO frequency offset (wrt TX LO frequency offset)
     uint64_t rx_lo_frequency_offset = rx_lo_offset;
 
-    // TX and RX LO frequency readback value
+    // TX and RX LO frequency read-back value
     uint64_t tx_lo_frequency_rvalue = 0UL;
     uint64_t rx_lo_frequency_rvalue = 0UL;
 
@@ -724,8 +703,8 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
         for (uint8_t i = 0; i < 6; i += 1) {
 
             // set TX and RX LO frequency
-            ad9361_set_tx_lo_freq(ad9361_phy[module], tx_lo_frequency_table[i]);
-            ad9361_set_rx_lo_freq(ad9361_phy[module], tx_lo_frequency_table[i] + rx_lo_frequency_offset);
+            ad9361_set_tx_lo_freq(&ad9361_phy[module], tx_lo_frequency_table[i]);
+            ad9361_set_rx_lo_freq(&ad9361_phy[module], tx_lo_frequency_table[i] + rx_lo_frequency_offset);
 
             // read back PLL dividers values
             auto RFPLL_Dividers = SPI_SDR_Read(module, REG_RFPLL_DIVIDERS);
@@ -733,15 +712,15 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
 
             // DC offset calibration
             LOG_FORMAT(debug, "[%s] start DC offset calibration...", __func__);
-            ad9361_do_calib(ad9361_phy[module], RFDC_CAL, -1);
+            ad9361_do_calib(&ad9361_phy[module], RFDC_CAL, -1);
 
             // TX quadrature calibration
             LOG_FORMAT(debug, "[%s] start TX quadrature calibration...", __func__);
-            ad9361_do_calib(ad9361_phy[module], TX_QUAD_CAL, -1);
+            ad9361_do_calib(&ad9361_phy[module], TX_QUAD_CAL, -1);
 
             // get TX and RX LO frequency
-            ad9361_get_tx_lo_freq(ad9361_phy[module], &tx_lo_frequency_rvalue);
-            ad9361_get_rx_lo_freq(ad9361_phy[module], &rx_lo_frequency_rvalue);
+            ad9361_get_tx_lo_freq(&ad9361_phy[module], &tx_lo_frequency_rvalue);
+            ad9361_get_rx_lo_freq(&ad9361_phy[module], &rx_lo_frequency_rvalue);
             LOG_FORMAT(debug, "[%s] TX LO frequency = %" PRIu64 " [Hz]", __func__, tx_lo_frequency_rvalue);
             LOG_FORMAT(debug, "[%s] RX LO frequency = %" PRIu64 " [Hz]", __func__, rx_lo_frequency_rvalue);
 
@@ -760,13 +739,13 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
             LOG_FORMAT(debug, "[%s] rx signal power = %d (0x%02X)", __func__, rx_power, rx_power);
 
             // get tx attenuation
-            ad9361_get_tx_attenuation(ad9361_phy[module], 0, &tx_attenuation);
+            ad9361_get_tx_attenuation(&ad9361_phy[module], 0, &tx_attenuation);
 
             // increase tx attenuation by 3dB ( 3000 mdB )
             tx_attenuation += 3000;
 
             // set tx attenuation
-            ad9361_set_tx_attenuation(ad9361_phy[module], 0, tx_attenuation);
+            ad9361_set_tx_attenuation(&ad9361_phy[module], 0, tx_attenuation);
             LOG_FORMAT(debug, "[%s] TX attenuation +3 dB", __func__);
 
             // read back received signal power
@@ -781,13 +760,13 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
 
             // restore tx attenuation
             tx_attenuation -= 3000;
-            ad9361_set_tx_attenuation(ad9361_phy[module], 0, tx_attenuation);
+            ad9361_set_tx_attenuation(&ad9361_phy[module], 0, tx_attenuation);
         }
     }
 }
 
 // *****************************************************************************
-/* void SDR_TX_Atten_Test ( uint8_t module )
+/* void SDR_TX_Atten_Test(uint8_t module)
 
   Summary:
     Test SDR (AD9361) module TX attenuator.
@@ -805,7 +784,7 @@ void SDR_TX_Atten_Test(uint8_t module) {
 
     while (1) {
         // set TX attenuation - channel 1
-        ad9361_set_tx_attenuation(ad9361_phy[module], 0, tx_attenuation);
+        ad9361_set_tx_attenuation(&ad9361_phy[module], 0, tx_attenuation);
         // update TX attenuation
         tx_attenuation -= 3000;
     }

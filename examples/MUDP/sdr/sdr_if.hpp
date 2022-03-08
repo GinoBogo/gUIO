@@ -15,8 +15,8 @@
                                                                               */
 /* ************************************************************************** */
 
-#ifndef _SDR_IF_H
-#define _SDR_IF_H
+#ifndef SDR_IF_HPP
+#define SDR_IF_HPP
 
 #include <cstdint>
 
@@ -44,13 +44,13 @@
 // *****************************************************************************
 // *****************************************************************************
 
-void SDR_Dump(uint8_t module);
+void SDR_DumpRegs(uint8_t module);
 
 void SDR_Reset(uint8_t module);
 
 void SDR_SoftReset(uint8_t module);
 
-void SDR_SelfTest(uint8_t module);
+void SDR_SelfTest(uint8_t module, bool pre_reset = false);
 
 bool SDR_Configure(uint8_t module);
 
@@ -62,7 +62,7 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode);
 
 void SDR_TX_Atten_Test(uint8_t module);
 
-#endif /* _SDR_IF_H */
+#endif /* SDR_IF_HPP */
 
 /* *****************************************************************************
  End of File
