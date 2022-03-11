@@ -353,13 +353,14 @@ int32_t ad9361_init(ad9361_rf_phy_t *phy, ad9361_init_parameters_t *init_param) 
 
     _ret = SPI_SDR_Read(phy->id_no, REG_PRODUCT_ID);
     if ((_ret & PRODUCT_ID_MASK) != PRODUCT_ID_9361) {
-        LOG_FORMAT(error, "[%s] Unsupported PRODUCT_ID 0x%02X for SDR %d", __func__, _ret, phy->id_no);
+        LOG_FORMAT(error, "Unsupported PRODUCT_ID 0x%02X for SDR %d (%s)", _ret, phy->id_no, __func__);
         _ret = -ENODEV;
         goto out;
     }
 
     // get revision number
     _rev = _ret & REV_MASK;
+
     _ret = register_clocks(phy);
     if (_ret < 0) {
         goto out;
@@ -378,11 +379,11 @@ int32_t ad9361_init(ad9361_rf_phy_t *phy, ad9361_init_parameters_t *init_param) 
         goto out;
     }
 
-    LOG_FORMAT(info, "[%s] AD9361 Rev %d successfully initialized", __func__, _rev);
+    LOG_FORMAT(info, "AD9361 Rev %d successfully initialized (%s)", _rev, __func__);
     return 0;
 
 out:
-    LOG_FORMAT(error, "[%s] AD9361 initialization error", __func__);
+    LOG_FORMAT(error, "AD9361 initialization error (%s)", __func__);
     return -ENODEV;
 }
 

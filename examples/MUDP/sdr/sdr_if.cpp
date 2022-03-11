@@ -28,7 +28,7 @@
 
 // project libraries
 #include "GLogger.hpp"
-#include "GRegisters.hpp"     // to_bits
+#include "GRegisters.hpp"     // set_bit, to_bits
 #include "sdr_ad9361_api.hpp" // SDR AD9361 API
 #include "spi_if.hpp"         // SPI interface API
 
@@ -383,15 +383,15 @@ ad9361_rx_fir_config_t rx_fir_config = {
     None.
 */
 void SDR_DumpRegs(uint8_t module) {
-    LOG_FORMAT(debug, "[%s] SDR (AD9361) dump started", __func__);
+    LOG_FORMAT(debug, "SDR (AD9361) dump started (%s)", __func__);
 
     // loop over all SDR internal registers...
     for (uint16_t reg{0x000}; reg < 0x400; ++reg) {
-        auto value = SPI_SDR_Read(module, reg);
-        LOG_FORMAT(debug, "  GET register 0x%03X : 0x%02X (%3d)", reg, value, value);
+        auto _val = SPI_SDR_Read(module, reg);
+        LOG_FORMAT(debug, "  GET register 0x%03X : 0x%02X (%3d)", reg, _val, _val);
     }
 
-    LOG_FORMAT(debug, "[%s] SDR (AD9361) dump stopped", __func__);
+    LOG_FORMAT(debug, "SDR (AD9361) dump stopped (%s)", __func__);
 }
 
 // *****************************************************************************
@@ -414,10 +414,10 @@ void SDR_DumpRegs(uint8_t module) {
     None.
 */
 void SDR_Reset(uint8_t module) {
-    LOG_FORMAT(debug, "[%s] Assert reset for module %d", __func__, module);
+    LOG_FORMAT(debug, "Assert reset for module %d (%s)", module, __func__);
     SPI_FPGA_Write(AD9361_RESET_ADDR, AD9361_RESET_ASSERT);
 
-    LOG_FORMAT(debug, "[%s] Release reset for module %d", __func__, module);
+    LOG_FORMAT(debug, "Release reset for module %d (%s)", module, __func__);
     SPI_FPGA_Write(AD9361_RESET_ADDR, AD9361_RESET_FORBID);
 }
 
@@ -434,10 +434,10 @@ void SDR_Reset(uint8_t module) {
     None.
 */
 void SDR_SoftReset(uint8_t module) {
-    LOG_FORMAT(debug, "[%s] Assert soft-reset for module %d", __func__, module);
+    LOG_FORMAT(debug, "Assert soft-reset for module %d (%s)", module, __func__);
     SPI_SDR_Write(module, REG_SPI_CONF, SOFT_RESET | _SOFT_RESET);
 
-    LOG_FORMAT(debug, "[%s] Release soft-reset for module %d", __func__, module);
+    LOG_FORMAT(debug, "Release soft-reset for module %d (%s)", module, __func__);
     SPI_SDR_Write(module, REG_SPI_CONF, 0x00);
 }
 
@@ -457,7 +457,7 @@ void SDR_SoftReset(uint8_t module) {
 void SDR_SelfTest(uint8_t module, bool pre_reset) {
     uint8_t _val{0};
 
-    LOG_FORMAT(debug, "[%s] SDR (AD9361) test started", __func__);
+    LOG_FORMAT(debug, "SDR (AD9361) test started (%s)", __func__);
 
     if (pre_reset) {
         SDR_Reset(module);
@@ -496,37 +496,11 @@ void SDR_SelfTest(uint8_t module, bool pre_reset) {
     _val = SPI_SDR_Read(module, 0x028);
     LOG_FORMAT(debug, "  CLS bit D3 - 0x028 : %s", to_bits<8>(_val).c_str());
 
-    // read SDR internal register field: 0x028, bit D7
-    _val = SPI_SDR_ReadF(module, 0x028, 0x80);
-    LOG_FORMAT(debug, "  GET bit D7 - 0x028 : %d", _val);
-
-    // read SDR internal register field: 0x028, bit D6
-    _val = SPI_SDR_ReadF(module, 0x028, 0x40);
-    LOG_FORMAT(debug, "  GET bit D6 - 0x028 : %d", _val);
-
-    // read SDR internal register field: 0x028, bit D5
-    _val = SPI_SDR_ReadF(module, 0x028, 0x20);
-    LOG_FORMAT(debug, "  GET bit D5 - 0x028 : %d", _val);
-
-    // read SDR internal register field: 0x028, bit D4
-    _val = SPI_SDR_ReadF(module, 0x028, 0x10);
-    LOG_FORMAT(debug, "  GET bit D4 - 0x028 : %d", _val);
-
-    // read SDR internal register field: 0x028, bit D3
-    _val = SPI_SDR_ReadF(module, 0x028, 0x08);
-    LOG_FORMAT(debug, "  GET bit D3 - 0x028 : %d", _val);
-
-    // read SDR internal register field: 0x028, bit D2
-    _val = SPI_SDR_ReadF(module, 0x028, 0x04);
-    LOG_FORMAT(debug, "  GET bit D2 - 0x028 : %d", _val);
-
-    // read SDR internal register field: 0x028, bit D1
-    _val = SPI_SDR_ReadF(module, 0x028, 0x02);
-    LOG_FORMAT(debug, "  GET bit D1 - 0x028 : %d", _val);
-
-    // read SDR internal register field: 0x028, bit D0
-    _val = SPI_SDR_ReadF(module, 0x028, 0x01);
-    LOG_FORMAT(debug, "  GET bit D0 - 0x028 : %d", _val);
+    // read back SDR internal register fields: 0x028
+    for (auto i{7}; i >= 0; --i) {
+        _val = SPI_SDR_ReadF(module, 0x028, set_bit<uint8_t>(i));
+        LOG_FORMAT(debug, "  GET bit D%d - 0x028 : %d", i, _val);
+    }
 
     // multiple read/write buffers
     uint8_t sdr_wr_data[4] = {0x01, 0x02, 0x03, 0x04};
@@ -575,7 +549,7 @@ void SDR_SelfTest(uint8_t module, bool pre_reset) {
     _val = SPI_SDR_Read(module, 0x00B);
     LOG_FORMAT(debug, "  GET register 0x00B : 0x%02X", _val);
 
-    LOG_FORMAT(debug, "[%s] SDR (AD9361) test stopped", __func__);
+    LOG_FORMAT(debug, "SDR (AD9361) test stopped (%s)", __func__);
 }
 
 // *****************************************************************************
@@ -607,12 +581,12 @@ bool SDR_Configure(uint8_t module) {
         // check ENSM internal state
         uint8_t ENSM_state = ENSM_STATE(SPI_SDR_Read(SPI_SDR1_CS, REG_STATE));
         if (ENSM_state == ENSM_STATE_FDD) {
-            LOG_FORMAT(info, "[%s] ENSM in FDD state!", __func__);
+            LOG_FORMAT(info, "ENSM in FDD state %d (%s)", ENSM_state, __func__);
             return true;
         }
         else {
-            LOG_FORMAT(error, "[%s] ENSM in state %d", __func__, ENSM_state);
-            LOG_FORMAT(error, "[%s] ENSM in FDD state (%d) expected!", __func__, ENSM_STATE_FDD);
+            LOG_FORMAT(error, "ENSM in state %d (%s)", ENSM_state, __func__);
+            LOG_FORMAT(error, "ENSM in FDD state (%d) expected (%s)", ENSM_STATE_FDD, __func__);
         }
     }
     return false;
@@ -632,6 +606,8 @@ bool SDR_Configure(uint8_t module) {
     None.
 */
 void SDR_BIST_Start(uint8_t module, bool prbs_mode) {
+
+    LOG_FORMAT(info, "SDR (AD9361) BIST started (%s)", __func__);
 
     SPI_SDR_Write(module, REG_OBSERVE_CONFIG, 0x40);
 
@@ -659,6 +635,8 @@ void SDR_BIST_Start(uint8_t module, bool prbs_mode) {
     None.
 */
 void SDR_BIST_Stop(uint8_t module) {
+
+    LOG_FORMAT(info, "SDR (AD9361) BIST stopped (%s)", __func__);
 
     SPI_SDR_Write(module, REG_OBSERVE_CONFIG, 0x00);
 
@@ -708,35 +686,35 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
 
             // read back PLL dividers values
             auto RFPLL_Dividers = SPI_SDR_Read(module, REG_RFPLL_DIVIDERS);
-            LOG_FORMAT(debug, "[%s] RFPLL dividers = 0x%02X", __func__, RFPLL_Dividers);
+            LOG_FORMAT(debug, "RFPLL dividers = 0x%02X (%s)", RFPLL_Dividers, __func__);
 
             // DC offset calibration
-            LOG_FORMAT(debug, "[%s] start DC offset calibration...", __func__);
+            LOG_FORMAT(debug, "Start DC offset calibration... (%s)", __func__);
             ad9361_do_calib(&ad9361_phy[module], RFDC_CAL, -1);
 
             // TX quadrature calibration
-            LOG_FORMAT(debug, "[%s] start TX quadrature calibration...", __func__);
+            LOG_FORMAT(debug, "Start TX quadrature calibration... (%s)", __func__);
             ad9361_do_calib(&ad9361_phy[module], TX_QUAD_CAL, -1);
 
             // get TX and RX LO frequency
             ad9361_get_tx_lo_freq(&ad9361_phy[module], &tx_lo_frequency_rvalue);
             ad9361_get_rx_lo_freq(&ad9361_phy[module], &rx_lo_frequency_rvalue);
-            LOG_FORMAT(debug, "[%s] TX LO frequency = %" PRIu64 " [Hz]", __func__, tx_lo_frequency_rvalue);
-            LOG_FORMAT(debug, "[%s] RX LO frequency = %" PRIu64 " [Hz]", __func__, rx_lo_frequency_rvalue);
+            LOG_FORMAT(debug, "TX LO frequency = %" PRIu64 " [Hz] (%s)", tx_lo_frequency_rvalue, __func__);
+            LOG_FORMAT(debug, "RX LO frequency = %" PRIu64 " [Hz] (%s)", rx_lo_frequency_rvalue, __func__);
 
             // read back received signal power
             auto rx_power = SPI_SDR_Read(module, REG_CH1_RX_FILTER_POWER);
-            LOG_FORMAT(debug, "[%s] rx signal power = %d (0x%02X)", __func__, rx_power, rx_power);
+            LOG_FORMAT(debug, "RX signal power = %d (0x%02X) (%s)", rx_power, rx_power, __func__);
 
             // start transmission
-            LOG_FORMAT(debug, "[%s] start transmission...", __func__);
+            LOG_FORMAT(debug, "Start transmission (%s)", __func__);
             if (bist_mode) {
                 SDR_BIST_Start(module, false);
             }
 
             // read back received signal power
             rx_power = SPI_SDR_Read(module, REG_CH1_RX_FILTER_POWER);
-            LOG_FORMAT(debug, "[%s] rx signal power = %d (0x%02X)", __func__, rx_power, rx_power);
+            LOG_FORMAT(debug, "RX signal power = %d (0x%02X) (%s)", rx_power, rx_power, __func__);
 
             // get tx attenuation
             ad9361_get_tx_attenuation(&ad9361_phy[module], 0, &tx_attenuation);
@@ -746,14 +724,14 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
 
             // set tx attenuation
             ad9361_set_tx_attenuation(&ad9361_phy[module], 0, tx_attenuation);
-            LOG_FORMAT(debug, "[%s] TX attenuation +3 dB", __func__);
+            LOG_FORMAT(debug, "TX attenuation +3dB (%s)", __func__);
 
             // read back received signal power
             rx_power = SPI_SDR_Read(module, REG_CH1_RX_FILTER_POWER);
-            LOG_FORMAT(debug, "[%s] rx signal power = %d ( 0x%02X )", __func__, rx_power, rx_power);
+            LOG_FORMAT(debug, "rx signal power = %d (0x%02X) (%s)", rx_power, rx_power, __func__);
 
             // stop transmission
-            LOG_FORMAT(debug, "[%s] stop transmission...", __func__);
+            LOG_FORMAT(debug, "Stop transmission (%s)", __func__);
             if (bist_mode) {
                 SDR_BIST_Stop(module);
             }

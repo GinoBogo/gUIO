@@ -252,7 +252,7 @@ int32_t ad9361_check_cal_done(ad9361_rf_phy_t *phy, uint32_t reg, uint32_t mask,
 
     } while (timeout--);
 
-    LOG_FORMAT(debug, "[%s] Calibration Timeout (0x%, 0x%)", __func__, reg, mask);
+    LOG_FORMAT(debug, "Calibration Timeout [0x%, 0x%] (%s)", reg, mask, __func__);
 
     return -ETIMEDOUT;
 }
@@ -276,7 +276,7 @@ int32_t ad9361_run_calibration(ad9361_rf_phy_t *phy, uint32_t mask) {
 
     SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CTRL, mask);
 
-    LOG_FORMAT(debug, "[%s] Calibration Mask 0x%", __func__, mask);
+    LOG_FORMAT(debug, "Calibration Mask 0x% (%s)", mask, __func__);
 
     return ad9361_check_cal_done(phy, REG_CALIBRATION_CTRL, mask, 0);
 }
@@ -331,11 +331,11 @@ int32_t ad9361_load_gt(ad9361_rf_phy_t *phy, uint64_t freq, uint32_t dest) {
     rx_gain_table_name_t band;
     uint32_t             index_max, i;
 
-    LOG_FORMAT(debug, "[%s] Frequency %d [SET]", __func__, freq);
+    LOG_FORMAT(debug, "Frequency %d [SET] (%s)", freq, __func__);
 
     band = ad9361_gt_tableindex(freq);
 
-    LOG_FORMAT(debug, "[%s] Frequency %d (Band %d) [GET]", __func__, freq, band);
+    LOG_FORMAT(debug, "Frequency %d, Band %d [GET] (%s)", freq, band, __func__);
 
     // check if table is present
     if (phy->current_table == band) {
@@ -448,7 +448,7 @@ int32_t ad9361_load_mixer_gm_subtable(ad9361_rf_phy_t *phy) {
 
     int32_t i, addr;
 
-    LOG_FORMAT(debug, "[%s] Start", __func__);
+    LOG_FORMAT(debug, "Start (%s)", __func__);
 
     SPI_SDR_Write(phy->id_no, REG_GM_SUB_TABLE_CONFIG, START_GM_SUB_TABLE_CLOCK); // Start Clock
 
@@ -525,8 +525,8 @@ int32_t ad9361_rfpll_vco_init(ad9361_rf_phy_t *phy, bool tx, uint64_t vco_freq, 
 
     range = ad9361_rfvco_tableindex(ref_clk);
 
-    LOG_FORMAT(debug, "[%s] vco_freq %" PRIu64 " : ref_clk %" PRIu32 " : range %" PRIu32 "", //
-               __func__, vco_freq, ref_clk, range);
+    LOG_FORMAT(debug, "vco_freq %" PRIu64 " : ref_clk %" PRIu32 " : range %" PRIu32 " (%s)", //
+               vco_freq, ref_clk, range, __func__);
 
     int_do_div(&vco_freq, 1000000UL); // vco_freq in MHz
 
@@ -545,7 +545,7 @@ int32_t ad9361_rfpll_vco_init(ad9361_rf_phy_t *phy, bool tx, uint64_t vco_freq, 
         i++;
     }
 
-    LOG_FORMAT(debug, "[%s] freq %d MHz : index %d", __func__, tab[i].VCO_MHz, i);
+    LOG_FORMAT(debug, "freq %d MHz : index %d (%s)", tab[i].VCO_MHz, i, __func__);
 
     SPI_SDR_Write(phy->id_no, REG_RX_VCO_OUTPUT + offs, VCO_OUTPUT_LEVEL(tab[i].VCO_Output_Level) | PORB_VCO_LOGIC);
     SPI_SDR_WriteF(phy->id_no, REG_RX_ALC_VARACTOR + offs, VCO_VARACTOR(~0), tab[i].VCO_Varactor);
@@ -590,11 +590,11 @@ void ad9361_ensm_force_state(ad9361_rf_phy_t *phy, uint8_t ensm_state) {
     phy->prev_ensm_state = dev_ensm_state;
 
     if (dev_ensm_state == ensm_state) {
-        LOG_FORMAT(debug, "[%s] Nothing to do, device is already in %d state", __func__, ensm_state);
+        LOG_FORMAT(debug, "Nothing to do, device is already in %d state (%s)", ensm_state, __func__);
         goto out;
     }
 
-    LOG_FORMAT(debug, "[%s] Device is in %x state, forcing to %x", __func__, dev_ensm_state, ensm_state);
+    LOG_FORMAT(debug, "Device is in %x state, forcing to %x (%s)", dev_ensm_state, ensm_state, __func__);
 
     val = SPI_SDR_Read(phy->id_no, REG_ENSM_CONFIG_1);
 
@@ -628,7 +628,7 @@ void ad9361_ensm_force_state(ad9361_rf_phy_t *phy, uint8_t ensm_state) {
             break;
 
         default:
-            LOG_FORMAT(debug, "[%s] No handling for forcing %d ensm state", __func__, ensm_state);
+            LOG_FORMAT(debug, "No handling for forcing %d ensm state, (%s)", ensm_state, __func__);
             goto out;
     }
 
@@ -637,7 +637,6 @@ void ad9361_ensm_force_state(ad9361_rf_phy_t *phy, uint8_t ensm_state) {
     SPI_SDR_Write(phy->id_no, REG_ENSM_CONFIG_1, val);
 
 out:
-
     return;
 }
 
@@ -676,11 +675,11 @@ void ad9361_ensm_restore_prev_state(ad9361_rf_phy_t *phy) {
             break;
 
         case ENSM_STATE_INVALID:
-            LOG_FORMAT(debug, "[%s] No need to restore, ENSM state wasn't saved", __func__);
+            LOG_FORMAT(debug, "No need to restore, ENSM state wasn't saved (%s)", __func__);
             goto out;
 
         default:
-            LOG_FORMAT(debug, "[%s] Could not restore to %d ENSM state", __func__, phy->prev_ensm_state);
+            LOG_FORMAT(debug, "Could not restore the %d ENSM state (%s)", phy->prev_ensm_state, __func__);
             goto out;
     }
 
@@ -912,9 +911,9 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, uint32_t bbpll_freq, uint32_t 
     int_do_div(&tmp, 126906UL * phy->rxbbf_div);
     bb_bw_Hz = tmp;
 
-    LOG_FORMAT(debug, "[%s] BBBW %" PRIu32 " : ADCfreq %" PRIu32 "", __func__, bb_bw_Hz, adc_sampl_freq_Hz);
+    LOG_FORMAT(debug, "BBBW %" PRIu32 " : ADCfreq %" PRIu32 " (%s)", bb_bw_Hz, adc_sampl_freq_Hz, __func__);
 
-    LOG_FORMAT(debug, "[%s] c3_msb 0x%X : c3_lsb 0x%X : r2346 0x%X", __func__, c3_msb, c3_lsb, r2346);
+    LOG_FORMAT(debug, "c3_msb 0x%X : c3_lsb 0x%X : r2346 0x%X (%s)", c3_msb, c3_lsb, r2346, __func__);
 
     bb_bw_Hz = clamp(bb_bw_Hz, 200000UL, 28000000UL);
 
@@ -936,7 +935,7 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, uint32_t bbpll_freq, uint32_t 
     int_do_div(&invrc_tconst_1e6, 1000000000UL);
 
     if (invrc_tconst_1e6 > ULONG_MAX) {
-        LOG_FORMAT(error, "[%s] invrc_tconst_1e6 > ULONG_MAX", __func__);
+        LOG_FORMAT(error, "invrc_tconst_1e6 > ULONG_MAX (%s)", __func__);
     }
 
     sqrt_inv_rc_tconst_1e3 = int_sqrt((uint32_t)invrc_tconst_1e6);
@@ -953,12 +952,12 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, uint32_t bbpll_freq, uint32_t 
 
     min_sqrt_term_1e3 = min_t(uint32_t, 1000U, int_sqrt(maxsnr * scaled_adc_clk_1e6));
 
-    LOG_FORMAT(debug, "[%s] invrc_tconst_1e6 %" PRIu64 ", sqrt_inv_rc_tconst_1e3 %" PRIu32 "", //
-               __func__, invrc_tconst_1e6, sqrt_inv_rc_tconst_1e3);
-    LOG_FORMAT(debug, "[%s] scaled_adc_clk_1e6 %" PRIu32 ", inv_scaled_adc_clk_1e3 %" PRIu32 "", //
-               __func__, scaled_adc_clk_1e6, inv_scaled_adc_clk_1e3);
-    LOG_FORMAT(debug, "[%s] tmp_1e3 %" PRIu32 ", sqrt_term_1e3 %" PRIu32 ", min_sqrt_term_1e3 %" PRIu32 "", //
-               __func__, tmp_1e3, sqrt_term_1e3, min_sqrt_term_1e3);
+    LOG_FORMAT(debug, "invrc_tconst_1e6 %" PRIu64 ", sqrt_inv_rc_tconst_1e3 %" PRIu32 " (%s)", //
+               invrc_tconst_1e6, sqrt_inv_rc_tconst_1e3, __func__);
+    LOG_FORMAT(debug, "scaled_adc_clk_1e6 %" PRIu32 ", inv_scaled_adc_clk_1e3 %" PRIu32 " (%s)", //
+               scaled_adc_clk_1e6, inv_scaled_adc_clk_1e3, __func__);
+    LOG_FORMAT(debug, "tmp_1e3 %" PRIu32 ", sqrt_term_1e3 %" PRIu32 ", min_sqrt_term_1e3 %" PRIu32 " (%s)", //
+               tmp_1e3, sqrt_term_1e3, min_sqrt_term_1e3, __func__);
 
     data[0] = 0;
     data[1] = 0;
@@ -1057,7 +1056,7 @@ int32_t ad9361_rx_tia_calib(ad9361_rf_phy_t *phy, uint32_t bb_bw_Hz) {
     uint8_t  reg1E6 = SPI_SDR_Read(phy->id_no, REG_RX_BBF_R2346);
     uint8_t  reg1DB, reg1DF, reg1DD, reg1DC, reg1DE, temp;
 
-    LOG_FORMAT(debug, "[%s] bb_bw_Hz %" PRIu32 "", __func__, bb_bw_Hz);
+    LOG_FORMAT(debug, "bb_bw_Hz %" PRIu32 " (%s)", bb_bw_Hz, __func__);
 
     bb_bw_Hz = clamp(bb_bw_Hz, 200000UL, 20000000UL);
 
@@ -1123,7 +1122,7 @@ int32_t ad9361_rx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, uint32_t rx_bb_bw
     uint8_t  tmp;
     int32_t  rvalue;
 
-    LOG_FORMAT(debug, "[%s] rx_bb_bw %" PRIu32 " bbpll_freq %" PRIu32 "", __func__, rx_bb_bw, bbpll_freq);
+    LOG_FORMAT(debug, "rx_bb_bw %" PRIu32 " bbpll_freq %" PRIu32 " (%s)", rx_bb_bw, bbpll_freq, __func__);
 
     rx_bb_bw = clamp(rx_bb_bw, 200000UL, 28000000UL);
 
@@ -1179,7 +1178,7 @@ int32_t ad9361_tx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, uint32_t tx_bb_bw
     uint32_t target, txbbf_div;
     int32_t  rvalue;
 
-    LOG_FORMAT(debug, "[%s] tx_bb_bw %" PRIu32 " bbpll_freq %" PRIu32 "", __func__, tx_bb_bw, bbpll_freq);
+    LOG_FORMAT(debug, "tx_bb_bw %" PRIu32 " bbpll_freq %" PRIu32 " (%s)", tx_bb_bw, bbpll_freq, __func__);
 
     tx_bb_bw = clamp(tx_bb_bw, 625000UL, 20000000UL);
 
@@ -1226,7 +1225,7 @@ int32_t ad9361_tx_bb_second_filter_calib(ad9361_rf_phy_t *phy, uint32_t tx_bb_bw
     uint32_t reg_conf, reg_res;
     int32_t  i;
 
-    LOG_FORMAT(debug, "[%s] tx_bb_bw %" PRIu32 "", __func__, tx_bb_bw);
+    LOG_FORMAT(debug, "tx_bb_bw %" PRIu32 " (%s)", tx_bb_bw, __func__);
 
     tx_bb_bw = clamp(tx_bb_bw, 530000UL, 20000000UL);
 
@@ -1313,7 +1312,7 @@ int32_t ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t *phy, uint32_t ref_clk_hz, bo
     uint32_t offs = tx ? 0x40 : 0;
     uint32_t vco_cal_cnt;
 
-    LOG_FORMAT(debug, "[%s] ref_clk_hz %" PRIu32 " : is_tx %d", __func__, ref_clk_hz, tx);
+    LOG_FORMAT(debug, "ref_clk_hz %" PRIu32 " : is_tx %d (%s)", ref_clk_hz, tx, __func__);
 
     // REVIST:
     SPI_SDR_Write(phy->id_no, REG_RX_DSM_SETUP_1 + offs, 0x00);
@@ -1370,7 +1369,7 @@ int32_t ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t *phy, uint32_t ref_clk_hz, bo
 */
 int32_t ad9361_bb_dc_offset_calib(ad9361_rf_phy_t *phy) {
 
-    LOG_FORMAT(debug, "[%s] start", __func__);
+    LOG_FORMAT(debug, "Start (%s)", __func__);
 
     SPI_SDR_Write(phy->id_no, REG_BB_DC_OFFSET_COUNT, 0x3F);
     SPI_SDR_Write(phy->id_no, REG_BB_DC_OFFSET_SHIFT, BB_DC_M_SHIFT(0x0F));
@@ -1396,7 +1395,7 @@ int32_t ad9361_bb_dc_offset_calib(ad9361_rf_phy_t *phy) {
 */
 int32_t ad9361_rf_dc_offset_calib(ad9361_rf_phy_t *phy, uint64_t rx_freq) {
 
-    LOG_FORMAT(debug, "[%s] rx_freq %" PRIu64 "", __func__, rx_freq);
+    LOG_FORMAT(debug, "rx_freq %" PRIu64 " (%s)", rx_freq, __func__);
 
     SPI_SDR_Write(phy->id_no, REG_WAIT_COUNT, 0x20);
 
@@ -1446,7 +1445,7 @@ int32_t ad9361_update_rf_bandwidth(ad9361_rf_phy_t *phy, uint32_t rf_rx_bw, uint
     uint32_t bbpll_freq;
     int32_t  rvalue;
 
-    LOG_FORMAT(debug, "[%s] %" PRIu32 " %" PRIu32 "", __func__, rf_rx_bw, rf_tx_bw);
+    LOG_FORMAT(debug, "rf_rx_bw %" PRIu32 ", rf_tx_bw %" PRIu32 " (%s)", rf_rx_bw, rf_tx_bw, __func__);
 
     bbpll_freq = clk_get_rate(phy, &(phy->ref_clk_scale[BBPLL_CLK]));
 
@@ -1543,7 +1542,7 @@ int32_t ad9361_tx_quad_phase_search(ad9361_rf_phy_t *phy, uint32_t rxnco_word, u
     uint8_t  field[64], val;
     uint32_t start;
 
-    LOG_FORMAT(debug, "[%s] start", __func__);
+    LOG_FORMAT(debug, "Start (%s)", __func__);
 
     for (i = 0; i < (int64_t)(ARRAY_SIZE(field) / 2); i++) {
         rvalue = __ad9361_tx_quad_calib(phy, i, rxnco_word, decim, &val);
@@ -1603,15 +1602,15 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t bw_rx, uint32_t bw_t
     clkrf = clk_get_rate(phy, &(phy->ref_clk_scale[CLKRF_CLK]));
     clktf = clk_get_rate(phy, &(phy->ref_clk_scale[CLKTF_CLK]));
 
-    LOG_FORMAT(debug, "[%s] bw_tx %" PRIu32 " clkrf %" PRIu32 " clktf %" PRIu32 "", //
-               __func__, bw_tx, clkrf, clktf);
+    LOG_FORMAT(debug, "bw_tx %" PRIu32 ", clkrf %" PRIu32 ", clktf %" PRIu32 " (%s)", //
+               bw_tx, clkrf, clktf, __func__);
 
     txnco_word = DIV_ROUND_CLOSEST(bw_tx * 8, clktf) - 1;
     txnco_word = clamp_t(int, txnco_word, 0, 3);
     rxnco_word = txnco_word;
 
-    LOG_FORMAT(debug, "[%s] Tx NCO frequency: %" PRIu32 " (BW/4: %" PRIu32 ") txnco_word %" PRId32 "", //
-               __func__, clktf * (txnco_word + 1) / 32, bw_tx / 4, txnco_word);
+    LOG_FORMAT(debug, "Tx NCO frequency: %" PRIu32 ", BW/4: %" PRIu32 ", txnco_word %" PRId32 " (%s)", //
+               clktf * (txnco_word + 1) / 32, bw_tx / 4, txnco_word, __func__);
 
     if (clktf <= 4000000UL) {
         decim = 2;
@@ -1675,8 +1674,8 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t bw_rx, uint32_t bw_t
         }
     }
     else {
-        LOG_FORMAT(debug, "[%s] Unhandled case in line %d clkrf %" PRIu32 " clktf %" PRIu32 "", //
-                   __func__, __LINE__, clkrf, clktf);
+        LOG_FORMAT(debug, "Un-handled case in line %d, clkrf %" PRIu32 ", clktf %" PRIu32 " (%s)", //
+                   __LINE__, clkrf, clktf, __func__);
     }
 
     if (rx_phase >= 0) {
@@ -1727,7 +1726,7 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t bw_rx, uint32_t bw_t
     }
 
     if (i >= index_max) {
-        LOG_FORMAT(error, "[%s] failed to find suitable LPF TIA value in gain table", __func__);
+        LOG_FORMAT(error, "Failed to find suitable LPF TIA value in gain table (%s)", __func__);
     }
 
     SPI_SDR_Write(phy->id_no, REG_QUAD_SETTLE_COUNT, 0xF0);
@@ -1735,8 +1734,8 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, uint32_t bw_rx, uint32_t bw_t
 
     rvalue = __ad9361_tx_quad_calib(phy, __rx_phase, rxnco_word, decim, &val);
 
-    LOG_FORMAT(debug, "[%s] LO leakage: %d Quadrature Calibration: %d : rx_phase %d", //
-               __func__, !!(val & TX1_LO_CONV), !!(val & TX1_SSB_CONV), __rx_phase);
+    LOG_FORMAT(debug, "LO leakage: %d Quadrature Calibration: %d : rx_phase %d (%s)", //
+               !!(val & TX1_LO_CONV), !!(val & TX1_SSB_CONV), __rx_phase, __func__);
 
     // Calibration failed -> try last phase offset
     if (val != (TX1_LO_CONV | TX1_SSB_CONV)) {
@@ -1791,8 +1790,8 @@ int32_t ad9361_tracking_control(ad9361_rf_phy_t *phy, bool bbdc_track, bool rfdc
 
     uint32_t qtrack = 0;
 
-    LOG_FORMAT(debug, "[%s] bbdc_track=%d, rfdc_track=%d, rxquad_track=%d", //
-               __func__, bbdc_track, rfdc_track, rxquad_track);
+    LOG_FORMAT(debug, "bbdc_track=%d, rfdc_track=%d, rxquad_track=%d (%s)", //
+               bbdc_track, rfdc_track, rxquad_track, __func__);
 
     SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CONFIG_2, CALIBRATION_CONFIG2_DFLT | K_EXP_PHASE(0x15));
 
@@ -2021,7 +2020,7 @@ int32_t ad9361_set_bist_loopback(ad9361_rf_phy_t *phy, int32_t mode) {
 
     uint32_t sp_hd, reg;
 
-    LOG_FORMAT(debug, "[%s] mode %" PRId32 "", __func__, mode);
+    LOG_FORMAT(debug, "mode %" PRId32 " (%s)", mode, __func__);
 
     reg = SPI_SDR_Read(phy->id_no, REG_OBSERVE_CONFIG);
 
@@ -2091,7 +2090,7 @@ int32_t ad9361_bist_prbs(ad9361_rf_phy_t *phy, ad9361_bist_mode_t mode) {
 
     uint32_t reg = 0;
 
-    LOG_FORMAT(debug, "[%s] mode %d", __func__, mode);
+    LOG_FORMAT(debug, "mode %d (%s)", mode, __func__);
 
     phy->bist_prbs_mode = mode;
 
@@ -2179,7 +2178,7 @@ int32_t ad9361_set_tx_atten(ad9361_rf_phy_t *phy, uint32_t atten_mdb, bool tx1, 
 
     uint8_t buf[2];
 
-    LOG_FORMAT(debug, "[%s] attenuation %" PRIu32 " mdB tx1=%d tx2=%d", __func__, atten_mdb, tx1, tx2);
+    LOG_FORMAT(debug, "atten_mdb=%" PRIu32 ", tx1=%d, tx2=%d (%s)", atten_mdb, tx1, tx2, __func__);
 
     if (atten_mdb > 89750) { // 89.75 dB
         return -EINVAL;
@@ -2277,7 +2276,7 @@ int32_t ad9361_init_gain_tables(ad9361_rf_phy_t *phy) {
  */
 int32_t ad9361_trx_vco_cal_control(ad9361_rf_phy_t *phy, bool tx, bool enable) {
 
-    LOG_FORMAT(debug, "[%s] state %d", __func__, enable);
+    LOG_FORMAT(debug, "state %d (%s)", enable, __func__);
 
     SPI_SDR_WriteF(phy->id_no, tx ? REG_TX_PFD_CONFIG : REG_RX_PFD_CONFIG, BYPASS_LD_SYNTH, !enable);
 
@@ -2295,7 +2294,7 @@ int32_t ad9361_trx_ext_lo_control(ad9361_rf_phy_t *phy, bool tx, bool enable) {
 
     int32_t val = enable ? ~0 : 0;
 
-    LOG_FORMAT(debug, "[%s] state %d", __func__, enable);
+    LOG_FORMAT(debug, "state %d (%s)", enable, __func__);
 
     if (tx) {
         SPI_SDR_WriteF(phy->id_no, REG_ENSM_CONFIG_2, POWER_DOWN_TX_SYNTH, enable);
@@ -2331,7 +2330,7 @@ int32_t ad9361_trx_ext_lo_control(ad9361_rf_phy_t *phy, bool tx, bool enable) {
  */
 int32_t ad9361_set_ref_clk_cycles(ad9361_rf_phy_t *phy, uint32_t ref_clk_hz) {
 
-    LOG_FORMAT(debug, "[%s] ref_clk_hz %" PRIu32 "", __func__, ref_clk_hz);
+    LOG_FORMAT(debug, "ref_clk_hz %" PRIu32 " (%s)", ref_clk_hz, __func__);
 
     SPI_SDR_Write(phy->id_no, REG_REFERENCE_CLOCK_CYCLES, REFERENCE_CLOCK_CYCLES_PER_US((ref_clk_hz / 1000000UL) - 1));
 
@@ -2347,7 +2346,7 @@ int32_t ad9361_set_ref_clk_cycles(ad9361_rf_phy_t *phy, uint32_t ref_clk_hz) {
  */
 void ad9361_set_dcxo_tune(ad9361_rf_phy_t *phy, uint32_t coarse, uint32_t fine) {
 
-    LOG_FORMAT(debug, "[%s] coarse %" PRIu32 " fine %" PRIu32 "", __func__, coarse, fine);
+    LOG_FORMAT(debug, "coarse %" PRIu32 ", fine %" PRIu32 " (%s)", coarse, fine, __func__);
 
     SPI_SDR_Write(phy->id_no, REG_DCXO_COARSE_TUNE, DCXO_TUNE_COARSE(coarse));
     SPI_SDR_Write(phy->id_no, REG_DCXO_FINE_TUNE_LOW, DCXO_TUNE_FINE_LOW(fine));
@@ -2362,7 +2361,7 @@ void ad9361_set_dcxo_tune(ad9361_rf_phy_t *phy, uint32_t coarse, uint32_t fine) 
  */
 int32_t ad9361_txmon_setup(ad9361_rf_phy_t *phy, tx_monitor_control_t *ctrl) {
 
-    LOG_FORMAT(debug, "[%s] start", __func__);
+    LOG_FORMAT(debug, "Start (%s)", __func__);
 
     SPI_SDR_Write(phy->id_no, REG_TPM_MODE_ENABLE, (ctrl->one_shot_mode_en ? ONE_SHOT_MODE : 0) | TX_MON_DURATION(int_log2(ctrl->tx_mon_duration / 16)));
 
@@ -2389,7 +2388,7 @@ int32_t ad9361_txmon_setup(ad9361_rf_phy_t *phy, tx_monitor_control_t *ctrl) {
  */
 int32_t ad9361_txmon_control(ad9361_rf_phy_t *phy, int32_t en_mask) {
 
-    LOG_FORMAT(debug, "[%s] mask 0x%" PRIx32 "", __func__, en_mask);
+    LOG_FORMAT(debug, "mask 0x%" PRIx32 " (%s)", en_mask, __func__);
 
     SPI_SDR_WriteF(phy->id_no, REG_ANALOG_POWER_DOWN_OVERRIDE, TX_MONITOR_POWER_DOWN(~0), ~en_mask);
 
@@ -2450,7 +2449,7 @@ int32_t ad9361_rf_port_setup(ad9361_rf_phy_t *phy, bool is_out, uint32_t rx_inpu
         val |= TX_OUTPUT; // Select TX1B , TX2B
     }
 
-    LOG_FORMAT(debug, "[%s] INPUT_SELECT 0x%" PRIx32 "", __func__, val);
+    LOG_FORMAT(debug, "INPUT_SELECT 0x%" PRIx32 " (%s)", val, __func__);
 
     SPI_SDR_Write(phy->id_no, REG_INPUT_SELECT, val);
 
@@ -2966,7 +2965,7 @@ int32_t ad9361_gpo_setup(ad9361_rf_phy_t *phy, gpo_control_t *ctrl) {
 
     SPI_SDR_Write(phy->id_no, REG_AUTO_GPO,
                   GPO_ENABLE_AUTO_RX(ctrl->gpo0_slave_rx_en | (ctrl->gpo1_slave_rx_en << 1) | (ctrl->gpo2_slave_rx_en << 2) | (ctrl->gpo3_slave_rx_en << 3)) |
-                  GPO_ENABLE_AUTO_TX(ctrl->gpo0_slave_tx_en | (ctrl->gpo1_slave_tx_en << 1) | (ctrl->gpo2_slave_tx_en << 2) | (ctrl->gpo3_slave_tx_en << 3)));
+                      GPO_ENABLE_AUTO_TX(ctrl->gpo0_slave_tx_en | (ctrl->gpo1_slave_tx_en << 1) | (ctrl->gpo2_slave_tx_en << 2) | (ctrl->gpo3_slave_tx_en << 3)));
 
     SPI_SDR_Write(phy->id_no, REG_GPO_FORCE_AND_INIT, GPO_INIT_STATE(ctrl->gpo0_inactive_state_high_en | (ctrl->gpo1_inactive_state_high_en << 1) | (ctrl->gpo2_inactive_state_high_en << 2) | (ctrl->gpo3_inactive_state_high_en << 3)));
 
@@ -3297,7 +3296,7 @@ int32_t ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, uint32_t tx_sample
     int32_t      i, index_rx = -1, index_tx = -1, tmp;
     uint32_t     div, tx_intdec, rx_intdec, recursion = 1;
     const int8_t clk_dividers[][4] = {
-    {12, 3, 2, 2}, {8, 2, 2, 2}, {6, 3, 1, 2}, {4, 2, 2, 1}, {3, 3, 1, 1}, {2, 2, 1, 1}, {1, 1, 1, 1},
+        {12, 3, 2, 2}, {8, 2, 2, 2}, {6, 3, 1, 2}, {4, 2, 2, 1}, {3, 3, 1, 1}, {2, 2, 1, 1}, {1, 1, 1, 1},
     };
 
     if (phy->bypass_rx_fir) {
