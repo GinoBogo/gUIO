@@ -44,8 +44,8 @@ add_compile_options(
    #-Wcast-align
     -Wextra
     -Wfloat-equal
-    -Wno-unused-parameter
-    -Wno-unused-variable
+   #-Wno-unused-parameter
+   #-Wno-unused-variable
     -Wshadow
     -Wsign-conversion
     -Wswitch-default
