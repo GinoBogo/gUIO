@@ -66,7 +66,8 @@
  * @param init_param The structure that contains the AD9361 initial parameters.
  * @return A structure that contains the AD9361 current state in case of success, negative error code otherwise.
  */
-int32_t ad9361_init(ad9361_rf_phy_t *phy, ad9361_init_parameters_t *init_param) {
+int32_t ad9361_init(ad9361_rf_phy_t *         phy, //
+                    ad9361_init_parameters_t *init_param) {
 
     bzero(phy, sizeof(ad9361_rf_phy_t));
 
@@ -393,7 +394,8 @@ out:
  * @param lo_freq_hz The desired frequency (Hz).
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_rx_lo_freq(ad9361_rf_phy_t *phy, uint64_t lo_freq_hz) {
+int32_t ad9361_set_rx_lo_freq(ad9361_rf_phy_t *phy, //
+                              uint64_t         lo_freq_hz) {
 
     return clk_set_rate(phy, &(phy->ref_clk_scale[RX_RFPLL]), ad9361_to_clk(lo_freq_hz));
 }
@@ -404,7 +406,8 @@ int32_t ad9361_set_rx_lo_freq(ad9361_rf_phy_t *phy, uint64_t lo_freq_hz) {
  * @param lo_freq_hz A variable to store the frequency value (Hz).
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_get_rx_lo_freq(ad9361_rf_phy_t *phy, uint64_t *lo_freq_hz) {
+int32_t ad9361_get_rx_lo_freq(ad9361_rf_phy_t *phy, //
+                              uint64_t *       lo_freq_hz) {
 
     *lo_freq_hz = ad9361_from_clk(clk_get_rate(phy, &(phy->ref_clk_scale[RX_RFPLL])));
 
@@ -417,15 +420,14 @@ int32_t ad9361_get_rx_lo_freq(ad9361_rf_phy_t *phy, uint64_t *lo_freq_hz) {
  * @param fir_cfg FIR filter configuration.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_rx_fir_config(ad9361_rf_phy_t *phy, ad9361_rx_fir_config_t fir_cfg) {
+int32_t ad9361_set_rx_fir_config(ad9361_rf_phy_t *      phy, //
+                                 ad9361_rx_fir_config_t fir_cfg) {
 
-    int32_t ret;
-
-    ret = ad9361_load_fir_filter_coef(phy, (fir_dest_t)(fir_cfg.rx | FIR_IS_RX), fir_cfg.rx_gain, fir_cfg.rx_coef_size, fir_cfg.rx_coef);
+    int32_t _ret = ad9361_load_fir_filter_coef(phy, (fir_dest_t)(fir_cfg.rx | FIR_IS_RX), fir_cfg.rx_gain, fir_cfg.rx_coef_size, fir_cfg.rx_coef);
 
     phy->rx_fir_dec = fir_cfg.rx_dec;
 
-    return ret;
+    return _ret;
 }
 
 /**
@@ -435,7 +437,9 @@ int32_t ad9361_set_rx_fir_config(ad9361_rf_phy_t *phy, ad9361_rx_fir_config_t fi
  * @param attenuation_mdb The attenuation (mdB).
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_tx_attenuation(ad9361_rf_phy_t *phy, uint8_t ch, uint32_t attenuation_mdb) {
+int32_t ad9361_set_tx_attenuation(ad9361_rf_phy_t *phy, //
+                                  uint8_t          ch,
+                                  uint32_t         attenuation_mdb) {
 
     return ad9361_set_tx_atten(phy, attenuation_mdb, ch == 0, ch == 1, !phy->pdata.update_tx_gain_via_alert);
 }
@@ -447,7 +451,9 @@ int32_t ad9361_set_tx_attenuation(ad9361_rf_phy_t *phy, uint8_t ch, uint32_t att
  * @param attenuation_mdb A variable to store the attenuation value (mdB).
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_get_tx_attenuation(ad9361_rf_phy_t *phy, uint8_t ch, uint32_t *attenuation_db) {
+int32_t ad9361_get_tx_attenuation(ad9361_rf_phy_t *phy, //
+                                  uint8_t          ch,
+                                  uint32_t *       attenuation_db) {
 
     *attenuation_db = (uint32_t)ad9361_get_tx_atten(phy, ch + 1);
 
@@ -460,7 +466,8 @@ int32_t ad9361_get_tx_attenuation(ad9361_rf_phy_t *phy, uint8_t ch, uint32_t *at
  * @param lo_freq_hz The desired frequency (Hz).
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_tx_lo_freq(ad9361_rf_phy_t *phy, uint64_t lo_freq_hz) {
+int32_t ad9361_set_tx_lo_freq(ad9361_rf_phy_t *phy, //
+                              uint64_t         lo_freq_hz) {
 
     return clk_set_rate(phy, &(phy->ref_clk_scale[TX_RFPLL]), ad9361_to_clk(lo_freq_hz));
 }
@@ -471,7 +478,8 @@ int32_t ad9361_set_tx_lo_freq(ad9361_rf_phy_t *phy, uint64_t lo_freq_hz) {
  * @param lo_freq_hz A variable to store the frequency value (Hz).
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_get_tx_lo_freq(ad9361_rf_phy_t *phy, uint64_t *lo_freq_hz) {
+int32_t ad9361_get_tx_lo_freq(ad9361_rf_phy_t *phy, //
+                              uint64_t *       lo_freq_hz) {
 
     *lo_freq_hz = ad9361_from_clk(clk_get_rate(phy, &(phy->ref_clk_scale[TX_RFPLL])));
 
@@ -484,7 +492,8 @@ int32_t ad9361_get_tx_lo_freq(ad9361_rf_phy_t *phy, uint64_t *lo_freq_hz) {
  * @param fir_cfg FIR filter configuration.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_tx_fir_config(ad9361_rf_phy_t *phy, ad9361_tx_fir_config_t fir_cfg) {
+int32_t ad9361_set_tx_fir_config(ad9361_rf_phy_t *      phy, //
+                                 ad9361_tx_fir_config_t fir_cfg) {
 
     auto _ret = ad9361_load_fir_filter_coef(phy, (fir_dest_t)fir_cfg.tx, fir_cfg.tx_gain, fir_cfg.tx_coef_size, fir_cfg.tx_coef);
 
@@ -500,7 +509,9 @@ int32_t ad9361_set_tx_fir_config(ad9361_rf_phy_t *phy, ad9361_tx_fir_config_t fi
  * @param arg For TX_QUAD_CAL - the optional RX phase value overwrite (set to zero).
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_do_calib(ad9361_rf_phy_t *phy, uint32_t cal, int32_t arg) {
+int32_t ad9361_do_calib(ad9361_rf_phy_t *phy, //
+                        uint32_t         cal,
+                        int32_t          arg) {
 
     return ad9361_do_calib_run(phy, cal, arg);
 }

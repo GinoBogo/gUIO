@@ -454,7 +454,9 @@ void SDR_SoftReset(uint8_t module) {
   Remarks:
     None.
 */
-void SDR_SelfTest(uint8_t module, bool pre_reset) {
+void SDR_SelfTest(uint8_t module, //
+                  bool    pre_reset) {
+
     uint8_t _val{0};
 
     LOG_FORMAT(debug, "SDR (AD9361) test started (%s)", __func__);
@@ -605,7 +607,8 @@ bool SDR_Configure(uint8_t module) {
   Remarks:
     None.
 */
-void SDR_BIST_Start(uint8_t module, bool prbs_mode) {
+void SDR_BIST_Start(uint8_t module, //
+                    bool    prbs_mode) {
 
     LOG_FORMAT(info, "SDR (AD9361) BIST started (%s)", __func__);
 
@@ -658,7 +661,9 @@ void SDR_BIST_Stop(uint8_t module) {
   Remarks:
     None.
 */
-void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
+void SDR_TXRX_LO_Test(uint8_t  module, //
+                      uint32_t rx_lo_offset,
+                      bool     bist_mode) {
 
     // TX LO frequency plan
     uint64_t tx_lo_frequency_table[6] = {530000000UL,  2270000000UL, 2470000000UL, //
@@ -679,7 +684,6 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
 
         // test all frequency
         for (uint8_t i = 0; i < 6; i += 1) {
-
             // set TX and RX LO frequency
             ad9361_set_tx_lo_freq(&ad9361_phy[module], tx_lo_frequency_table[i]);
             ad9361_set_rx_lo_freq(&ad9361_phy[module], tx_lo_frequency_table[i] + rx_lo_frequency_offset);
@@ -699,12 +703,12 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
             // get TX and RX LO frequency
             ad9361_get_tx_lo_freq(&ad9361_phy[module], &tx_lo_frequency_rvalue);
             ad9361_get_rx_lo_freq(&ad9361_phy[module], &rx_lo_frequency_rvalue);
-            LOG_FORMAT(debug, "TX LO frequency = %" PRIu64 " [Hz] (%s)", tx_lo_frequency_rvalue, __func__);
-            LOG_FORMAT(debug, "RX LO frequency = %" PRIu64 " [Hz] (%s)", rx_lo_frequency_rvalue, __func__);
+            LOG_FORMAT(debug, "TX LO frequency %" PRIu63 " Hz (%s)", tx_lo_frequency_rvalue, __func__);
+            LOG_FORMAT(debug, "RX LO frequency %" PRIu64 " Hz (%s)", rx_lo_frequency_rvalue, __func__);
 
             // read back received signal power
             auto rx_power = SPI_SDR_Read(module, REG_CH1_RX_FILTER_POWER);
-            LOG_FORMAT(debug, "RX signal power = %d (0x%02X) (%s)", rx_power, rx_power, __func__);
+            LOG_FORMAT(debug, "RX signal power %d [0x%02X] (%s)", rx_power, rx_power, __func__);
 
             // start transmission
             LOG_FORMAT(debug, "Start transmission (%s)", __func__);
@@ -714,12 +718,12 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
 
             // read back received signal power
             rx_power = SPI_SDR_Read(module, REG_CH1_RX_FILTER_POWER);
-            LOG_FORMAT(debug, "RX signal power = %d (0x%02X) (%s)", rx_power, rx_power, __func__);
+            LOG_FORMAT(debug, "RX signal power %d [0x%02X] (%s)", rx_power, rx_power, __func__);
 
             // get tx attenuation
             ad9361_get_tx_attenuation(&ad9361_phy[module], 0, &tx_attenuation);
 
-            // increase tx attenuation by 3dB ( 3000 mdB )
+            // increase tx attenuation by 3dB (3000 mdB)
             tx_attenuation += 3000;
 
             // set tx attenuation
@@ -728,7 +732,7 @@ void SDR_TXRX_LO_Test(uint8_t module, uint32_t rx_lo_offset, bool bist_mode) {
 
             // read back received signal power
             rx_power = SPI_SDR_Read(module, REG_CH1_RX_FILTER_POWER);
-            LOG_FORMAT(debug, "rx signal power = %d (0x%02X) (%s)", rx_power, rx_power, __func__);
+            LOG_FORMAT(debug, "rx signal power %d [0x%02X] (%s)", rx_power, rx_power, __func__);
 
             // stop transmission
             LOG_FORMAT(debug, "Stop transmission (%s)", __func__);
