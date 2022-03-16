@@ -66,6 +66,7 @@ add_library(gLIB OBJECT
 
 add_library(gUIO OBJECT
 "../../src/GAXIQuadSPI.cpp"
+"../../src/GFIFOdevice.cpp"
 "../../src/GMAPdevice.cpp"
 "../../src/GRegisters.cpp"
 "../../src/GUIOdevice.cpp"
