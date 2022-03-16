@@ -5,7 +5,7 @@
     Airbus Italia S.p.A.
 
   @File Name
-    sdr_ad9361.c
+    sdr_ad9361.cpp
 
   @Summary
     SDR AD9361 driver (SPI based)
@@ -281,7 +281,7 @@ int32_t ad9361_run_calibration(ad9361_rf_phy_t *phy, //
 
     SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CTRL, mask);
 
-    LOG_FORMAT(debug, "Calibration mask 0%" PRIx32 " (%s)", mask, __func__);
+    LOG_FORMAT(debug, "Calibration mask 0x%" PRIx32 " (%s)", mask, __func__);
 
     return ad9361_check_cal_done(phy, REG_CALIBRATION_CTRL, mask, 0);
 }
@@ -336,7 +336,7 @@ int32_t ad9361_load_gt(ad9361_rf_phy_t *phy, //
 
     const uint8_t(*tab)[3];
     rx_gain_table_name_t band;
-    uint32_t             index_max, i;
+    uint32_t             index_max;
 
     LOG_FORMAT(debug, "Set frequency %d (%s)", freq, __func__);
 
@@ -362,7 +362,7 @@ int32_t ad9361_load_gt(ad9361_rf_phy_t *phy, //
 
     SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_CONFIG, START_GAIN_TABLE_CLOCK | RECEIVER_SELECT(dest)); // Start Gain Table Clock
 
-    for (i = 0; i < index_max; i++) {
+    for (decltype(index_max) i{0}; i < index_max; i++) {
         SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_ADDRESS, i);                                                                // Gain Table Index
         SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_WRITE_DATA1, tab[i][0]);                                                    // Ext LNA, Int LNA, & Mixer Gain Word
         SPI_SDR_Write(phy->id_no, REG_GAIN_TABLE_WRITE_DATA2, tab[i][1]);                                                    // TIA & LPF Word
@@ -609,11 +609,11 @@ void ad9361_ensm_force_state(ad9361_rf_phy_t *phy, //
     phy->prev_ensm_state = dev_ensm_state;
 
     if (dev_ensm_state == ensm_state) {
-        LOG_FORMAT(warning, "Nothing to do, device is already in %d state (%s)", ensm_state, __func__);
+        LOG_FORMAT(warning, "Nothing to do, device is already in 0x%02X state (%s)", ensm_state, __func__);
         goto out;
     }
 
-    LOG_FORMAT(debug, "Device is in %x state, forcing to %x (%s)", dev_ensm_state, ensm_state, __func__);
+    LOG_FORMAT(debug, "Device is in 0x%02X state, forcing to 0x%02X (%s)", dev_ensm_state, ensm_state, __func__);
 
     val = SPI_SDR_Read(phy->id_no, REG_ENSM_CONFIG_1);
 
@@ -3178,11 +3178,11 @@ int32_t ad9361_ensm_set_state(ad9361_rf_phy_t *phy, //
     uint32_t tmp;
 
     if (phy->curr_ensm_state == ensm_state) {
-        LOG_FORMAT(warning, "Nothing to do, device is already in %d state (%s)", ensm_state, __func__);
+        LOG_FORMAT(warning, "Nothing to do, device is already in 0x%02X state (%s)", ensm_state, __func__);
         goto out;
     }
 
-    LOG_FORMAT(debug, "Device is in %x state, moving to %x (%s)", phy->curr_ensm_state, ensm_state, __func__);
+    LOG_FORMAT(debug, "Device is in 0x%02X state, moving to 0x%02X (%s)", phy->curr_ensm_state, ensm_state, __func__);
 
     if (phy->curr_ensm_state == ENSM_STATE_SLEEP) {
 

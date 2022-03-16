@@ -5,7 +5,7 @@
     Airbus Italia S.p.A.
 
   @File Name
-    sdr_ad9361.h
+    sdr_ad9361.hpp
 
   @Summary
     SDR AD9361 driver (SPI based)

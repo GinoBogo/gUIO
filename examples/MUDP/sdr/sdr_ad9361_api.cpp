@@ -5,7 +5,7 @@
     Airbus Italia S.p.A.
 
   @File Name
-    sdr_ad9361_api.c
+    sdr_ad9361_api.cpp
 
   @Summary
     SDR AD9361 API (SPI based)

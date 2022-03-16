@@ -583,12 +583,11 @@ bool SDR_Configure(uint8_t module) {
         // check ENSM internal state
         uint8_t ENSM_state = ENSM_STATE(SPI_SDR_Read(SPI_SDR1_CS, REG_STATE));
         if (ENSM_state == ENSM_STATE_FDD) {
-            LOG_FORMAT(info, "ENSM in FDD state %d (%s)", ENSM_state, __func__);
+            LOG_FORMAT(info, "ENSM in FDD state 0x%02X (%s)", ENSM_state, __func__);
             return true;
         }
         else {
-            LOG_FORMAT(error, "ENSM in state %d (%s)", ENSM_state, __func__);
-            LOG_FORMAT(error, "ENSM in FDD state (%d) expected (%s)", ENSM_STATE_FDD, __func__);
+            LOG_FORMAT(error, "ENSM in FDD state 0x%02X, expected 0x%02X (%s)", ENSM_state, ENSM_STATE_FDD, __func__);
         }
     }
     return false;
@@ -703,7 +702,7 @@ void SDR_TXRX_LO_Test(uint8_t  module, //
             // get TX and RX LO frequency
             ad9361_get_tx_lo_freq(&ad9361_phy[module], &tx_lo_frequency_rvalue);
             ad9361_get_rx_lo_freq(&ad9361_phy[module], &rx_lo_frequency_rvalue);
-            LOG_FORMAT(debug, "TX LO frequency %" PRIu63 " Hz (%s)", tx_lo_frequency_rvalue, __func__);
+            LOG_FORMAT(debug, "TX LO frequency %" PRIu64 " Hz (%s)", tx_lo_frequency_rvalue, __func__);
             LOG_FORMAT(debug, "RX LO frequency %" PRIu64 " Hz (%s)", rx_lo_frequency_rvalue, __func__);
 
             // read back received signal power
