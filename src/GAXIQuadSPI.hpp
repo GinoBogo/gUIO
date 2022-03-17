@@ -26,12 +26,12 @@ class GAXIQuadSPI : public GMAPdevice {
     void     Initialize(bool clock_phase, bool clock_polarity, bool loopback_mode = false);
     void     Start();
     void     Stop();
-    uint32_t WriteThenRead(uint8_t *tx_buf, uint32_t tx_buf_len, uint8_t *rx_buf, uint32_t rx_buf_len);
+    uint32_t WriteThenRead(uint8_t* tx_buf, uint32_t tx_buf_len, uint8_t* rx_buf, uint32_t rx_buf_len);
 
     private:
-    void update_ctrl_reg(const char *func);
+    void update_ctrl_reg(const char* func);
 
-    void *            m_base_addr;
+    void*             m_base_addr;
     bool              m_is_valid;
     volatile uint32_t m_ctrl_reg;
     volatile uint32_t m_status_reg;

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(COMPILER "gcc")
+set(COMPILER "clang")
 
 if (COMPILER STREQUAL "clang")
     if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")

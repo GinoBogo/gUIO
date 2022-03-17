@@ -18,7 +18,7 @@
 #include <string.h> // bzero
 #include <unistd.h> // close
 
-GUdpServer::GUdpServer(const char *local_addr, uint16_t local_port, const char *tag_name) {
+GUdpServer::GUdpServer(const char* local_addr, uint16_t local_port, const char* tag_name) {
     if (tag_name != nullptr) {
         snprintf(m_tag_name, sizeof(m_tag_name), "\"%s\" UDP Server", tag_name);
     }
@@ -75,12 +75,12 @@ GUdpServer::~GUdpServer() {
     LOG_FORMAT(debug, "%s destructor", m_tag_name);
 }
 
-bool GUdpServer::Receive(void *dst_buffer, size_t *dst_bytes) {
+bool GUdpServer::Receive(void* dst_buffer, size_t* dst_bytes) {
     if (!m_is_ready || dst_buffer == nullptr || dst_bytes == nullptr) {
         return false;
     }
 
-    auto _addr{(struct sockaddr *)&m_peer_addr};
+    auto _addr{(struct sockaddr*)&m_peer_addr};
     auto bytes{recvfrom(m_socket_fd, dst_buffer, MAX_DATAGRAM_SIZE, 0, _addr, &m_peer_addr_len)};
     if (bytes == -1) {
         return false;
@@ -90,12 +90,12 @@ bool GUdpServer::Receive(void *dst_buffer, size_t *dst_bytes) {
     return true;
 }
 
-bool GUdpServer::Send(void *src_buffer, size_t src_bytes) {
+bool GUdpServer::Send(void* src_buffer, size_t src_bytes) {
     if (!m_is_ready || src_buffer == nullptr) {
         return false;
     }
 
-    auto _addr{(struct sockaddr *)&m_peer_addr};
+    auto _addr{(struct sockaddr*)&m_peer_addr};
     auto bytes{sendto(m_socket_fd, src_buffer, src_bytes, 0, _addr, m_peer_addr_len)};
     if (bytes == -1) {
         return false;

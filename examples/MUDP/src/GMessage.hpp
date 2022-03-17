@@ -19,8 +19,8 @@ class GMessage : public GBuffer {
     GMessage(const uint32_t max_size = GMessage::MAX_MESSAGE_SIZE);
 
     void Clear();
-    void Initialize(TPacket *packet);
-    bool Append(TPacket *packet);
+    void Initialize(TPacket* packet);
+    bool Append(TPacket* packet);
 
     auto IsValid() {
         return m_no_error && (m_current_segment == m_total_segments);

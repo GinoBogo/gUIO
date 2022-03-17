@@ -18,8 +18,8 @@ struct map_device_t {
     size_t addr;
     size_t size;
     // SECTION: memory fields
-    void *mmap_addr;
-    void *virt_addr;
+    void* mmap_addr;
+    void* virt_addr;
 };
 
 class GMAPdevice {
@@ -31,15 +31,12 @@ class GMAPdevice {
     void Close();
     bool MapToMemory();
 
-    template <typename T> auto Read(size_t offset, T *dst_buf, size_t words = 1) {
-        auto is_valid = [&]() {
-            auto _t1{dst_buf != nullptr && words > 0};
-            auto _t2{offset + words - 1 <= m_dev.size / sizeof(T)};
-            return _t1 && _t2;
-        };
+    template <typename T> auto Read(size_t offset, T* dst_buf, size_t words = 1) {
+        auto _t1{dst_buf != nullptr && words > 0};
+        auto _t2{offset + words - 1 <= m_dev.size / sizeof(T)};
 
-        if (is_valid()) {
-            auto virt_addr{static_cast<T *>(m_dev.virt_addr)};
+        if (_t1 && _t2) {
+            auto virt_addr{static_cast<T*>(m_dev.virt_addr)};
             if (words == 1)
                 *dst_buf = virt_addr[offset];
             else
@@ -49,15 +46,12 @@ class GMAPdevice {
         return false;
     }
 
-    template <typename T> auto Write(size_t offset, T *src_buf, size_t words = 1) {
-        auto is_valid = [&]() {
-            auto _t1{src_buf != nullptr && words > 0};
-            auto _t2{offset + words - 1 <= m_dev.size / sizeof(T)};
-            return _t1 && _t2;
-        };
+    template <typename T> auto Write(size_t offset, T* src_buf, size_t words = 1) {
+        auto _t1{src_buf != nullptr && words > 0};
+        auto _t2{offset + words - 1 <= m_dev.size / sizeof(T)};
 
-        if (is_valid()) {
-            auto virt_addr{static_cast<T *>(m_dev.virt_addr)};
+        if (_t1 && _t2) {
+            auto virt_addr{static_cast<T*>(m_dev.virt_addr)};
             if (words == 1)
                 virt_addr[offset] = *src_buf;
             else

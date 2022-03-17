@@ -21,8 +21,15 @@ class GFIFOdevice {
     void     Close();
     bool     Reset();
     bool     SetPacketSize(uint32_t words);
-    uint32_t GetPacketSize(bool *error = nullptr);
-    uint32_t GetFreeWords(bool *error = nullptr);
+    uint32_t GetPacketSize(bool* error = nullptr);
+    uint32_t GetFreeWords(bool* error = nullptr);
+
+    bool Write(uint16_t* src_buf, size_t words) {
+        if (m_is_ready) {
+            return m_dev->Write(4, src_buf, words);
+        }
+        return false;
+    }
 
     private:
     size_t   m_dev_addr;
@@ -31,8 +38,8 @@ class GFIFOdevice {
     int      m_uio_map;
     uint32_t m_words;
 
-    GMAPdevice *m_dev;
-    GUIOdevice *m_uio;
+    GMAPdevice* m_dev;
+    GUIOdevice* m_uio;
     bool        m_is_ready;
 };
 

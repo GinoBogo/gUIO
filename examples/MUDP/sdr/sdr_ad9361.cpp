@@ -22,6 +22,7 @@
 // *****************************************************************************
 
 // STD libraries
+#include <cmath>
 #include <cstdlib>
 #include <inttypes.h>
 #include <limits.h>
@@ -158,7 +159,7 @@ int32_t int_log2(int32_t x) {
   Remarks:
     None.
 */
-uint64_t int_do_div(uint64_t *n, //
+uint64_t int_do_div(uint64_t* n, //
                     uint64_t  base) {
 
     uint64_t mod = 0;
@@ -170,7 +171,7 @@ uint64_t int_do_div(uint64_t *n, //
 }
 
 // *****************************************************************************
-/* static int32_t ad9361_find_opt_delay(uint8_t* field, uint32_t size, uint32_t* ret_start)
+/* int32_t ad9361_find_opt_delay(uint8_t* field, uint32_t size, uint32_t* ret_start)
 
   Summary:
     Find optimal delay value.
@@ -181,9 +182,9 @@ uint64_t int_do_div(uint64_t *n, //
   Remarks:
     None.
 */
-int32_t ad9361_find_opt_delay(uint8_t * field, //
+int32_t ad9361_find_opt_delay(uint8_t*  field, //
                               uint32_t  size,
-                              uint32_t *ret_start) {
+                              uint32_t* ret_start) {
 
     int32_t i, cnt = 0, max_cnt = 0, start, max_start = 0;
 
@@ -217,7 +218,7 @@ int32_t ad9361_find_opt_delay(uint8_t * field, //
 }
 
 // *****************************************************************************
-/* static int32_t ad9361_check_cal_done(ad9361_rf_phy_t* phy, uint32_t reg, uint32_t mask, bool done_state)
+/* int32_t ad9361_check_cal_done(ad9361_rf_phy_t* phy, uint32_t reg, uint32_t mask, bool done_state)
 
   Summary:
     Check the calibration done bit.
@@ -233,7 +234,7 @@ int32_t ad9361_find_opt_delay(uint8_t * field, //
   Remarks:
     None.
 */
-int32_t ad9361_check_cal_done(ad9361_rf_phy_t *phy, //
+int32_t ad9361_check_cal_done(ad9361_rf_phy_t* phy, //
                               uint32_t         reg,
                               uint32_t         mask,
                               bool             done_state) {
@@ -253,8 +254,8 @@ int32_t ad9361_check_cal_done(ad9361_rf_phy_t *phy, //
         else {
             STIME_uSleep(120);
         }
-
-    } while (timeout--);
+    }
+    while (timeout--);
 
     LOG_FORMAT(warning, "Calibration timeout [reg 0x%, mask 0x%] (%s)", reg, mask, __func__);
 
@@ -262,7 +263,7 @@ int32_t ad9361_check_cal_done(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t ad9361_run_calibration(ad9361_rf_phy_t* phy, uint32_t mask)
+/* int32_t ad9361_run_calibration(ad9361_rf_phy_t* phy, uint32_t mask)
 
   Summary:
     Run an AD9361 calibration and check the calibration done bit.
@@ -276,7 +277,7 @@ int32_t ad9361_check_cal_done(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_run_calibration(ad9361_rf_phy_t *phy, //
+int32_t ad9361_run_calibration(ad9361_rf_phy_t* phy, //
                                uint32_t         mask) {
 
     SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CTRL, mask);
@@ -287,7 +288,7 @@ int32_t ad9361_run_calibration(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static rx_gain_table_name_t ad9361_gt_tableindex(uint64_t freq)
+/* rx_gain_table_name_t ad9361_gt_tableindex(uint64_t freq)
 
   Summary:
     Choose the right RX gain table index for the selected frequency.
@@ -315,7 +316,7 @@ rx_gain_table_name_t ad9361_gt_tableindex(uint64_t freq) {
 }
 
 // *****************************************************************************
-/* static int32_t ad9361_load_gt(ad9361_rf_phy_t* phy, uint64_t freq, uint32_t dest)
+/* int32_t ad9361_load_gt(ad9361_rf_phy_t* phy, uint64_t freq, uint32_t dest)
 
   Summary:
     Load the gain table for the selected frequency range and receiver.
@@ -330,7 +331,7 @@ rx_gain_table_name_t ad9361_gt_tableindex(uint64_t freq) {
   Remarks:
     None.
 */
-int32_t ad9361_load_gt(ad9361_rf_phy_t *phy, //
+int32_t ad9361_load_gt(ad9361_rf_phy_t* phy, //
                        uint64_t         freq,
                        uint32_t         dest) {
 
@@ -383,7 +384,7 @@ int32_t ad9361_load_gt(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t ad9361_setup_ext_lna(ad9361_rf_phy_t* phy, elna_control_t* ctrl)
+/* int32_t ad9361_setup_ext_lna(ad9361_rf_phy_t* phy, elna_control_t* ctrl)
 
   Summary:
     Setup the external low-noise amplifier (LNA).
@@ -397,8 +398,8 @@ int32_t ad9361_load_gt(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_setup_ext_lna(ad9361_rf_phy_t *phy, //
-                             elna_control_t * ctrl) {
+int32_t ad9361_setup_ext_lna(ad9361_rf_phy_t* phy, //
+                             elna_control_t*  ctrl) {
 
     SPI_SDR_WriteF(phy->id_no, REG_EXTERNAL_LNA_CTRL, EXTERNAL_LNA1_CTRL, ctrl->elna_1_control_en);
 
@@ -412,7 +413,7 @@ int32_t ad9361_setup_ext_lna(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t ad9361_clkout_control(ad9361_rf_phy_t* phy, ad9361_clkout_t mode)
+/* int32_t ad9361_clkout_control(ad9361_rf_phy_t* phy, ad9361_clkout_t mode)
 
   Summary:
     Set the clock output mode.
@@ -426,7 +427,7 @@ int32_t ad9361_setup_ext_lna(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_clkout_control(ad9361_rf_phy_t *phy, //
+int32_t ad9361_clkout_control(ad9361_rf_phy_t* phy, //
                               ad9361_clkout_t  mode) {
 
     if (mode == CLKOUT_DISABLE) {
@@ -440,7 +441,7 @@ int32_t ad9361_clkout_control(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_load_mixer_gm_subtable(ad9361_rf_phy_t* phy)
+/* int32_t  ad9361_load_mixer_gm_subtable(ad9361_rf_phy_t* phy)
 
   Summary:
     Load the Gm Sub Table.
@@ -453,7 +454,7 @@ int32_t ad9361_clkout_control(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_load_mixer_gm_subtable(ad9361_rf_phy_t *phy) {
+int32_t ad9361_load_mixer_gm_subtable(ad9361_rf_phy_t* phy) {
 
     int32_t i, addr;
 
@@ -480,7 +481,7 @@ int32_t ad9361_load_mixer_gm_subtable(ad9361_rf_phy_t *phy) {
 }
 
 // *****************************************************************************
-/* static uint32_t ad9361_rfvco_tableindex(uint32_t freq)
+/* uint32_t ad9361_rfvco_tableindex(uint32_t freq)
 
   Summary:
     Choose the right RF VCO table index for the selected frequency.
@@ -508,7 +509,7 @@ uint32_t ad9361_rfvco_tableindex(uint32_t freq) {
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_rfpll_vco_init(ad9361_rf_phy_t* phy, bool tx, uint64_t vco_freq, uint32_t ref_clk)
+/* int32_t  ad9361_rfpll_vco_init(ad9361_rf_phy_t* phy, bool tx, uint64_t vco_freq, uint32_t ref_clk)
 
   Summary:
     Initialize the RFPLL VCO.
@@ -524,12 +525,12 @@ uint32_t ad9361_rfvco_tableindex(uint32_t freq) {
   Remarks:
     None.
 */
-int32_t ad9361_rfpll_vco_init(ad9361_rf_phy_t *phy, //
+int32_t ad9361_rfpll_vco_init(ad9361_rf_phy_t* phy, //
                               bool             tx,
                               uint64_t         vco_freq,
                               uint32_t         ref_clk) {
 
-    const synth_lut_t *tab;
+    const synth_lut_t* tab;
 
     uint32_t range;
     int32_t  i    = 0;
@@ -537,8 +538,12 @@ int32_t ad9361_rfpll_vco_init(ad9361_rf_phy_t *phy, //
 
     range = ad9361_rfvco_tableindex(ref_clk);
 
-    LOG_FORMAT(debug, "vco_freq %" PRIu64 ", ref_clk %" PRIu32 ", range %" PRIu32 " (%s)", //
-               vco_freq, ref_clk, range, __func__);
+    LOG_FORMAT(debug,
+               "vco_freq %" PRIu64 ", ref_clk %" PRIu32 ", range %" PRIu32 " (%s)", //
+               vco_freq,
+               ref_clk,
+               range,
+               __func__);
 
     int_do_div(&vco_freq, 1000000UL); // vco_freq in MHz
 
@@ -585,7 +590,7 @@ int32_t ad9361_rfpll_vco_init(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* void     ad9361_ensm_force_state(ad9361_rf_phy_t* phy, uint8_t ensm_state)
+/* void ad9361_ensm_force_state(ad9361_rf_phy_t* phy, uint8_t ensm_state)
 
   Summary:
     Force Enable State Machine (ENSM) to the desired state (internally used only).
@@ -598,7 +603,7 @@ int32_t ad9361_rfpll_vco_init(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-void ad9361_ensm_force_state(ad9361_rf_phy_t *phy, //
+void ad9361_ensm_force_state(ad9361_rf_phy_t* phy, //
                              uint8_t          ensm_state) {
 
     uint8_t  dev_ensm_state;
@@ -660,7 +665,7 @@ out:
 }
 
 // *****************************************************************************
-/* static void ad9361_ensm_restore_prev_state(ad9361_rf_phy_t* phy)
+/* void ad9361_ensm_restore_prev_state(ad9361_rf_phy_t* phy)
 
   Summary:
     Restore the previous Enable State Machine (ENSM) state.
@@ -671,7 +676,7 @@ out:
   Remarks:
     None.
 */
-void ad9361_ensm_restore_prev_state(ad9361_rf_phy_t *phy) {
+void ad9361_ensm_restore_prev_state(ad9361_rf_phy_t* phy) {
 
     uint32_t val = SPI_SDR_Read(phy->id_no, REG_ENSM_CONFIG_1);
 
@@ -716,7 +721,7 @@ out:
 }
 
 // *****************************************************************************
-/* static void ad9361_init_gain_info(rx_gain_info_t* rx_gain, rx_gain_table_t type, int32_t starting_gain, int32_t
+/* void ad9361_init_gain_info(rx_gain_info_t* rx_gain, rx_gain_table_t type, int32_t starting_gain, int32_t
   max_gain, int32_t gain_step, int32_t max_idx, int32_t idx_offset)
 
   Summary:
@@ -734,7 +739,7 @@ out:
   Remarks:
     None.
 */
-void ad9361_init_gain_info(rx_gain_info_t *rx_gain, //
+void ad9361_init_gain_info(rx_gain_info_t* rx_gain, //
                            rx_gain_table_t type,
                            int32_t         starting_gain,
                            int32_t         max_gain,
@@ -751,7 +756,7 @@ void ad9361_init_gain_info(rx_gain_info_t *rx_gain, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_en_dis_tx(ad9361_rf_phy_t* phy, uint32_t tx_if, uint32_t enable)
+/* int32_t ad9361_en_dis_tx(ad9361_rf_phy_t* phy, uint32_t tx_if, uint32_t enable)
 
   Summary:
     Enable/disable the desired TX channel.
@@ -766,7 +771,7 @@ void ad9361_init_gain_info(rx_gain_info_t *rx_gain, //
   Remarks:
     None.
 */
-int32_t ad9361_en_dis_tx(ad9361_rf_phy_t *phy, //
+int32_t ad9361_en_dis_tx(ad9361_rf_phy_t* phy, //
                          uint32_t         tx_if,
                          uint32_t         enable) {
 
@@ -783,7 +788,7 @@ int32_t ad9361_en_dis_tx(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_en_dis_rx(ad9361_rf_phy_t* phy, uint32_t rx_if, uint32_t enable)
+/* int32_t ad9361_en_dis_rx(ad9361_rf_phy_t* phy, uint32_t rx_if, uint32_t enable)
 
   Summary:
     Enable/disable the desired RX channel.
@@ -798,7 +803,7 @@ int32_t ad9361_en_dis_tx(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_en_dis_rx(ad9361_rf_phy_t *phy, //
+int32_t ad9361_en_dis_rx(ad9361_rf_phy_t* phy, //
                          uint32_t         rx_if,
                          uint32_t         enable) {
 
@@ -815,7 +820,7 @@ int32_t ad9361_en_dis_rx(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_gc_update(ad9361_rf_phy_t* phy)
+/* int32_t ad9361_gc_update(ad9361_rf_phy_t* phy)
 
   Summary:
     Update the Gain Control.
@@ -830,7 +835,7 @@ int32_t ad9361_en_dis_rx(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_gc_update(ad9361_rf_phy_t *phy) {
+int32_t ad9361_gc_update(ad9361_rf_phy_t* phy) {
 
     uint32_t clkrf;
     uint32_t reg, delay_lna, settling_delay, dec_pow_meas_dur;
@@ -907,7 +912,7 @@ int32_t ad9361_gc_update(ad9361_rf_phy_t *phy) {
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_rx_adc_setup(ad9361_rf_phy_t* phy, uint32_t bbpll_freq, uint32_t adc_sampl_freq_Hz)
+/* int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t* phy, uint32_t bbpll_freq, uint32_t adc_sampl_freq_Hz)
 
   Summary:
     Setup the RX ADC.
@@ -922,7 +927,7 @@ int32_t ad9361_gc_update(ad9361_rf_phy_t *phy) {
   Remarks:
     None.
 */
-int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, //
+int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t* phy, //
                             uint32_t         bbpll_freq,
                             uint32_t         adc_sampl_freq_Hz) {
 
@@ -985,12 +990,22 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, //
 
     min_sqrt_term_1e3 = min_t(uint32_t, 1000U, int_sqrt(maxsnr * scaled_adc_clk_1e6));
 
-    LOG_FORMAT(debug, "invrc_tconst_1e6 %" PRIu64 ", sqrt_inv_rc_tconst_1e3 %" PRIu32 " (%s)", //
-               invrc_tconst_1e6, sqrt_inv_rc_tconst_1e3, __func__);
-    LOG_FORMAT(debug, "scaled_adc_clk_1e6 %" PRIu32 ", inv_scaled_adc_clk_1e3 %" PRIu32 " (%s)", //
-               scaled_adc_clk_1e6, inv_scaled_adc_clk_1e3, __func__);
-    LOG_FORMAT(debug, "tmp_1e3 %" PRIu32 ", sqrt_term_1e3 %" PRIu32 ", min_sqrt_term_1e3 %" PRIu32 " (%s)", //
-               tmp_1e3, sqrt_term_1e3, min_sqrt_term_1e3, __func__);
+    LOG_FORMAT(debug,
+               "invrc_tconst_1e6 %" PRIu64 ", sqrt_inv_rc_tconst_1e3 %" PRIu32 " (%s)", //
+               invrc_tconst_1e6,
+               sqrt_inv_rc_tconst_1e3,
+               __func__);
+    LOG_FORMAT(debug,
+               "scaled_adc_clk_1e6 %" PRIu32 ", inv_scaled_adc_clk_1e3 %" PRIu32 " (%s)", //
+               scaled_adc_clk_1e6,
+               inv_scaled_adc_clk_1e3,
+               __func__);
+    LOG_FORMAT(debug,
+               "tmp_1e3 %" PRIu32 ", sqrt_term_1e3 %" PRIu32 ", min_sqrt_term_1e3 %" PRIu32 " (%s)", //
+               tmp_1e3,
+               sqrt_term_1e3,
+               min_sqrt_term_1e3,
+               __func__);
 
     data[0] = 0;
     data[1] = 0;
@@ -1066,7 +1081,7 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_rx_tia_calib(ad9361_rf_phy_t* phy, uint32_t bb_bw_Hz)
+/* int32_t ad9361_rx_tia_calib(ad9361_rf_phy_t* phy, uint32_t bb_bw_Hz)
 
   Summary:
     Perform a RX TIA calibration.
@@ -1080,7 +1095,7 @@ int32_t ad9361_rx_adc_setup(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_rx_tia_calib(ad9361_rf_phy_t *phy, //
+int32_t ad9361_rx_tia_calib(ad9361_rf_phy_t* phy, //
                             uint32_t         bb_bw_Hz) {
 
     uint32_t Cbbf, R2346;
@@ -1135,7 +1150,7 @@ int32_t ad9361_rx_tia_calib(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_rx_bb_analog_filter_calib(ad9361_rf_phy_t* phy, uint32_t rx_bb_bw, uint32_t bbpll_freq)
+/* int32_t ad9361_rx_bb_analog_filter_calib(ad9361_rf_phy_t* phy, uint32_t rx_bb_bw, uint32_t bbpll_freq)
 
   Summary:
     Perform a baseband RX analog filter calibration.
@@ -1150,7 +1165,7 @@ int32_t ad9361_rx_tia_calib(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_rx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, //
+int32_t ad9361_rx_bb_analog_filter_calib(ad9361_rf_phy_t* phy, //
                                          uint32_t         rx_bb_bw,
                                          uint32_t         bbpll_freq) {
 
@@ -1194,7 +1209,7 @@ int32_t ad9361_rx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_tx_bb_analog_filter_calib(ad9361_rf_phy_t* phy, uint32_t tx_bb_bw, uint32_t bbpll_freq)
+/* int32_t ad9361_tx_bb_analog_filter_calib(ad9361_rf_phy_t* phy, uint32_t tx_bb_bw, uint32_t bbpll_freq)
 
   Summary:
     Perform a baseband TX analog filter calibration.
@@ -1209,7 +1224,7 @@ int32_t ad9361_rx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_tx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, //
+int32_t ad9361_tx_bb_analog_filter_calib(ad9361_rf_phy_t* phy, //
                                          uint32_t         tx_bb_bw,
                                          uint32_t         bbpll_freq) {
 
@@ -1242,7 +1257,7 @@ int32_t ad9361_tx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_tx_bb_second_filter_calib(ad9361_rf_phy_t* phy, uint32_t tx_bb_bw)
+/* int32_t ad9361_tx_bb_second_filter_calib(ad9361_rf_phy_t* phy, uint32_t tx_bb_bw)
 
   Summary:
     Perform a baseband TX secondary filter calibration.
@@ -1256,7 +1271,7 @@ int32_t ad9361_tx_bb_analog_filter_calib(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_tx_bb_second_filter_calib(ad9361_rf_phy_t *phy, //
+int32_t ad9361_tx_bb_second_filter_calib(ad9361_rf_phy_t* phy, //
                                          uint32_t         tx_bb_bw) {
 
     uint64_t cap;
@@ -1329,7 +1344,7 @@ int32_t ad9361_tx_bb_second_filter_calib(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t* phy, uint32_t ref_clk_hz, bool tx)
+/* int32_t ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t* phy, uint32_t ref_clk_hz, bool tx)
 
   Summary:
     Perform a RF synthesizer charge pump calibration.
@@ -1344,7 +1359,7 @@ int32_t ad9361_tx_bb_second_filter_calib(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t *phy, //
+int32_t ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t* phy, //
                                    uint32_t         ref_clk_hz,
                                    bool             tx) {
 
@@ -1393,7 +1408,7 @@ int32_t ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_bb_dc_offset_calib(ad9361_rf_phy_t* phy)
+/* int32_t ad9361_bb_dc_offset_calib(ad9361_rf_phy_t* phy)
 
   Summary:
     Perform a baseband DC offset calibration.
@@ -1406,7 +1421,7 @@ int32_t ad9361_txrx_synth_cp_calib(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_bb_dc_offset_calib(ad9361_rf_phy_t *phy) {
+int32_t ad9361_bb_dc_offset_calib(ad9361_rf_phy_t* phy) {
 
     LOG_FORMAT(debug, "Start (%s)", __func__);
 
@@ -1418,7 +1433,7 @@ int32_t ad9361_bb_dc_offset_calib(ad9361_rf_phy_t *phy) {
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_rf_dc_offset_calib(ad9361_rf_phy_t* phy, uint64_t rx_freq)
+/* int32_t ad9361_rf_dc_offset_calib(ad9361_rf_phy_t* phy, uint64_t rx_freq)
 
   Summary:
     Perform a RF DC offset calibration.
@@ -1432,7 +1447,7 @@ int32_t ad9361_bb_dc_offset_calib(ad9361_rf_phy_t *phy) {
   Remarks:
     None.
 */
-int32_t ad9361_rf_dc_offset_calib(ad9361_rf_phy_t *phy, //
+int32_t ad9361_rf_dc_offset_calib(ad9361_rf_phy_t* phy, //
                                   uint64_t         rx_freq) {
 
     LOG_FORMAT(debug, "rx_freq %" PRIu64 " (%s)", rx_freq, __func__);
@@ -1463,7 +1478,7 @@ int32_t ad9361_rf_dc_offset_calib(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_update_rf_bandwidth(ad9361_rf_phy_t* phy, uint32_t rf_rx_bw, uint32_t rf_tx_bw)
+/* int32_t ad9361_update_rf_bandwidth(ad9361_rf_phy_t* phy, uint32_t rf_rx_bw, uint32_t rf_tx_bw)
 
   Summary:
     Update RF bandwidth.
@@ -1478,7 +1493,7 @@ int32_t ad9361_rf_dc_offset_calib(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_update_rf_bandwidth(ad9361_rf_phy_t *phy, //
+int32_t ad9361_update_rf_bandwidth(ad9361_rf_phy_t* phy, //
                                    uint32_t         rf_rx_bw,
                                    uint32_t         rf_tx_bw) {
 
@@ -1520,7 +1535,7 @@ int32_t ad9361_update_rf_bandwidth(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  __ad9361_tx_quad_calib(ad9361_rf_phy_t* phy, uint32_t phase, uint32_t rxnco_word, uint32_t decim, uint8_t* res)
+/* static int32_t __ad9361_tx_quad_calib(ad9361_rf_phy_t* phy, uint32_t phase, uint32_t rxnco_word, uint32_t decim, uint8_t* res)
 
   Summary:
     TX quad calib.
@@ -1537,11 +1552,11 @@ int32_t ad9361_update_rf_bandwidth(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t __ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, //
-                               uint32_t         phase,
-                               uint32_t         rxnco_word,
-                               uint32_t         decim,
-                               uint8_t *        res) {
+static int32_t __ad9361_tx_quad_calib(ad9361_rf_phy_t* phy, //
+                                      uint32_t         phase,
+                                      uint32_t         rxnco_word,
+                                      uint32_t         decim,
+                                      uint8_t*         res) {
 
     int32_t _val;
 
@@ -1562,7 +1577,7 @@ int32_t __ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_tx_quad_phase_search(ad9361_rf_phy_t* phy, uint32_t rxnco_word, uint8_t decim)
+/* int32_t ad9361_tx_quad_phase_search(ad9361_rf_phy_t* phy, uint32_t rxnco_word, uint8_t decim)
 
   Summary:
     Loop through all possible phase offsets in case the QUAD CAL doesn't converge.
@@ -1576,7 +1591,7 @@ int32_t __ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_tx_quad_phase_search(ad9361_rf_phy_t *phy, //
+int32_t ad9361_tx_quad_phase_search(ad9361_rf_phy_t* phy, //
                                     uint32_t         rxnco_word,
                                     uint8_t          decim) {
 
@@ -1610,7 +1625,7 @@ int32_t ad9361_tx_quad_phase_search(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* static int32_t  ad9361_tx_quad_calib(ad9361_rf_phy_t* phy, uint32_t bw_rx, uint32_t bw_tx, int32_t rx_phase)
+/* int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t* phy, uint32_t bw_rx, uint32_t bw_tx, int32_t rx_phase)
 
   Summary:
     Perform a TX quadrature calibration.
@@ -1626,7 +1641,7 @@ int32_t ad9361_tx_quad_phase_search(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, //
+int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t* phy, //
                              uint32_t         bw_rx,
                              uint32_t         bw_tx,
                              int32_t          rx_phase) {
@@ -1646,15 +1661,23 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, //
     clkrf = clk_get_rate(phy, &(phy->ref_clk_scale[CLKRF_CLK]));
     clktf = clk_get_rate(phy, &(phy->ref_clk_scale[CLKTF_CLK]));
 
-    LOG_FORMAT(debug, "bw_tx %" PRIu32 ", clkrf %" PRIu32 ", clktf %" PRIu32 " (%s)", //
-               bw_tx, clkrf, clktf, __func__);
+    LOG_FORMAT(debug,
+               "bw_tx %" PRIu32 ", clkrf %" PRIu32 ", clktf %" PRIu32 " (%s)", //
+               bw_tx,
+               clkrf,
+               clktf,
+               __func__);
 
     txnco_word = DIV_ROUND_CLOSEST(bw_tx * 8, clktf) - 1;
     txnco_word = clamp_t(int, txnco_word, 0, 3);
     rxnco_word = txnco_word;
 
-    LOG_FORMAT(debug, "TX NCO frequency: %" PRIu32 ", BW/4: %" PRIu32 ", txnco_word %" PRId32 " (%s)", //
-               clktf * (txnco_word + 1) / 32, bw_tx / 4, txnco_word, __func__);
+    LOG_FORMAT(debug,
+               "TX NCO frequency: %" PRIu32 ", BW/4: %" PRIu32 ", txnco_word %" PRId32 " (%s)", //
+               clktf * (txnco_word + 1) / 32,
+               bw_tx / 4,
+               txnco_word,
+               __func__);
 
     if (clktf <= 4000000UL) {
         decim = 2;
@@ -1714,8 +1737,12 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, //
         }
     }
     else {
-        LOG_FORMAT(warning, "Un-handled case in line %d, clkrf %" PRIu32 ", clktf %" PRIu32 " (%s)", //
-                   __LINE__, clkrf, clktf, __func__);
+        LOG_FORMAT(warning,
+                   "Un-handled case in line %d, clkrf %" PRIu32 ", clktf %" PRIu32 " (%s)", //
+                   __LINE__,
+                   clkrf,
+                   clktf,
+                   __func__);
     }
 
     if (rx_phase >= 0) {
@@ -1773,8 +1800,12 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, //
 
     _val = __ad9361_tx_quad_calib(phy, __rx_phase, rxnco_word, decim, &val);
 
-    LOG_FORMAT(debug, "LO leakage %d, Quadrature Calibration %d, rx_phase %d (%s)", //
-               !!(val & TX1_LO_CONV), !!(val & TX1_SSB_CONV), __rx_phase, __func__);
+    LOG_FORMAT(debug,
+               "LO leakage %d, Quadrature Calibration %d, rx_phase %d (%s)", //
+               !!(val & TX1_LO_CONV),
+               !!(val & TX1_SSB_CONV),
+               __rx_phase,
+               __func__);
 
     // Calibration failed -> try last phase offset
     if (val != (TX1_LO_CONV | TX1_SSB_CONV)) {
@@ -1809,7 +1840,7 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* int32_t  ad9361_tracking_control(ad9361_rf_phy_t* phy, bool bbdc_track, bool rfdc_track, bool rxquad_track)
+/* int32_t ad9361_tracking_control(ad9361_rf_phy_t* phy, bool bbdc_track, bool rfdc_track, bool rxquad_track)
 
   Summary:
     Setup RX tracking calibrations.
@@ -1825,15 +1856,19 @@ int32_t ad9361_tx_quad_calib(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_tracking_control(ad9361_rf_phy_t *phy, //
+int32_t ad9361_tracking_control(ad9361_rf_phy_t* phy, //
                                 bool             bbdc_track,
                                 bool             rfdc_track,
                                 bool             rxquad_track) {
 
     uint32_t qtrack = 0;
 
-    LOG_FORMAT(debug, "bbdc_track %d, rfdc_track %d, rxquad_track %d (%s)", //
-               bbdc_track, rfdc_track, rxquad_track, __func__);
+    LOG_FORMAT(debug,
+               "bbdc_track %d, rfdc_track %d, rxquad_track %d (%s)", //
+               bbdc_track,
+               rfdc_track,
+               rxquad_track,
+               __func__);
 
     SPI_SDR_Write(phy->id_no, REG_CALIBRATION_CONFIG_2, CALIBRATION_CONFIG2_DFLT | K_EXP_PHASE(0x15));
 
@@ -1870,8 +1905,8 @@ int32_t ad9361_tracking_control(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-uint32_t clk_get_rate(ad9361_rf_phy_t *phy, //
-                      refclk_scale_t * clk_priv) {
+uint32_t clk_get_rate(ad9361_rf_phy_t* phy, //
+                      refclk_scale_t*  clk_priv) {
 
     uint32_t rate   = 0;
     uint32_t source = clk_priv->source;
@@ -1920,7 +1955,7 @@ uint32_t clk_get_rate(ad9361_rf_phy_t *phy, //
  * @return The closest possible clock rate that can be set.
  */
 int32_t ad9361_bbpll_round_rate(uint32_t  rate, //
-                                uint32_t *prate) {
+                                uint32_t* prate) {
 
     uint64_t _tmp, temp;
     uint32_t fract, integer;
@@ -1968,7 +2003,7 @@ int32_t ad9361_rfpll_round_rate(uint32_t rate) {
 }
 
 // *****************************************************************************
-/* int32_t  clk_set_rate(ad9361_rf_phy_t* phy, refclk_scale_t* clk_priv, uint32_t rate)
+/* int32_t clk_set_rate(ad9361_rf_phy_t* phy, refclk_scale_t* clk_priv, uint32_t rate)
 
   Summary:
     Set clock rate.
@@ -1979,8 +2014,8 @@ int32_t ad9361_rfpll_round_rate(uint32_t rate) {
   Remarks:
     None.
 */
-int32_t clk_set_rate(ad9361_rf_phy_t *phy, //
-                     refclk_scale_t * clk_priv,
+int32_t clk_set_rate(ad9361_rf_phy_t* phy, //
+                     refclk_scale_t*  clk_priv,
                      uint32_t         rate) {
 
     uint32_t source = clk_priv->source;
@@ -2048,7 +2083,7 @@ int32_t clk_set_rate(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* int32_t  ad9361_bist_loopback(ad9361_rf_phy_t* phy, int32_t mode)
+/* int32_t ad9361_bist_loopback(ad9361_rf_phy_t* phy, int32_t mode)
 
   Summary:
     BIST loopback mode.
@@ -2059,7 +2094,7 @@ int32_t clk_set_rate(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_set_bist_loopback(ad9361_rf_phy_t *phy, //
+int32_t ad9361_set_bist_loopback(ad9361_rf_phy_t* phy, //
                                  int32_t          mode) {
 
     uint32_t sp_hd, reg;
@@ -2101,7 +2136,7 @@ int32_t ad9361_set_bist_loopback(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* int32_t  ad9361_get_bist_loopback(ad9361_rf_phy_t* phy)
+/* int32_t ad9361_get_bist_loopback(ad9361_rf_phy_t* phy)
 
   Summary:
     BIST loopback mode.
@@ -2112,7 +2147,7 @@ int32_t ad9361_set_bist_loopback(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_get_bist_loopback(ad9361_rf_phy_t *phy) {
+int32_t ad9361_get_bist_loopback(ad9361_rf_phy_t* phy) {
 
     return phy->bist_loopback_mode;
 }
@@ -2129,7 +2164,7 @@ int32_t ad9361_get_bist_loopback(ad9361_rf_phy_t *phy) {
   Remarks:
     None.
 */
-int32_t ad9361_bist_prbs(ad9361_rf_phy_t *  phy, //
+int32_t ad9361_bist_prbs(ad9361_rf_phy_t*   phy, //
                          ad9361_bist_mode_t mode) {
 
     uint32_t reg = 0;
@@ -2218,7 +2253,7 @@ uint64_t ad9361_from_clk(uint32_t freq) {
   Remarks:
     None.
 */
-int32_t ad9361_set_tx_atten(ad9361_rf_phy_t *phy, //
+int32_t ad9361_set_tx_atten(ad9361_rf_phy_t* phy, //
                             uint32_t         atten_mdb,
                             bool             tx1,
                             bool             tx2,
@@ -2255,7 +2290,7 @@ int32_t ad9361_set_tx_atten(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* int32_t  ad9361_get_tx_atten(ad9361_rf_phy_t* phy, uint32_t tx_num)
+/* int32_t ad9361_get_tx_atten(ad9361_rf_phy_t* phy, uint32_t tx_num)
 
   Summary:
     Get the attenuation for the selected TX channel.
@@ -2269,7 +2304,7 @@ int32_t ad9361_set_tx_atten(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_get_tx_atten(ad9361_rf_phy_t *phy, //
+int32_t ad9361_get_tx_atten(ad9361_rf_phy_t* phy, //
                             uint32_t         tx_num) {
 
     uint8_t  buf[2] = {0x00, 0x00};
@@ -2285,7 +2320,7 @@ int32_t ad9361_get_tx_atten(ad9361_rf_phy_t *phy, //
 }
 
 // *****************************************************************************
-/* int32_t  ad9361_init_gain_tables(ad9361_rf_phy_t* phy)
+/* int32_t ad9361_init_gain_tables(ad9361_rf_phy_t* phy)
 
   Summary:
     Initialize the gain table information.
@@ -2298,9 +2333,9 @@ int32_t ad9361_get_tx_atten(ad9361_rf_phy_t *phy, //
   Remarks:
     None.
 */
-int32_t ad9361_init_gain_tables(ad9361_rf_phy_t *phy) {
+int32_t ad9361_init_gain_tables(ad9361_rf_phy_t* phy) {
 
-    rx_gain_info_t *rx_gain;
+    rx_gain_info_t* rx_gain;
 
     // Initialize Meta data according to default gain tables of AD9631.
     // Changing/Writing of gain tables is not supported yet.
@@ -2323,7 +2358,7 @@ int32_t ad9361_init_gain_tables(ad9361_rf_phy_t *phy) {
  * @param enable Set true to enable.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_trx_vco_cal_control(ad9361_rf_phy_t *phy, //
+int32_t ad9361_trx_vco_cal_control(ad9361_rf_phy_t* phy, //
                                    bool             tx,
                                    bool             enable) {
 
@@ -2341,7 +2376,7 @@ int32_t ad9361_trx_vco_cal_control(ad9361_rf_phy_t *phy, //
  * @param enable Set true to enable.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_trx_ext_lo_control(ad9361_rf_phy_t *phy, //
+int32_t ad9361_trx_ext_lo_control(ad9361_rf_phy_t* phy, //
                                   bool             tx,
                                   bool             enable) {
 
@@ -2381,7 +2416,7 @@ int32_t ad9361_trx_ext_lo_control(ad9361_rf_phy_t *phy, //
  * @param ref_clk_hz The reference clock frequency [Hz].
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_ref_clk_cycles(ad9361_rf_phy_t *phy, //
+int32_t ad9361_set_ref_clk_cycles(ad9361_rf_phy_t* phy, //
                                   uint32_t         ref_clk_hz) {
 
     LOG_FORMAT(debug, "ref_clk_hz %" PRIu32 " (%s)", ref_clk_hz, __func__);
@@ -2398,7 +2433,7 @@ int32_t ad9361_set_ref_clk_cycles(ad9361_rf_phy_t *phy, //
  * @param fine The DCXO tune fine.
  * @return 0 in case of success, negative error code otherwise.
  */
-void ad9361_set_dcxo_tune(ad9361_rf_phy_t *phy, //
+void ad9361_set_dcxo_tune(ad9361_rf_phy_t* phy, //
                           uint32_t         coarse,
                           uint32_t         fine) {
 
@@ -2415,8 +2450,8 @@ void ad9361_set_dcxo_tune(ad9361_rf_phy_t *phy, //
  * @param ctrl The TXMON settings.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_txmon_setup(ad9361_rf_phy_t *     phy, //
-                           tx_monitor_control_t *ctrl) {
+int32_t ad9361_txmon_setup(ad9361_rf_phy_t*      phy, //
+                           tx_monitor_control_t* ctrl) {
 
     LOG_FORMAT(debug, "Start (%s)", __func__);
 
@@ -2443,7 +2478,7 @@ int32_t ad9361_txmon_setup(ad9361_rf_phy_t *     phy, //
  * @param en_mask The enable mask.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_txmon_control(ad9361_rf_phy_t *phy, //
+int32_t ad9361_txmon_control(ad9361_rf_phy_t* phy, //
                              int32_t          en_mask) {
 
     LOG_FORMAT(debug, "mask 0x%" PRIx32 " (%s)", en_mask, __func__);
@@ -2479,7 +2514,7 @@ int32_t ad9361_txmon_control(ad9361_rf_phy_t *phy, //
  * @param txb TX output option identifier
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_rf_port_setup(ad9361_rf_phy_t *phy, //
+int32_t ad9361_rf_port_setup(ad9361_rf_phy_t* phy, //
                              bool             is_out,
                              uint32_t         rx_inputs,
                              uint32_t         txb) {
@@ -2524,10 +2559,10 @@ int32_t ad9361_rf_port_setup(ad9361_rf_phy_t *phy, //
  *                   register.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_pp_port_setup(ad9361_rf_phy_t *phy, //
+int32_t ad9361_pp_port_setup(ad9361_rf_phy_t* phy, //
                              bool             restore_c3) {
 
-    ad9361_phy_platform_data_t *pd = &(phy->pdata);
+    ad9361_phy_platform_data_t* pd = &(phy->pdata);
 
     LOG_FORMAT(debug, "Start (%s)", __func__);
 
@@ -2569,8 +2604,8 @@ int32_t ad9361_pp_port_setup(ad9361_rf_phy_t *phy, //
  * @param ctrl The gain control settings.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_gc_setup(ad9361_rf_phy_t *phy, //
-                        gain_control_t * ctrl) {
+int32_t ad9361_gc_setup(ad9361_rf_phy_t* phy, //
+                        gain_control_t*  ctrl) {
 
     uint32_t reg, tmp1, tmp2;
 
@@ -2877,7 +2912,7 @@ int32_t ad9361_gc_setup(ad9361_rf_phy_t *phy, //
  * @param val_mV The value.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_auxdac_set(ad9361_rf_phy_t *phy, //
+int32_t ad9361_auxdac_set(ad9361_rf_phy_t* phy, //
                           int32_t          dac,
                           int32_t          val_mV) {
 
@@ -2928,7 +2963,7 @@ int32_t ad9361_auxdac_set(ad9361_rf_phy_t *phy, //
  * @param dac The DAC.
  * @return The value in case of success, negative error code otherwise.
  */
-int32_t ad9361_auxdac_get(ad9361_rf_phy_t *phy, //
+int32_t ad9361_auxdac_get(ad9361_rf_phy_t* phy, //
                           int32_t          dac) {
 
     switch (dac) {
@@ -2951,8 +2986,8 @@ int32_t ad9361_auxdac_get(ad9361_rf_phy_t *phy, //
  * @param ctrl Pointer to auxdac_control structure.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_auxdac_setup(ad9361_rf_phy_t * phy, //
-                            auxdac_control_t *ctrl) {
+int32_t ad9361_auxdac_setup(ad9361_rf_phy_t*  phy, //
+                            auxdac_control_t* ctrl) {
 
     uint8_t tmp;
 
@@ -2981,8 +3016,8 @@ int32_t ad9361_auxdac_setup(ad9361_rf_phy_t * phy, //
  * @param bbpll_freq The BBPLL frequency [Hz].
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_auxadc_setup(ad9361_rf_phy_t * phy, //
-                            auxadc_control_t *ctrl,
+int32_t ad9361_auxadc_setup(ad9361_rf_phy_t*  phy, //
+                            auxadc_control_t* ctrl,
                             uint32_t          bbpll_freq) {
 
     uint32_t val;
@@ -3007,8 +3042,8 @@ int32_t ad9361_auxadc_setup(ad9361_rf_phy_t * phy, //
  * @param ctrl The Control Output pins settings.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_ctrl_outs_setup(ad9361_rf_phy_t *    phy, //
-                               ctrl_outs_control_t *ctrl) {
+int32_t ad9361_ctrl_outs_setup(ad9361_rf_phy_t*     phy, //
+                               ctrl_outs_control_t* ctrl) {
 
     LOG_FORMAT(debug, "Start (%s)", __func__);
 
@@ -3023,12 +3058,13 @@ int32_t ad9361_ctrl_outs_setup(ad9361_rf_phy_t *    phy, //
  * @param phy The AD9361 state structure.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_gpo_setup(ad9361_rf_phy_t *phy, //
-                         gpo_control_t *  ctrl) {
+int32_t ad9361_gpo_setup(ad9361_rf_phy_t* phy, //
+                         gpo_control_t*   ctrl) {
 
     LOG_FORMAT(debug, "Start (%s)", __func__);
 
-    SPI_SDR_Write(phy->id_no, REG_AUTO_GPO,                              //
+    SPI_SDR_Write(phy->id_no,
+                  REG_AUTO_GPO,                                          //
                   GPO_ENABLE_AUTO_RX(ctrl->gpo0_slave_rx_en |            //
                                      (ctrl->gpo1_slave_rx_en << 1) |     //
                                      (ctrl->gpo2_slave_rx_en << 2) |     //
@@ -3038,7 +3074,8 @@ int32_t ad9361_gpo_setup(ad9361_rf_phy_t *phy, //
                                          (ctrl->gpo2_slave_tx_en << 2) | //
                                          (ctrl->gpo3_slave_tx_en << 3)));
 
-    SPI_SDR_Write(phy->id_no, REG_GPO_FORCE_AND_INIT,                       //
+    SPI_SDR_Write(phy->id_no,
+                  REG_GPO_FORCE_AND_INIT,                                   //
                   GPO_INIT_STATE(ctrl->gpo0_inactive_state_high_en |        //
                                  (ctrl->gpo1_inactive_state_high_en << 1) | //
                                  (ctrl->gpo2_inactive_state_high_en << 2) | //
@@ -3063,8 +3100,8 @@ int32_t ad9361_gpo_setup(ad9361_rf_phy_t *phy, //
  * @param is_update True if update
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_rssi_setup(ad9361_rf_phy_t *phy, //
-                          rssi_control_t * ctrl,
+int32_t ad9361_rssi_setup(ad9361_rf_phy_t* phy, //
+                          rssi_control_t*  ctrl,
                           bool             is_update) {
 
     uint32_t total_weight, weight[4], total_dur = 0, temp;
@@ -3113,8 +3150,8 @@ int32_t ad9361_rssi_setup(ad9361_rf_phy_t *phy, //
                 break;
             }
         }
-
-    } while ((j < 4) && (rssi_duration > 0));
+    }
+    while ((j < 4) && (rssi_duration > 0));
 
     for (i = 0, total_weight = 0; i < 4; i++) {
         total_weight += weight[i] = DIV_ROUND_CLOSEST(RSSI_MAX_WEIGHT * (1 << dur_buf[i]), total_dur);
@@ -3149,7 +3186,7 @@ int32_t ad9361_rssi_setup(ad9361_rf_phy_t *phy, //
  * @param phy The AD9361 state structure.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_bb_clk_change_handler(ad9361_rf_phy_t *phy) {
+int32_t ad9361_bb_clk_change_handler(ad9361_rf_phy_t* phy) {
 
     int32_t _val;
 
@@ -3169,7 +3206,7 @@ int32_t ad9361_bb_clk_change_handler(ad9361_rf_phy_t *phy) {
  * @param pinctrl Set true, will enable the ENSM pin control.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_ensm_set_state(ad9361_rf_phy_t *phy, //
+int32_t ad9361_ensm_set_state(ad9361_rf_phy_t* phy, //
                               uint8_t          ensm_state,
                               bool             pinctrl) {
 
@@ -3291,8 +3328,8 @@ out:
  * @param rx_path_clks RX path rates buffer.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_validate_trx_clock_chain(ad9361_rf_phy_t *phy, //
-                                        uint32_t *       rx_path_clks) {
+int32_t ad9361_validate_trx_clock_chain(ad9361_rf_phy_t* phy, //
+                                        uint32_t*        rx_path_clks) {
 
     int      i;
     uint32_t data_clk;
@@ -3316,9 +3353,9 @@ int32_t ad9361_validate_trx_clock_chain(ad9361_rf_phy_t *phy, //
  * @param tx_path_clks TX path rates buffer.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_trx_clock_chain(ad9361_rf_phy_t *phy, //
-                                   uint32_t *       rx_path_clks,
-                                   uint32_t *       tx_path_clks) {
+int32_t ad9361_set_trx_clock_chain(ad9361_rf_phy_t* phy, //
+                                   uint32_t*        rx_path_clks,
+                                   uint32_t*        tx_path_clks) {
 
     int32_t _val, i, j, n;
 
@@ -3328,22 +3365,24 @@ int32_t ad9361_set_trx_clock_chain(ad9361_rf_phy_t *phy, //
         return -EINVAL;
     }
 
-    LOG_FORMAT(debug, "rx_path_clks: %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 " (%s)", //
-               rx_path_clks[BBPLL_FREQ],                                                                                 //
-               rx_path_clks[ADC_FREQ],                                                                                   //
-               rx_path_clks[R2_FREQ],                                                                                    //
-               rx_path_clks[R1_FREQ],                                                                                    //
-               rx_path_clks[CLKRF_FREQ],                                                                                 //
-               rx_path_clks[RX_SAMPL_FREQ],                                                                              //
+    LOG_FORMAT(debug,
+               "rx_path_clks: %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 " (%s)", //
+               rx_path_clks[BBPLL_FREQ],                                                                          //
+               rx_path_clks[ADC_FREQ],                                                                            //
+               rx_path_clks[R2_FREQ],                                                                             //
+               rx_path_clks[R1_FREQ],                                                                             //
+               rx_path_clks[CLKRF_FREQ],                                                                          //
+               rx_path_clks[RX_SAMPL_FREQ],                                                                       //
                __func__);
 
-    LOG_FORMAT(debug, "tx_path_clks: %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 " (%s)", //
-               tx_path_clks[BBPLL_FREQ],                                                                                 //
-               tx_path_clks[ADC_FREQ],                                                                                   //
-               tx_path_clks[R2_FREQ],                                                                                    //
-               tx_path_clks[R1_FREQ],                                                                                    //
-               tx_path_clks[CLKRF_FREQ],                                                                                 //
-               tx_path_clks[RX_SAMPL_FREQ],                                                                              //
+    LOG_FORMAT(debug,
+               "tx_path_clks: %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIu32 " (%s)", //
+               tx_path_clks[BBPLL_FREQ],                                                                          //
+               tx_path_clks[ADC_FREQ],                                                                            //
+               tx_path_clks[R2_FREQ],                                                                             //
+               tx_path_clks[R1_FREQ],                                                                             //
+               tx_path_clks[CLKRF_FREQ],                                                                          //
+               tx_path_clks[RX_SAMPL_FREQ],                                                                       //
                __func__);
 
     _val = ad9361_validate_trx_clock_chain(phy, rx_path_clks);
@@ -3382,11 +3421,11 @@ int32_t ad9361_set_trx_clock_chain(ad9361_rf_phy_t *phy, //
  * @param tx_path_clks TX path rates buffer.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, //
+int32_t ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t* phy, //
                                         uint32_t         tx_sample_rate,
                                         uint32_t         rate_gov,
-                                        uint32_t *       rx_path_clks,
-                                        uint32_t *       tx_path_clks) {
+                                        uint32_t*        rx_path_clks,
+                                        uint32_t*        tx_path_clks) {
 
     uint32_t clktf, clkrf, adc_rate = 0, dac_rate = 0;
     uint64_t bbpll_rate;
@@ -3394,7 +3433,13 @@ int32_t ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, //
     uint32_t div, tx_intdec, rx_intdec, recursion = 1;
 
     const int8_t clk_dividers[][4] = {
-        {12, 3, 2, 2}, {8, 2, 2, 2}, {6, 3, 1, 2}, {4, 2, 2, 1}, {3, 3, 1, 1}, {2, 2, 1, 1}, {1, 1, 1, 1},
+        {12, 3, 2, 2},
+        {8, 2, 2, 2},
+        {6, 3, 1, 2},
+        {4, 2, 2, 1},
+        {3, 3, 1, 1},
+        {2, 2, 1, 1},
+        {1, 1, 1, 1},
     };
 
     if (phy->bypass_rx_fir) {
@@ -3416,8 +3461,13 @@ int32_t ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, //
         rate_gov  = 0;
     }
 
-    LOG_FORMAT(debug, "Requested rate %" PRIu32 ", TXFIR int %" PRIu32 ", RXFIR dec %" PRIu32 ", mode %s (%s)", //
-               tx_sample_rate, tx_intdec, rx_intdec, (rate_gov ? "Nominal" : "Highest OSR"), __func__);
+    LOG_FORMAT(debug,
+               "Requested rate %" PRIu32 ", TXFIR int %" PRIu32 ", RXFIR dec %" PRIu32 ", mode %s (%s)", //
+               tx_sample_rate,
+               tx_intdec,
+               rx_intdec,
+               (rate_gov ? "Nominal" : "Highest OSR"),
+               __func__);
 
     if (tx_sample_rate > (phy->pdata.rx2tx2 ? 61440000UL : 122880000UL)) {
         return -EINVAL;
@@ -3465,8 +3515,10 @@ int32_t ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, //
         return ad9361_calculate_rf_clock_chain(phy, tx_sample_rate, ++rate_gov, rx_path_clks, tx_path_clks);
     }
     else if (((index_tx < 0) || (index_tx > 6) || (index_rx < 0) || (index_rx > 6))) {
-        LOG_FORMAT(error, "Failed to find suitable dividers %s (%s)", //
-                   (adc_rate < MIN_ADC_CLK) ? "ADC clock below limit" : "BBPLL rate above limit", __func__);
+        LOG_FORMAT(error,
+                   "Failed to find suitable dividers %s (%s)", //
+                   (adc_rate < MIN_ADC_CLK) ? "ADC clock below limit" : "BBPLL rate above limit",
+                   __func__);
         return -EINVAL;
     }
 
@@ -3476,8 +3528,8 @@ int32_t ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, //
     do {
         bbpll_rate = (uint64_t)adc_rate * div;
         div >>= 1;
-
-    } while ((bbpll_rate > MAX_BBPLL_FREQ) && (div >= MIN_BBPLL_DIV));
+    }
+    while ((bbpll_rate > MAX_BBPLL_FREQ) && (div >= MIN_BBPLL_DIV));
 
     rx_path_clks[BBPLL_FREQ]    = bbpll_rate;
     rx_path_clks[ADC_FREQ]      = adc_rate;
@@ -3502,7 +3554,7 @@ int32_t ad9361_calculate_rf_clock_chain(ad9361_rf_phy_t *phy, //
  * @param freq The desired sample rate.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_trx_clock_chain_freq(ad9361_rf_phy_t *phy, //
+int32_t ad9361_set_trx_clock_chain_freq(ad9361_rf_phy_t* phy, //
                                         uint32_t         freq) {
 
     uint32_t rx[6], tx[6];
@@ -3523,11 +3575,11 @@ int32_t ad9361_set_trx_clock_chain_freq(ad9361_rf_phy_t *phy, //
  * @param pinctrl
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_ensm_mode(ad9361_rf_phy_t *phy, //
+int32_t ad9361_set_ensm_mode(ad9361_rf_phy_t* phy, //
                              bool             fdd,
                              bool             pinctrl) {
 
-    ad9361_phy_platform_data_t *pd  = &(phy->pdata);
+    ad9361_phy_platform_data_t* pd  = &(phy->pdata);
     uint32_t                    val = 0;
 
     SPI_SDR_Write(phy->id_no, REG_ENSM_MODE, fdd ? FDD_MODE : 0);
@@ -3583,7 +3635,7 @@ int32_t ad9361_fastlock_readval(uint8_t  id_no, //
  * @param prepare
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_fastlock_prepare(ad9361_rf_phy_t *phy, //
+int32_t ad9361_fastlock_prepare(ad9361_rf_phy_t* phy, //
                                 bool             tx,
                                 uint32_t         profile,
                                 bool             prepare) {
@@ -3666,10 +3718,10 @@ uint32_t ad9361_ref_div_sel(uint32_t refin_Hz, //
  * @param phy The AD9361 state structure.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_setup(ad9361_rf_phy_t *phy) {
+int32_t ad9361_setup(ad9361_rf_phy_t* phy) {
 
     uint32_t                    refin_Hz, ref_freq, bbpll_freq;
-    ad9361_phy_platform_data_t *pd = &(phy->pdata);
+    ad9361_phy_platform_data_t* pd = &(phy->pdata);
     int32_t                     _val;
     uint32_t                    real_rx_bandwidth = pd->rf_rx_bandwidth_Hz / 2;
     uint32_t                    real_tx_bandwidth = pd->rf_tx_bandwidth_Hz / 2;
@@ -3718,7 +3770,6 @@ int32_t ad9361_setup(ad9361_rf_phy_t *phy) {
                   DIGITAL_POWER_UP | CLOCK_ENABLE_DFLT | BBPLL_ENABLE | (pd->use_extclk ? XO_BYPASS : 0)); // Enable Clocks
 
     _val = clk_set_rate(phy, &(phy->ref_clk_scale[BB_REFCLK]), ref_freq);
-
     if (_val < 0) {
         LOG_FORMAT(error, "Failed to set BB ref clock rate %" PRId32 " (%s)", _val, __func__);
         return _val;
@@ -3787,7 +3838,6 @@ int32_t ad9361_setup(ad9361_rf_phy_t *phy) {
     }
 
     _val = clk_set_rate(phy, &(phy->ref_clk_scale[RX_REFCLK]), ref_freq);
-
     if (_val < 0) {
         LOG_FORMAT(error, "Failed to set RX Synth ref clock rate %" PRId32 " (%s)", _val, __func__);
         return _val;
@@ -3943,7 +3993,7 @@ int32_t ad9361_setup(ad9361_rf_phy_t *phy) {
  * @param arg The argument of the calibration.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_do_calib_run(ad9361_rf_phy_t *phy, //
+int32_t ad9361_do_calib_run(ad9361_rf_phy_t* phy, //
                             uint32_t         cal,
                             int32_t          arg) {
 
@@ -3985,10 +4035,10 @@ int32_t ad9361_do_calib_run(ad9361_rf_phy_t *phy, //
  * @param coef Pointer to filter coefficients.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_verify_fir_filter_coef(ad9361_rf_phy_t *phy, //
+int32_t ad9361_verify_fir_filter_coef(ad9361_rf_phy_t* phy, //
                                       fir_dest_t       dest,
                                       uint32_t         ntaps,
-                                      short *          coef) {
+                                      short*           coef) {
 
     uint32_t val, offs = 0, gain = 0, conf, sel, cnt;
     int32_t  _val = 0;
@@ -4023,8 +4073,14 @@ int32_t ad9361_verify_fir_filter_coef(ad9361_rf_phy_t *phy, //
             tmp = (SPI_SDR_Read(phy->id_no, REG_TX_FILTER_COEF_READ_DATA_1 + offs) & 0xFF) | (SPI_SDR_Read(phy->id_no, REG_TX_FILTER_COEF_READ_DATA_2 + offs) << 8);
 
             if (tmp != coef[val]) {
-                LOG_FORMAT(error, "%s%" PRIu32 " read verify failed TAP%" PRIu32 " %d =! %d (%s)", //
-                           (dest & FIR_IS_RX) ? "RX" : "TX", sel, val, tmp, coef[val], __func__);
+                LOG_FORMAT(error,
+                           "%s%" PRIu32 " read verify failed TAP%" PRIu32 " %d =! %d (%s)", //
+                           (dest & FIR_IS_RX) ? "RX" : "TX",
+                           sel,
+                           val,
+                           tmp,
+                           coef[val],
+                           __func__);
                 _val = -EIO;
             }
         }
@@ -4048,20 +4104,28 @@ int32_t ad9361_verify_fir_filter_coef(ad9361_rf_phy_t *phy, //
  * @param coef Pointer to filter coefficients.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_load_fir_filter_coef(ad9361_rf_phy_t *phy, //
+int32_t ad9361_load_fir_filter_coef(ad9361_rf_phy_t* phy, //
                                     fir_dest_t       dest,
                                     int32_t          gain_dB,
                                     uint32_t         ntaps,
-                                    int16_t *        coef) {
+                                    int16_t*         coef) {
 
     uint32_t val, offs = 0, fir_conf = 0, fir_enable = 0;
 
-    LOG_FORMAT(debug, "TAPS %" PRIu32 ", gain %" PRId32 ", destination %d (%s)", //
-               ntaps, gain_dB, dest, __func__);
+    LOG_FORMAT(debug,
+               "TAPS %" PRIu32 ", gain %" PRId32 ", destination %d (%s)", //
+               ntaps,
+               gain_dB,
+               dest,
+               __func__);
 
     if ((coef == NULL) || !ntaps || (ntaps > 128) || (ntaps % 16)) {
-        LOG_FORMAT(error, "Invalid parameters: TAPS %" PRIu32 ", gain %" PRId32 ", destination 0x%X (%s)", //
-                   ntaps, gain_dB, dest, __func__);
+        LOG_FORMAT(error,
+                   "Invalid parameters: TAPS %" PRIu32 ", gain %" PRId32 ", destination 0x%X (%s)", //
+                   ntaps,
+                   gain_dB,
+                   dest,
+                   __func__);
         return -EINVAL;
     }
 
@@ -4128,7 +4192,7 @@ int32_t ad9361_load_fir_filter_coef(ad9361_rf_phy_t *phy, //
  * @param div The divider value.
  * @return 0 in case of success, negative error code otherwise.
  */
-inline int32_t ad9361_set_muldiv(refclk_scale_t *priv, //
+inline int32_t ad9361_set_muldiv(refclk_scale_t* priv, //
                                  uint32_t        mul,
                                  uint32_t        div) {
 
@@ -4144,8 +4208,8 @@ inline int32_t ad9361_set_muldiv(refclk_scale_t *priv, //
  * @param priv The selected refclk_scale structure.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_get_clk_scaler(ad9361_rf_phy_t *phy, //
-                              refclk_scale_t * clk_priv) {
+int32_t ad9361_get_clk_scaler(ad9361_rf_phy_t* phy, //
+                              refclk_scale_t*  clk_priv) {
 
     uint32_t tmp_1, tmp_2;
 
@@ -4251,9 +4315,7 @@ int32_t ad9361_get_clk_scaler(ad9361_rf_phy_t *phy, //
  * @param clk_priv The selected refclk_scale structure.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_to_refclk_scaler(refclk_scale_t *clk_priv) {
-
-    // return value
+int32_t ad9361_to_refclk_scaler(refclk_scale_t* clk_priv) {
     int32_t _val = -EINVAL;
 
     // REFCLK Scaler
@@ -4278,7 +4340,6 @@ int32_t ad9361_to_refclk_scaler(refclk_scale_t *clk_priv) {
             break;
     }
 
-    // return
     return _val;
 }
 
@@ -4289,8 +4350,8 @@ int32_t ad9361_to_refclk_scaler(refclk_scale_t *clk_priv) {
  *            it enters the BBPLL.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_set_clk_scaler(ad9361_rf_phy_t *phy, //
-                              refclk_scale_t * clk_priv,
+int32_t ad9361_set_clk_scaler(ad9361_rf_phy_t* phy, //
+                              refclk_scale_t*  clk_priv,
                               bool             set) {
 
     uint32_t tmp;
@@ -4412,14 +4473,11 @@ int32_t ad9361_set_clk_scaler(ad9361_rf_phy_t *phy, //
 
         case T2_CLK:
             if ((clk_priv->mult != 1) || (clk_priv->div > 3) || (clk_priv->div < 1)) {
-
                 return -EINVAL;
             }
 
             if (set) {
-
                 SPI_SDR_WriteF(phy->id_no, REG_TX_ENABLE_FILTER_CTRL, THB3_ENABLE_INTERP(~0), clk_priv->div - 1);
-
                 // SL : 2020.12.23 - returned value to be reviewed
                 return 0;
             }
@@ -4479,16 +4537,13 @@ int32_t ad9361_set_clk_scaler(ad9361_rf_phy_t *phy, //
  * @param parent_rate The parent clock rate.
  * @return The clock rate.
  */
-uint32_t ad9361_clk_factor_recalc_rate(ad9361_rf_phy_t *phy, //
-                                       refclk_scale_t * clk_priv,
+uint32_t ad9361_clk_factor_recalc_rate(ad9361_rf_phy_t* phy, //
+                                       refclk_scale_t*  clk_priv,
                                        uint32_t         parent_rate) {
-
-    uint64_t rate;
 
     ad9361_get_clk_scaler(phy, clk_priv);
 
-    rate = (parent_rate * clk_priv->mult) / clk_priv->div;
-
+    uint64_t rate = (parent_rate * clk_priv->mult) / clk_priv->div;
     return (uint32_t)rate;
 }
 
@@ -4499,10 +4554,10 @@ uint32_t ad9361_clk_factor_recalc_rate(ad9361_rf_phy_t *phy, //
  * @param parent_rate The parent clock rate.
  * @return The closest possible clock rate that can be set.
  */
-int32_t ad9361_clk_factor_round_rate(ad9361_rf_phy_t *phy, //
-                                     refclk_scale_t * clk_priv,
+int32_t ad9361_clk_factor_round_rate(ad9361_rf_phy_t* phy, //
+                                     refclk_scale_t*  clk_priv,
                                      uint32_t         rate,
-                                     uint32_t *       prate) {
+                                     uint32_t*        prate) {
 
     int32_t _val;
 
@@ -4535,8 +4590,8 @@ int32_t ad9361_clk_factor_round_rate(ad9361_rf_phy_t *phy, //
  * @param parent_rate The parent clock rate.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_clk_factor_set_rate(ad9361_rf_phy_t *phy, //
-                                   refclk_scale_t * clk_priv,
+int32_t ad9361_clk_factor_set_rate(ad9361_rf_phy_t* phy, //
+                                   refclk_scale_t*  clk_priv,
                                    uint32_t         rate,
                                    uint32_t         parent_rate) {
 
@@ -4566,8 +4621,8 @@ int32_t ad9361_clk_factor_set_rate(ad9361_rf_phy_t *phy, //
  * @param parent_rate The parent clock rate.
  * @return The clock rate.
  */
-uint32_t ad9361_bbpll_recalc_rate(ad9361_rf_phy_t *phy, //
-                                  refclk_scale_t * clk_priv,
+uint32_t ad9361_bbpll_recalc_rate(ad9361_rf_phy_t* phy, //
+                                  refclk_scale_t*  clk_priv,
                                   uint32_t         parent_rate) {
 
     UNUSED(clk_priv)
@@ -4595,8 +4650,8 @@ uint32_t ad9361_bbpll_recalc_rate(ad9361_rf_phy_t *phy, //
  * @param parent_rate The parent clock rate.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_bbpll_set_rate(ad9361_rf_phy_t *phy, //
-                              refclk_scale_t * clk_priv,
+int32_t ad9361_bbpll_set_rate(ad9361_rf_phy_t* phy, //
+                              refclk_scale_t*  clk_priv,
                               uint32_t         rate,
                               uint32_t         parent_rate) {
 
@@ -4688,10 +4743,10 @@ uint64_t ad9361_calc_rfpll_freq(uint64_t parent_rate, //
  */
 int32_t ad9361_calc_rfpll_divder(uint64_t  freq, //
                                  uint64_t  parent_rate,
-                                 uint32_t *integer,
-                                 uint32_t *fract,
-                                 int32_t * vco_div,
-                                 uint64_t *vco_freq) {
+                                 uint32_t* integer,
+                                 uint32_t* fract,
+                                 int32_t*  vco_div,
+                                 uint64_t* vco_freq) {
 
     uint64_t tmp;
     int32_t  div;
@@ -4726,8 +4781,8 @@ int32_t ad9361_calc_rfpll_divder(uint64_t  freq, //
  * @param parent_rate The parent clock rate.
  * @return The clock rate.
  */
-uint32_t ad9361_rfpll_recalc_rate(ad9361_rf_phy_t *phy, //
-                                  refclk_scale_t * clk_priv,
+uint32_t ad9361_rfpll_recalc_rate(ad9361_rf_phy_t* phy, //
+                                  refclk_scale_t*  clk_priv,
                                   uint32_t         parent_rate) {
 
     uint32_t fract, integer;
@@ -4783,8 +4838,8 @@ uint32_t ad9361_rfpll_recalc_rate(ad9361_rf_phy_t *phy, //
  * @param parent_rate The parent clock rate.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_rfpll_set_rate(ad9361_rf_phy_t *phy, //
-                              refclk_scale_t * clk_priv,
+int32_t ad9361_rfpll_set_rate(ad9361_rf_phy_t* phy, //
+                              refclk_scale_t*  clk_priv,
                               uint32_t         rate,
                               uint32_t         parent_rate) {
 
@@ -4846,7 +4901,7 @@ int32_t ad9361_rfpll_set_rate(ad9361_rf_phy_t *phy, //
 
     // For RX LO we typically have the tracking option enabled, so for now do nothing here.
     if (phy->auto_cal_en && (clk_priv->source == TX_RFPLL)) {
-        if (abs((int64_t)(phy->last_tx_quad_cal_freq - ad9361_from_clk(rate))) > (int64_t)phy->cal_threshold_freq) {
+        if (std::abs((int64_t)(phy->last_tx_quad_cal_freq - ad9361_from_clk(rate))) > (int64_t)phy->cal_threshold_freq) {
             _val = ad9361_do_calib_run(phy, TX_QUAD_CAL, -1);
             if (_val < 0) {
                 LOG_FORMAT(debug, "TX QUAD cal failed (%s)", __func__);
@@ -4872,7 +4927,7 @@ int32_t ad9361_rfpll_set_rate(ad9361_rf_phy_t *phy, //
  * @param parent_source The source of the parent clock.
  * @return A clk for the new clock or a negative error code.
  */
-clk_t ad9361_clk_register(ad9361_rf_phy_t *phy, //
+clk_t ad9361_clk_register(ad9361_rf_phy_t* phy, //
                           uint32_t         source,
                           uint32_t         parent_source) {
 
@@ -4924,6 +4979,7 @@ clk_t ad9361_clk_register(ad9361_rf_phy_t *phy, //
         case DAC_CLK:
             clk.rate = ad9361_clk_factor_recalc_rate(phy, &clk_priv, phy->clks[ADC_CLK].rate);
             break;
+
         case T2_CLK:
             clk.rate = ad9361_clk_factor_recalc_rate(phy, &clk_priv, phy->clks[DAC_CLK].rate);
             break;
@@ -4960,13 +5016,11 @@ clk_t ad9361_clk_register(ad9361_rf_phy_t *phy, //
  * @param phy The AD9361 state structure.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t register_clocks(ad9361_rf_phy_t *phy) {
-
+int32_t register_clocks(ad9361_rf_phy_t* phy) {
     // scaled reference clocks
     phy->clks[TX_REFCLK] = ad9361_clk_register(phy, TX_REFCLK, EXT_REF_CLK);
     phy->clks[RX_REFCLK] = ad9361_clk_register(phy, RX_REFCLK, EXT_REF_CLK);
     phy->clks[BB_REFCLK] = ad9361_clk_register(phy, BB_REFCLK, EXT_REF_CLK);
-
     // base-band PLL clock
     phy->clks[BBPLL_CLK]    = ad9361_clk_register(phy, BBPLL_CLK, BB_REFCLK);
     phy->clks[ADC_CLK]      = ad9361_clk_register(phy, ADC_CLK, BBPLL_CLK);
@@ -4991,7 +5045,7 @@ int32_t register_clocks(ad9361_rf_phy_t *phy) {
  * @param max_freq Maximum frequency.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_dig_tune(ad9361_rf_phy_t *phy, //
+int32_t ad9361_dig_tune(ad9361_rf_phy_t* phy, //
                         uint32_t         max_freq) {
 
     int32_t  _val, i, j, k, t, err = 0;
@@ -5111,7 +5165,7 @@ int32_t ad9361_dig_tune(ad9361_rf_phy_t *phy, //
  * @param phy The AD9361 state structure.
  * @return 0 in case of success, negative error code otherwise.
  */
-int32_t ad9361_post_setup(ad9361_rf_phy_t *phy) {
+int32_t ad9361_post_setup(ad9361_rf_phy_t* phy) {
 
     int32_t rx2tx2 = phy->pdata.rx2tx2;
     int32_t tmp;

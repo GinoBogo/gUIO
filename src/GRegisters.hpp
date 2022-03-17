@@ -17,7 +17,7 @@
 // SECTION: bits manipulation
 //==============================================================================
 
-#define __REG(BASE_ADDR, REG_OFFSET) *((volatile uint32_t *)((uint8_t *)BASE_ADDR + REG_OFFSET))
+#define __REG(BASE_ADDR, REG_OFFSET) *((volatile uint32_t*)((uint8_t*)BASE_ADDR + REG_OFFSET))
 
 constexpr uint32_t SET_BIT(uint8_t _bit_pos) {
     return (1 << _bit_pos);
@@ -102,7 +102,7 @@ const auto gpio_registers_number = 7;
 #define GPIO_getIpInterruptStatus(base_addr)            __REG(base_addr, REG_GPIO_IP_ISR)
 #define GPIO_setIpInterruptStatus(base_addr, value)     __REG(base_addr, REG_GPIO_IP_ISR) = value
 
-void GPIO_getRegistersInfo(void *base_addr, register_info *info_list);
+void GPIO_getRegistersInfo(void* base_addr, register_info* info_list);
 
 //==============================================================================
 // LogiCORE IP: AXI Quad SPI v3.2

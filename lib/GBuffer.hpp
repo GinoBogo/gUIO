@@ -24,9 +24,9 @@ class GBuffer {
 
     inline void SmartClear();
 
-    bool Wrap(uint8_t *buf_data, const uint32_t buf_size);
+    bool Wrap(uint8_t* buf_data, const uint32_t buf_size);
 
-    bool Append(const uint8_t *src_data, const uint32_t src_count);
+    bool Append(const uint8_t* src_data, const uint32_t src_count);
 
     void SetCount(const uint32_t value);
 
@@ -56,11 +56,11 @@ class GBuffer {
         return m_size - m_count;
     }
 
-    inline uint8_t *data() const {
+    inline uint8_t* data() const {
         return p_data;
     }
 
-    inline uint8_t *next() const {
+    inline uint8_t* next() const {
         return p_next;
     }
 
@@ -68,8 +68,8 @@ class GBuffer {
     bool     m_is_wrapper;
     uint32_t m_size;
     uint32_t m_count;
-    uint8_t *p_data;
-    uint8_t *p_next;
+    uint8_t* p_data;
+    uint8_t* p_next;
 };
 
 inline void GBuffer::Reset() {

@@ -20,7 +20,7 @@
 
 #include <thread> // thread, mutex
 
-void send_packet_start_flow(GFiFo &fifo, GUdpClient &client) {
+void send_packet_start_flow(GFiFo& fifo, GUdpClient& client) {
     GFiFo::fsm_state_t new_state, old_state;
 
     if (fifo.IsStateChanged(&new_state, &old_state)) {
@@ -37,7 +37,7 @@ void send_packet_start_flow(GFiFo &fifo, GUdpClient &client) {
     }
 }
 
-void send_packet_stop_flow(GFiFo &fifo, GUdpClient &client) {
+void send_packet_stop_flow(GFiFo& fifo, GUdpClient& client) {
     GFiFo::fsm_state_t new_state, old_state;
 
     if (fifo.IsStateChanged(&new_state, &old_state)) {
@@ -54,7 +54,7 @@ void send_packet_stop_flow(GFiFo &fifo, GUdpClient &client) {
     }
 }
 
-void f_gm_mc_server(bool &quit, GUdpServer &server, GUdpClient &client) {
+void f_gm_mc_server(bool& quit, GUdpServer& server, GUdpClient& client) {
     LOG_WRITE(trace, "Thread STARTED (gm_mc_server)");
 
     auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
@@ -106,7 +106,7 @@ void f_gm_mc_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STOPPED (gm_mc_server)");
 }
 
-void f_gm_dh_server(bool &quit, GUdpServer &server, GUdpClient &client) {
+void f_gm_dh_server(bool& quit, GUdpServer& server, GUdpClient& client) {
     LOG_WRITE(trace, "Thread STARTED (gm_dh_server)");
 
     auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
@@ -156,7 +156,7 @@ void f_gm_dh_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STOPPED (gm_dh_server)");
 }
 
-void f_hssl0_server(bool &quit, GUdpServer &server, GUdpClient &client) {
+void f_hssl0_server(bool& quit, GUdpServer& server, GUdpClient& client) {
     LOG_WRITE(trace, "Thread STARTED (hssl0_server)");
 
     auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
@@ -206,7 +206,7 @@ void f_hssl0_server(bool &quit, GUdpServer &server, GUdpClient &client) {
     LOG_WRITE(trace, "Thread STOPPED (hssl0_server)");
 }
 
-void f_hssl1_server(bool &quit, GUdpServer &server, GUdpClient &client) {
+void f_hssl1_server(bool& quit, GUdpServer& server, GUdpClient& client) {
     LOG_WRITE(trace, "Thread STARTED (hssl1_server)");
 
     auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
@@ -273,7 +273,7 @@ int         HSSL1_SERVER_PORT = 60001;
 std::string HSSL1_CLIENT_ADDR = "127.0.0.1";
 int         HSSL1_CLIENT_PORT = 60101;
 
-void load_options(const char *filename) {
+void load_options(const char* filename) {
     auto opts = GOptions();
 
     // clang-format off

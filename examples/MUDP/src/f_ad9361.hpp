@@ -24,11 +24,6 @@ namespace f_ad9361 {
         __local::is_ready = false;
 
         if (SPI_SDR_Init(SPI_SDR1_CS, true, false)) {
-
-            SDR_Reset(SPI_SDR1_CS);
-
-            SDR_SoftReset(SPI_SDR1_CS);
-
             __local::is_ready = SDR_Configure(SPI_SDR1_CS);
         }
 
@@ -40,7 +35,7 @@ namespace f_ad9361 {
             SDR_DumpRegs(SPI_SDR1_CS);
         }
         else {
-            LOG_FORMAT(error, "[%s] Unable to dump the SDR registers", __func__);
+            LOG_FORMAT(error, "Unable to dump the SDR registers (%s)", __func__);
         }
     }
 
@@ -49,7 +44,7 @@ namespace f_ad9361 {
             SDR_SelfTest(SPI_SDR1_CS, pre_reset);
         }
         else {
-            LOG_FORMAT(error, "[%s] Unable to perform the SDR self-test", __func__);
+            LOG_FORMAT(error, "Unable to perform the SDR self-test (%s)", __func__);
         }
     }
 

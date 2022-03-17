@@ -17,7 +17,7 @@
 #include <sys/mman.h> // mmap, munmap
 #include <unistd.h>   // close, read, write
 
-auto map_device_reset = [](map_device_t *dev, bool clear_all) {
+auto map_device_reset = [](map_device_t* dev, bool clear_all) {
     auto addr = dev->addr;
     auto size = dev->size;
 
@@ -87,6 +87,6 @@ bool GMAPdevice::MapToMemory() {
         return false;
     }
 
-    m_dev.virt_addr = static_cast<char *>(m_dev.mmap_addr) + virt_offset;
+    m_dev.virt_addr = static_cast<char*>(m_dev.mmap_addr) + virt_offset;
     return true;
 }

@@ -62,7 +62,7 @@ class GDecoder {
     GMessage message = GMessage();
 
     inline auto packet_ptr() {
-        return (uint8_t *)&packet;
+        return (uint8_t*)&packet;
     }
 
     inline auto packet_len() {

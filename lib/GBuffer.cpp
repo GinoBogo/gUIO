@@ -25,7 +25,7 @@ GBuffer::~GBuffer() {
     }
 }
 
-bool GBuffer::Wrap(uint8_t *buf_data, const uint32_t buf_size) {
+bool GBuffer::Wrap(uint8_t* buf_data, const uint32_t buf_size) {
     if (m_is_wrapper) {
         if (buf_data && buf_size) {
             m_size = buf_size;
@@ -37,7 +37,7 @@ bool GBuffer::Wrap(uint8_t *buf_data, const uint32_t buf_size) {
     return false;
 }
 
-bool GBuffer::Append(const uint8_t *src_data, const uint32_t src_count) {
+bool GBuffer::Append(const uint8_t* src_data, const uint32_t src_count) {
     if (!src_data || !src_count || free() < src_count) {
         return false;
     }

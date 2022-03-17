@@ -25,8 +25,8 @@ struct uio_device_t {
     size_t offset;
     size_t size;
     // SECTION: memory & interrupt
-    void *  mmap_addr;
-    void *  virt_addr;
+    void*   mmap_addr;
+    void*   virt_addr;
     int32_t irq_count;
 };
 
@@ -42,7 +42,7 @@ class GUIOdevice {
     bool IRQ_Wait(int timeout = -1);
     bool IRQ_Clear();
 
-    size_t GetMapAttribute(const char *attr_name, bool *error = nullptr, char *dst_buf = nullptr);
+    size_t GetMapAttribute(const char* attr_name, bool* error = nullptr, char* dst_buf = nullptr);
     void   PrintMapAttributes();
 
     auto uio_num() const {
@@ -54,7 +54,7 @@ class GUIOdevice {
     }
 
     auto name() const {
-        return (const char *)m_dev.name;
+        return (const char*)m_dev.name;
     }
 
     auto addr() const {
@@ -73,8 +73,8 @@ class GUIOdevice {
         return m_dev.addr + (m_dev.size - 1);
     }
 
-    auto *virt_addr() const {
-        return (uint8_t *)m_dev.virt_addr;
+    auto* virt_addr() const {
+        return (uint8_t*)m_dev.virt_addr;
     }
 
     auto irq_count() const {

@@ -21,8 +21,8 @@
 
 #include <string.h> // memcpy
 
-GMAPdevice * ad9361_regs = nullptr;
-GAXIQuadSPI *ad9361_qspi = nullptr;
+GMAPdevice*  ad9361_regs = nullptr;
+GAXIQuadSPI* ad9361_qspi = nullptr;
 
 uint32_t __ffs(uint32_t word) {
     uint32_t num = 0;
@@ -75,7 +75,7 @@ bool SPI_SDR_Init(uint8_t id, bool clock_phase, bool clock_polarity) {
     return false;
 }
 
-uint8_t SPI_SDR_Read(uint8_t id, uint32_t reg, bool *error) {
+uint8_t SPI_SDR_Read(uint8_t id, uint32_t reg, bool* error) {
     auto    _ret{true};
     uint8_t _buf{0};
 
@@ -90,7 +90,7 @@ uint8_t SPI_SDR_Read(uint8_t id, uint32_t reg, bool *error) {
     return _buf;
 }
 
-uint8_t SPI_SDR_ReadF(uint8_t id, uint32_t reg, uint8_t mask, bool *error) {
+uint8_t SPI_SDR_ReadF(uint8_t id, uint32_t reg, uint8_t mask, bool* error) {
     auto    _ret{true};
     uint8_t _buf{0};
 
@@ -116,7 +116,7 @@ _exit:
     return _buf;
 }
 
-bool SPI_SDR_ReadM(uint8_t id, uint32_t reg, uint8_t *rx_buf, uint32_t rx_buf_len) {
+bool SPI_SDR_ReadM(uint8_t id, uint32_t reg, uint8_t* rx_buf, uint32_t rx_buf_len) {
     UNUSED(id);
 
     if (rx_buf != nullptr && ad9361_qspi != nullptr) {
@@ -166,7 +166,7 @@ bool SPI_SDR_WriteF(uint8_t id, uint32_t reg, uint8_t mask, uint8_t val) {
     return SPI_SDR_WriteM(id, reg, &_buf, 1);
 }
 
-bool SPI_SDR_WriteM(uint8_t id, uint32_t reg, uint8_t *tx_buf, uint32_t tx_buf_len) {
+bool SPI_SDR_WriteM(uint8_t id, uint32_t reg, uint8_t* tx_buf, uint32_t tx_buf_len) {
     UNUSED(id);
 
     if (tx_buf != nullptr && ad9361_qspi != nullptr) {
@@ -203,7 +203,7 @@ bool SPI_FPGA_Write(uint32_t reg, uint32_t val) {
     return _ret;
 }
 
-uint32_t SPI_FPGA_Read(uint32_t reg, bool *error) {
+uint32_t SPI_FPGA_Read(uint32_t reg, bool* error) {
     auto _ret{false};
 
     uint32_t _buf{0};

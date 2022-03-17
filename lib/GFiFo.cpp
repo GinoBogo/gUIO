@@ -30,7 +30,7 @@ GFiFo::GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_
     }
 
     if (m_size && m_depth) {
-        p_fifo = new GBuffer *[m_depth];
+        p_fifo = new GBuffer*[m_depth];
 
         for (decltype(m_depth) i{0}; i < m_depth; i++) {
             p_fifo[i] = new GBuffer(m_size);
@@ -96,12 +96,12 @@ void GFiFo::SmartClear() {
     m_iR    = 0;
 }
 
-bool GFiFo::Push(const GBuffer *src_buff) {
+bool GFiFo::Push(const GBuffer* src_buff) {
     if (src_buff) {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
         if (!IsFull()) {
-            GBuffer *_item = p_fifo[m_iW];
+            GBuffer* _item = p_fifo[m_iW];
 
             _item->Reset();
 
@@ -121,12 +121,12 @@ bool GFiFo::Push(const GBuffer *src_buff) {
     return false;
 }
 
-bool GFiFo::Push(const uint8_t *src_data, const uint32_t src_count) {
+bool GFiFo::Push(const uint8_t* src_data, const uint32_t src_count) {
     if (src_data && src_count) {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
         if (!IsFull()) {
-            GBuffer *_item = p_fifo[m_iW];
+            GBuffer* _item = p_fifo[m_iW];
 
             _item->Reset();
 
@@ -146,12 +146,12 @@ bool GFiFo::Push(const uint8_t *src_data, const uint32_t src_count) {
     return false;
 }
 
-bool GFiFo::Pop(GBuffer *dst_buff) {
+bool GFiFo::Pop(GBuffer* dst_buff) {
     if (dst_buff) {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
         if (!IsEmpty()) {
-            GBuffer *_item = p_fifo[m_iR];
+            GBuffer* _item = p_fifo[m_iR];
 
             dst_buff->Reset();
 
@@ -171,16 +171,16 @@ bool GFiFo::Pop(GBuffer *dst_buff) {
     return false;
 }
 
-int32_t GFiFo::Pop(uint8_t *dst_data, const uint32_t dst_size) {
+int32_t GFiFo::Pop(uint8_t* dst_data, const uint32_t dst_size) {
     if (dst_data && dst_size) {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
         if (!IsEmpty()) {
-            GBuffer *_item = p_fifo[m_iR];
+            GBuffer* _item = p_fifo[m_iR];
             uint32_t bytes = _item->count();
 
             if (dst_size >= bytes) {
-                memcpy((void *)dst_data, (void *)_item->data(), bytes);
+                memcpy((void*)dst_data, (void*)_item->data(), bytes);
 
                 ++m_iR;
                 --m_count;
@@ -197,7 +197,7 @@ int32_t GFiFo::Pop(uint8_t *dst_data, const uint32_t dst_size) {
     return -1;
 }
 
-bool GFiFo::IsStateChanged(fsm_state_t *new_state, fsm_state_t *old_state) {
+bool GFiFo::IsStateChanged(fsm_state_t* new_state, fsm_state_t* old_state) {
     auto _state_changed{false};
 
     if (old_state != nullptr) {

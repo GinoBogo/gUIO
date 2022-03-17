@@ -17,7 +17,7 @@
 #include <string.h> // bzero
 #include <unistd.h> // close
 
-GUdpClient::GUdpClient(const char *remote_addr, uint16_t remote_port, const char *tag_name) {
+GUdpClient::GUdpClient(const char* remote_addr, uint16_t remote_port, const char* tag_name) {
     if (tag_name != nullptr) {
         snprintf(m_tag_name, sizeof(m_tag_name), "\"%s\" UDP Client", tag_name);
     }
@@ -73,7 +73,7 @@ GUdpClient::~GUdpClient() {
     LOG_FORMAT(debug, "%s destructor", m_tag_name);
 }
 
-bool GUdpClient::Receive(void *dst_buffer, size_t *dst_bytes) {
+bool GUdpClient::Receive(void* dst_buffer, size_t* dst_bytes) {
     if (!m_is_ready || dst_buffer == nullptr || dst_bytes == nullptr) {
         return false;
     }
@@ -87,7 +87,7 @@ bool GUdpClient::Receive(void *dst_buffer, size_t *dst_bytes) {
     return true;
 }
 
-bool GUdpClient::Send(void *src_buffer, size_t src_bytes) {
+bool GUdpClient::Send(void* src_buffer, size_t src_bytes) {
     if (!m_is_ready || src_buffer == nullptr) {
         return false;
     }

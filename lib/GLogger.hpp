@@ -23,20 +23,20 @@ namespace GLogger {
 
     enum Alignment { left, center, right };
 
-    void Initialize(const char *file_path);
+    void Initialize(const char* file_path);
 
-    void Write(Type type, const char *file, size_t line, const char *message);
+    void Write(Type type, const char* file, size_t line, const char* message);
 
-    template <class... Args> void Format(Type type, const char *file, size_t line, const char *format, Args... args) {
+    template <class... Args> void Format(Type type, const char* file, size_t line, const char* format, Args... args) {
         char msg[LOG_MSG_MAXLEN];
         snprintf(msg, sizeof(msg), format, args...);
         Write(type, file, line, msg);
     }
 
-    char *AlignText(Alignment mode, const char *src, char *dst, size_t span, char filler = ' ');
-    char *AlignToLeft(const char *src, char *dst, size_t span, char filler = ' ');
-    char *AlignToCenter(const char *src, char *dst, size_t span, char filler = ' ');
-    char *AlignToRight(const char *src, char *dst, size_t span, char filler = ' ');
+    char* AlignText(Alignment mode, const char* src, char* dst, size_t span, char filler = ' ');
+    char* AlignToLeft(const char* src, char* dst, size_t span, char filler = ' ');
+    char* AlignToCenter(const char* src, char* dst, size_t span, char filler = ' ');
+    char* AlignToRight(const char* src, char* dst, size_t span, char filler = ' ');
 } // namespace GLogger
 
 #endif // GLOGGER_HPP

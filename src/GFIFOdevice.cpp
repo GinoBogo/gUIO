@@ -29,24 +29,28 @@ GFIFOdevice::~GFIFOdevice() {
     }
     delete m_dev;
     delete m_uio;
+
     LOG_WRITE(trace, "FIFO device destroyed");
 }
 
 bool GFIFOdevice::Open() {
+    m_is_ready = false;
+
     if (m_dev->Open()) {
         if (m_dev->MapToMemory()) {
             if (m_uio->Open()) {
                 m_is_ready = m_uio->MapToMemory();
                 if (m_is_ready) {
                     LOG_WRITE(trace, "FIFO device open success");
-                    return true;
+                    goto jmp_exit;
                 }
             }
         }
     }
 
     LOG_WRITE(error, "FIFO device open failure");
-    return false;
+jmp_exit:
+    return m_is_ready;
 }
 
 void GFIFOdevice::Close() {
@@ -63,8 +67,8 @@ bool GFIFOdevice::Reset() {
         uint32_t _enable{0};
         uint32_t _forbid{1};
 
-        _res |= m_dev->Write(0, &_enable);
-        _res &= m_dev->Write(0, &_forbid);
+        _res = _res || m_dev->Write(0, &_enable);
+        _res = _res && m_dev->Write(0, &_forbid);
     }
 
     return _res;
@@ -78,15 +82,15 @@ bool GFIFOdevice::SetPacketSize(uint32_t words) {
         uint32_t _enable{0};
         uint32_t _forbid{1};
 
-        _res |= m_dev->Write(0, &_enable);
-        _res &= m_dev->Write(1, &m_words);
-        _res &= m_dev->Write(0, &_forbid);
+        _res = _res || m_dev->Write(0, &_enable);
+        _res = _res && m_dev->Write(1, &m_words);
+        _res = _res && m_dev->Write(0, &_forbid);
     }
 
     return _res;
 }
 
-uint32_t GFIFOdevice::GetPacketSize(bool *error) {
+uint32_t GFIFOdevice::GetPacketSize(bool* error) {
     uint32_t _val{0};
     auto     _res{false};
 
@@ -101,7 +105,7 @@ uint32_t GFIFOdevice::GetPacketSize(bool *error) {
     return _val;
 }
 
-uint32_t GFIFOdevice::GetFreeWords(bool *error) {
+uint32_t GFIFOdevice::GetFreeWords(bool* error) {
     uint32_t _val{0};
     auto     _res{false};
 

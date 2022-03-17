@@ -14,7 +14,7 @@
 // LogiCORE IP: AXI GPIO v2.0
 //==============================================================================
 
-void GPIO_getRegistersInfo(void *base_addr, register_info *info_list) {
+void GPIO_getRegistersInfo(void* base_addr, register_info* info_list) {
     info_list[0].offset = REG_GPIO_DATA_1;
     info_list[1].offset = REG_GPIO_TRI_1;
     info_list[2].offset = REG_GPIO_DATA_2;

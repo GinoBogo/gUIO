@@ -23,7 +23,7 @@
 #define AD9361_RESET_ASSERT 0x00000000
 #define AD9361_RESET_FORBID 0x00000001
 
-#define SPI_SDR_NUM         1
-#define SPI_SDR1_CS         0
+#define SPI_SDR_NUM 1
+#define SPI_SDR1_CS 0
 
 #endif // DEFINITIONS_HPP

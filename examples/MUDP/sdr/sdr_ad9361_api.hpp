@@ -316,25 +316,25 @@ typedef struct ad9361_tx_fir_config {
 // *****************************************************************************
 
 // Initialize the AD9361 part.
-int32_t ad9361_init(ad9361_rf_phy_t *phy, ad9361_init_parameters_t *init_param);
+int32_t ad9361_init(ad9361_rf_phy_t* phy, ad9361_init_parameters_t* init_param);
 // Set the RX LO frequency.
-int32_t ad9361_set_rx_lo_freq(ad9361_rf_phy_t *phy, uint64_t lo_freq_hz);
+int32_t ad9361_set_rx_lo_freq(ad9361_rf_phy_t* phy, uint64_t lo_freq_hz);
 // Get current RX LO frequency.
-int32_t ad9361_get_rx_lo_freq(ad9361_rf_phy_t *phy, uint64_t *lo_freq_hz);
+int32_t ad9361_get_rx_lo_freq(ad9361_rf_phy_t* phy, uint64_t* lo_freq_hz);
 // Set the RX FIR filter configuration.
-int32_t ad9361_set_rx_fir_config(ad9361_rf_phy_t *phy, ad9361_rx_fir_config_t fir_cfg);
+int32_t ad9361_set_rx_fir_config(ad9361_rf_phy_t* phy, ad9361_rx_fir_config_t fir_cfg);
 // Set the transmit attenuation for the selected channel.
-int32_t ad9361_set_tx_attenuation(ad9361_rf_phy_t *phy, uint8_t ch, uint32_t attenuation_mdb);
+int32_t ad9361_set_tx_attenuation(ad9361_rf_phy_t* phy, uint8_t ch, uint32_t attenuation_mdb);
 // Get current transmit attenuation for the selected channel.
-int32_t ad9361_get_tx_attenuation(ad9361_rf_phy_t *phy, uint8_t ch, uint32_t *attenuation_mdb);
+int32_t ad9361_get_tx_attenuation(ad9361_rf_phy_t* phy, uint8_t ch, uint32_t* attenuation_mdb);
 // Set the TX LO frequency.
-int32_t ad9361_set_tx_lo_freq(ad9361_rf_phy_t *phy, uint64_t lo_freq_hz);
+int32_t ad9361_set_tx_lo_freq(ad9361_rf_phy_t* phy, uint64_t lo_freq_hz);
 // Get current TX LO frequency.
-int32_t ad9361_get_tx_lo_freq(ad9361_rf_phy_t *phy, uint64_t *lo_freq_hz);
+int32_t ad9361_get_tx_lo_freq(ad9361_rf_phy_t* phy, uint64_t* lo_freq_hz);
 // Set the TX FIR filter configuration.
-int32_t ad9361_set_tx_fir_config(ad9361_rf_phy_t *phy, ad9361_tx_fir_config_t fir_cfg);
+int32_t ad9361_set_tx_fir_config(ad9361_rf_phy_t* phy, ad9361_tx_fir_config_t fir_cfg);
 // Perform the selected calibration.
-int32_t ad9361_do_calib(ad9361_rf_phy_t *phy, uint32_t cal, int32_t arg);
+int32_t ad9361_do_calib(ad9361_rf_phy_t* phy, uint32_t cal, int32_t arg);
 
 #endif /* SDR_AD9361_API_HPP */
 

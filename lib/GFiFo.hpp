@@ -32,15 +32,15 @@ class GFiFo {
 
     void SmartClear();
 
-    bool Push(const GBuffer *src_buff);
+    bool Push(const GBuffer* src_buff);
 
-    bool Push(const uint8_t *src_data, const uint32_t src_count);
+    bool Push(const uint8_t* src_data, const uint32_t src_count);
 
-    bool Pop(GBuffer *dst_buff);
+    bool Pop(GBuffer* dst_buff);
 
-    int32_t Pop(uint8_t *dst_data, const uint32_t dst_size);
+    int32_t Pop(uint8_t* dst_data, const uint32_t dst_size);
 
-    bool IsStateChanged(fsm_state_t *new_state = nullptr, fsm_state_t *old_state = nullptr);
+    bool IsStateChanged(fsm_state_t* new_state = nullptr, fsm_state_t* old_state = nullptr);
 
     inline bool IsEmpty() {
         return !m_count;
@@ -72,7 +72,7 @@ class GFiFo {
     uint32_t    m_count;
     uint32_t    m_iR;
     uint32_t    m_iW;
-    GBuffer **  p_fifo;
+    GBuffer**   p_fifo;
     std::mutex  m_mutex;
     int         m_max_level;
     int         m_min_level;

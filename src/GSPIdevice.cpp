@@ -16,7 +16,7 @@
 #include <sys/ioctl.h> // ioctl
 #include <unistd.h>    // close
 
-auto spi_device_reset = [](spi_device_t *dev, bool clear_all) {
+auto spi_device_reset = [](spi_device_t* dev, bool clear_all) {
     if (clear_all) {
         bzero(dev, sizeof(spi_device_t));
     }
@@ -35,7 +35,7 @@ auto is_mode_legal = [](uint8_t mode) {
     }
 };
 
-GSPIdevice::GSPIdevice(const char *file,          //
+GSPIdevice::GSPIdevice(const char* file,          //
                        uint32_t    mode,          //
                        uint8_t     lsb_first,     //
                        uint8_t     bits_per_word, //
@@ -139,7 +139,7 @@ void GSPIdevice::PrintSettings() {
     LOG_FORMAT(info, "  MAX_SPEED_HZ  | %d", max_speed_hz);
 }
 
-bool GSPIdevice::Transfer(const void *tx_buf, void *rx_buf, uint32_t buf_len) {
+bool GSPIdevice::Transfer(const void* tx_buf, void* rx_buf, uint32_t buf_len) {
     struct spi_ioc_transfer _msg;
     bzero(&_msg, sizeof(_msg));
 
@@ -156,7 +156,7 @@ bool GSPIdevice::Transfer(const void *tx_buf, void *rx_buf, uint32_t buf_len) {
     return true;
 }
 
-bool GSPIdevice::Read(void *rx_buf, uint32_t rx_buf_len) {
+bool GSPIdevice::Read(void* rx_buf, uint32_t rx_buf_len) {
     struct spi_ioc_transfer _msg;
     bzero(&_msg, sizeof(_msg));
 
@@ -171,7 +171,7 @@ bool GSPIdevice::Read(void *rx_buf, uint32_t rx_buf_len) {
     return true;
 }
 
-bool GSPIdevice::Write(void *tx_buf, uint32_t tx_buf_len) {
+bool GSPIdevice::Write(void* tx_buf, uint32_t tx_buf_len) {
     struct spi_ioc_transfer _msg;
     bzero(&_msg, sizeof(_msg));
 
@@ -186,7 +186,7 @@ bool GSPIdevice::Write(void *tx_buf, uint32_t tx_buf_len) {
     return true;
 }
 
-bool GSPIdevice::WriteThenRead(const void *tx_buf, uint32_t tx_buf_len, void *rx_buf, uint32_t rx_buf_len) {
+bool GSPIdevice::WriteThenRead(const void* tx_buf, uint32_t tx_buf_len, void* rx_buf, uint32_t rx_buf_len) {
     struct spi_ioc_transfer _msg[2];
     bzero(_msg, sizeof(_msg));
 

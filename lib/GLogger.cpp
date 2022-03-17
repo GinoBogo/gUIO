@@ -15,8 +15,8 @@
 #include <fstream>    // ofstream
 #include <iostream>   // cout
 
-constexpr const char *file_name(const char *path) {
-    const char *_file = path;
+constexpr const char* file_name(const char* path) {
+    const char* _file = path;
     while (*path) {
         if (*path++ == '/') {
             _file = path;
@@ -25,8 +25,8 @@ constexpr const char *file_name(const char *path) {
     return _file;
 }
 
-constexpr const char *last_dot(const char *path) {
-    const char *_last = nullptr;
+constexpr const char* last_dot(const char* path) {
+    const char* _last = nullptr;
     while (*path) {
         if (*path == '.') {
             _last = path;
@@ -42,10 +42,10 @@ namespace GLogger {
 
     static std::ofstream fout{};
 
-    static const char *flags[6] = {"DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARNING"};
+    static const char* flags[6] = {"DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARNING"};
 
     // WARNING: unsafe function
-    void GetDateTime(char *dst_buffer, size_t dst_buffer_size) {
+    void GetDateTime(char* dst_buffer, size_t dst_buffer_size) {
         timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
 
@@ -61,7 +61,7 @@ namespace GLogger {
         snprintf(dst_buffer, dst_buffer_size, "%04d-%02d-%02d %02d:%02d:%02d.%06d", _Y, _M, _D, _h, _m, _s, _u);
     }
 
-    void Initialize(const char *file_path) {
+    void Initialize(const char* file_path) {
         is_open = fout.is_open();
         if (is_open) {
             LOG_WRITE(warning, "File stream already opened");
@@ -73,7 +73,7 @@ namespace GLogger {
     }
 
     // WARNING: unsafe function
-    void Write(Type type, const char *file, size_t line, const char *message) {
+    void Write(Type type, const char* file, size_t line, const char* message) {
         char _text[LOG_MSG_MAXLEN];
 
         GetDateTime(_text, sizeof(_text));
@@ -87,7 +87,7 @@ namespace GLogger {
             auto name_len = strnlen(_name, 256) + 5;
             auto name_log = new char[name_len];
             strncpy(name_log, _name, name_len);
-            strncpy((char *)last_dot(name_log), ".log", name_len);
+            strncpy((char*)last_dot(name_log), ".log", name_len);
 
             fout    = std::ofstream(name_log);
             is_open = fout.is_open();
@@ -104,7 +104,7 @@ namespace GLogger {
     }
 
     // WARNING: unsafe function
-    char *AlignText(Alignment mode, const char *src, char *dst, size_t span, char filler) {
+    char* AlignText(Alignment mode, const char* src, char* dst, size_t span, char filler) {
         if (src == nullptr || dst == nullptr) {
             return nullptr;
         }
@@ -134,15 +134,15 @@ namespace GLogger {
         return dst;
     }
 
-    char *AlignToLeft(const char *src, char *dst, size_t span, char filler) {
+    char* AlignToLeft(const char* src, char* dst, size_t span, char filler) {
         return AlignText(left, src, dst, span, filler);
     }
 
-    char *AlignToCenter(const char *src, char *dst, size_t span, char filler) {
+    char* AlignToCenter(const char* src, char* dst, size_t span, char filler) {
         return AlignText(center, src, dst, span, filler);
     }
 
-    char *AlignToRight(const char *src, char *dst, size_t span, char filler) {
+    char* AlignToRight(const char* src, char* dst, size_t span, char filler) {
         return AlignText(right, src, dst, span, filler);
     }
 } // namespace GLogger

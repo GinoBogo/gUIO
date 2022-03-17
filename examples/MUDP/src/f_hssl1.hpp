@@ -18,12 +18,12 @@
 namespace f_hssl1 {
 
     typedef struct {
-        GUdpClient *client;
+        GUdpClient* client;
 
     } WorkerArgs;
 
     bool decode_packet(std::any data, std::any args) {
-        auto _packet = std::any_cast<TPacket *>(data);
+        auto _packet = std::any_cast<TPacket*>(data);
         auto _args   = std::any_cast<WorkerArgs>(args);
         auto _client = _args.client;
 
@@ -35,7 +35,7 @@ namespace f_hssl1 {
             } break;
 
             default: {
-                LOG_FORMAT(warning, "Invalid packet type [%d]", _packet->head.packet_type);
+                LOG_FORMAT(warning, "Invalid packet type [%d] (%s)", _packet->head.packet_type, __func__);
             } break;
         };
 
@@ -43,13 +43,13 @@ namespace f_hssl1 {
     }
 
     bool decode_message(std::any data, std::any args) {
-        auto _message = std::any_cast<GMessage *>(data);
+        auto _message = std::any_cast<GMessage*>(data);
         auto _args    = std::any_cast<WorkerArgs>(args);
         auto _client  = _args.client;
 
         switch (_message->packet_type()) {
             default: {
-                LOG_FORMAT(warning, "Invalid message type [%d]", _message->packet_type());
+                LOG_FORMAT(warning, "Invalid message type [%d] (%s)", _message->packet_type(), __func__);
             } break;
         }
 

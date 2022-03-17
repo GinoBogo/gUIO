@@ -20,7 +20,7 @@
 #include <sys/mman.h> // mmap, munmap
 #include <unistd.h>   // close, read, write
 
-auto uio_device_reset = [](uio_device_t *dev, bool clear_all) {
+auto uio_device_reset = [](uio_device_t* dev, bool clear_all) {
     auto uio_num = dev->uio_num;
     auto map_num = dev->map_num;
 
@@ -87,7 +87,7 @@ bool GUIOdevice::MapToMemory() {
         return false;
     }
 
-    m_dev.virt_addr = static_cast<uint8_t *>(m_dev.mmap_addr) + m_dev.offset;
+    m_dev.virt_addr = static_cast<uint8_t*>(m_dev.mmap_addr) + m_dev.offset;
     return true;
 }
 
@@ -111,7 +111,7 @@ bool GUIOdevice::IRQ_Clear() {
     return _ret != -1;
 }
 
-size_t GUIOdevice::GetMapAttribute(const char *attr_name, bool *error, char *dst_buff) {
+size_t GUIOdevice::GetMapAttribute(const char* attr_name, bool* error, char* dst_buff) {
     char _buf[64];
     snprintf(_buf, sizeof(_buf), "/sys/class/uio/uio%d/maps/map%d/%s", m_dev.uio_num, m_dev.map_num, attr_name);
 

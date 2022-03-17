@@ -44,7 +44,7 @@ GAXIQuadSPI::~GAXIQuadSPI() {
     LOG_WRITE(trace, "AXI Quad SPI class destroyed");
 }
 
-void GAXIQuadSPI::update_ctrl_reg(const char *func) {
+void GAXIQuadSPI::update_ctrl_reg(const char* func) {
     m_ctrl_reg = QSPI_getControlRegister(m_base_addr);
 
     LOG_FORMAT(debug, "SPI Control Register: %s (%s)", to_bits<10>(m_ctrl_reg).c_str(), func);
@@ -126,7 +126,7 @@ void GAXIQuadSPI::Stop() {
     update_ctrl_reg(__func__);
 }
 
-uint32_t GAXIQuadSPI::WriteThenRead(uint8_t *tx_buf, uint32_t tx_buf_len, uint8_t *rx_buf, uint32_t rx_buf_len) {
+uint32_t GAXIQuadSPI::WriteThenRead(uint8_t* tx_buf, uint32_t tx_buf_len, uint8_t* rx_buf, uint32_t rx_buf_len) {
     QSPI_setDeviceGlobalInterruptRegister(m_base_addr, disable_global_irq);
     {
         m_ctrl_reg = QSPI_getControlRegister(m_base_addr);

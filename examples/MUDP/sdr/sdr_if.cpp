@@ -665,8 +665,7 @@ void SDR_TXRX_LO_Test(uint8_t  module, //
                       bool     bist_mode) {
 
     // TX LO frequency plan
-    uint64_t tx_lo_frequency_table[6] = {530000000UL,  2270000000UL, 2470000000UL, //
-                                         5293500000UL, 5495000000UL, 5696500000UL};
+    uint64_t tx_lo_frequency_table[6] = {530000000UL, 2270000000UL, 2470000000UL, 5293500000UL, 5495000000UL, 5696500000UL};
 
     // RX LO frequency offset (wrt TX LO frequency offset)
     uint64_t rx_lo_frequency_offset = rx_lo_offset;
