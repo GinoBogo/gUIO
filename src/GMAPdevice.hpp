@@ -10,6 +10,7 @@
 #define GMAPDEVICE_HPP
 
 #include <cstddef> // size_t
+#include <cstdint> // uint32_t
 
 struct map_device_t {
     // SECTION: node properties
@@ -56,6 +57,34 @@ class GMAPdevice {
                 virt_addr[offset] = *src_buf;
             else
                 for (decltype(words) i{0}; i < words; ++i) virt_addr[offset + i] = src_buf[i];
+            return true;
+        }
+        return false;
+    }
+
+    template <typename T, typename R = uint32_t> auto OverRead(size_t offset, T* dst_buf, size_t words = 1) {
+        auto _t1{dst_buf != nullptr && words > 0};
+
+        if (_t1) {
+            volatile auto virt_addr{static_cast<R*>(m_dev.virt_addr)};
+            if (words == 1)
+                *dst_buf = virt_addr[offset];
+            else
+                for (decltype(words) i{0}; i < words;) dst_buf[i++] = static_cast<T>(virt_addr[offset]);
+            return true;
+        }
+        return false;
+    }
+
+    template <typename T, typename R = uint32_t> auto OverWrite(size_t offset, T* src_buf, size_t words = 1) {
+        auto _t1{src_buf != nullptr && words > 0};
+
+        if (_t1) {
+            volatile auto virt_addr{static_cast<R*>(m_dev.virt_addr)};
+            if (words == 1)
+                virt_addr[offset] = *src_buf;
+            else
+                for (decltype(words) i{0}; i < words;) virt_addr[offset] = static_cast<R>(src_buf[i++]);
             return true;
         }
         return false;
