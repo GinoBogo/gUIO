@@ -18,6 +18,8 @@
 //==============================================================================
 
 #define __REG(BASE_ADDR, REG_OFFSET) *((volatile uint32_t*)((uint8_t*)BASE_ADDR + REG_OFFSET))
+#define __ON(X)                      (1 * X)
+#define __OFF(X)                     (0 * X)
 
 constexpr uint32_t SET_BIT(uint8_t _bit_pos) {
     return (1 << _bit_pos);
