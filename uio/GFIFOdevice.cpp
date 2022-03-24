@@ -39,8 +39,12 @@ bool GFIFOdevice::Open() {
     if (m_dev->Open()) {
         if (m_dev->MapToMemory()) {
             if (m_uio->Open()) {
-                m_is_ready = m_uio->MapToMemory();
-                if (m_is_ready) {
+                if (m_uio->MapToMemory()) {
+                    m_uio_regs = m_uio->virt_addr();
+                    GPIO_setIpInterruptEnable(m_uio_regs, __ON(BIT_GPIO_IP_IER_1));
+                    GPIO_setGlobalInterruptEnable(m_uio_regs, __ON(BIT_GPIO_GIER));
+
+                    m_is_ready = true;
                     LOG_WRITE(trace, "FIFO device open success");
                     goto jmp_exit;
                 }
@@ -54,9 +58,14 @@ jmp_exit:
 }
 
 void GFIFOdevice::Close() {
+    if (m_is_ready) {
+        m_is_ready = false;
+        GPIO_setGlobalInterruptEnable(m_uio_regs, __OFF(BIT_GPIO_GIER));
+    }
+
     m_dev->Close();
     m_uio->Close();
-    m_is_ready = false;
+
     LOG_WRITE(trace, "FIFO device close success");
 }
 
@@ -64,8 +73,8 @@ bool GFIFOdevice::Reset() {
     auto _res{false};
 
     if (m_is_ready) {
-        uint32_t _enable{0};
-        uint32_t _forbid{1};
+        uint32_t _enable{1};
+        uint32_t _forbid{0};
 
         _res = _res || m_dev->Write(0, &_enable);
         _res = _res && m_dev->Write(0, &_forbid);
@@ -74,13 +83,13 @@ bool GFIFOdevice::Reset() {
     return _res;
 }
 
-bool GFIFOdevice::SetPacketSize(uint32_t words) {
+bool GFIFOdevice::SetPacketWords(uint32_t words) {
     auto _res{false};
     m_words = words;
 
     if (m_is_ready) {
-        uint32_t _enable{0};
-        uint32_t _forbid{1};
+        uint32_t _enable{1};
+        uint32_t _forbid{0};
 
         _res = _res || m_dev->Write(0, &_enable);
         _res = _res && m_dev->Write(1, &m_words);
@@ -90,7 +99,7 @@ bool GFIFOdevice::SetPacketSize(uint32_t words) {
     return _res;
 }
 
-uint32_t GFIFOdevice::GetPacketSize(bool* error) {
+uint32_t GFIFOdevice::GetPacketWords(bool* error) {
     uint32_t _val{0};
     auto     _res{false};
 

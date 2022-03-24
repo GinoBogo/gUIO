@@ -61,13 +61,13 @@ add_library(gLIB OBJECT
 )
 
 add_library(gUIO OBJECT
-"../../src/GUIOdevice.cpp"
-"../../src/GRegisters.cpp"
+"../../uio/GUIOdevice.cpp"
+"../../uio/GRegisters.cpp"
 )
 
 include_directories(
 "../../lib"
-"../../src"
+"../../uio"
 "./src"
 )
 

@@ -60,13 +60,13 @@ add_library(gLIB OBJECT
 )
 
 add_library(gUIO OBJECT
-"../../src/GMAPdevice.cpp"
-"../../src/GRegisters.cpp"
+"../../uio/GMAPdevice.cpp"
+"../../uio/GRegisters.cpp"
 )
 
 include_directories(
 "../../lib"
-"../../src"
+"../../uio"
 "./src"
 )
 
