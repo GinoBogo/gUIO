@@ -60,6 +60,7 @@ jmp_exit:
 void GFIFOdevice::Close() {
     if (m_is_ready) {
         m_is_ready = false;
+        GPIO_setIpInterruptEnable(m_uio_regs, __OFF(BIT_GPIO_IP_IER_1));
         GPIO_setGlobalInterruptEnable(m_uio_regs, __OFF(BIT_GPIO_GIER));
     }
 
@@ -76,8 +77,8 @@ bool GFIFOdevice::Reset() {
         uint32_t _enable{1};
         uint32_t _forbid{0};
 
-        _res = _res || m_dev->Write(0, &_enable);
-        _res = _res && m_dev->Write(0, &_forbid);
+        _res = _res || m_dev->Write(IP_CONTROL, &_enable);
+        _res = _res && m_dev->Write(IP_CONTROL, &_forbid);
     }
 
     return _res;
@@ -91,9 +92,9 @@ bool GFIFOdevice::SetPacketWords(uint32_t words) {
         uint32_t _enable{1};
         uint32_t _forbid{0};
 
-        _res = _res || m_dev->Write(0, &_enable);
-        _res = _res && m_dev->Write(1, &m_words);
-        _res = _res && m_dev->Write(0, &_forbid);
+        _res = _res || m_dev->Write(IP_CONTROL, &_enable);
+        _res = _res && m_dev->Write(TX_PACKET_WORDS, &m_words);
+        _res = _res && m_dev->Write(IP_CONTROL, &_forbid);
     }
 
     return _res;
@@ -104,7 +105,7 @@ uint32_t GFIFOdevice::GetPacketWords(bool* error) {
     auto     _res{false};
 
     if (m_is_ready) {
-        _res = m_dev->Read(1, &_val);
+        _res = m_dev->Read(TX_PACKET_WORDS, &_val);
     }
 
     if (error != nullptr) {
@@ -114,12 +115,12 @@ uint32_t GFIFOdevice::GetPacketWords(bool* error) {
     return _val;
 }
 
-uint32_t GFIFOdevice::GetFreeWords(bool* error) {
+uint32_t GFIFOdevice::GetUnusedWords(bool* error) {
     uint32_t _val{0};
     auto     _res{false};
 
     if (m_is_ready) {
-        _res = m_dev->Read(2, &_val);
+        _res = m_dev->Read(TX_UNUSED_WORDS, &_val);
         _val = 0x00001FFF & _val;
     }
 
