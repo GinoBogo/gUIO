@@ -13,7 +13,7 @@
 #include <errno.h>    // errno
 #include <fcntl.h>    // open
 #include <stdio.h>    // snprintf
-#include <string.h>   // bzero
+#include <string.h>   // memset
 #include <sys/mman.h> // mmap, munmap
 #include <unistd.h>   // close, read, write
 
@@ -21,7 +21,7 @@ auto map_device_reset = [](map_device_t* dev, bool clear_all) {
     auto addr = dev->addr;
     auto size = dev->size;
 
-    bzero(dev, sizeof(map_device_t));
+    memset(dev, 0, sizeof(map_device_t));
     dev->fd        = -1;
     dev->mmap_addr = MAP_FAILED;
     dev->virt_addr = MAP_FAILED;

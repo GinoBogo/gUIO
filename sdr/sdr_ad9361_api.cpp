@@ -24,7 +24,7 @@
 // STD libraries
 #include "sdr_ad9361_api.hpp" // SDR AD9361 API
 
-#include <cstring> // bzero
+#include <cstring> // memset
 
 // project libraries
 #include "GLogger.hpp"
@@ -69,7 +69,7 @@
 int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
                     ad9361_init_parameters_t* init_param) {
 
-    bzero(phy, sizeof(ad9361_rf_phy_t));
+    memset(phy, 0, sizeof(ad9361_rf_phy_t));
 
     // identification number
     phy->id_no = init_param->id_no;

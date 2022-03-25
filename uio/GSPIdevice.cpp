@@ -12,13 +12,13 @@
 
 #include <errno.h>     // errno
 #include <fcntl.h>     // open
-#include <string.h>    // strncpy
+#include <string.h>    // memset, strncpy
 #include <sys/ioctl.h> // ioctl
 #include <unistd.h>    // close
 
 auto spi_device_reset = [](spi_device_t* dev, bool clear_all) {
     if (clear_all) {
-        bzero(dev, sizeof(spi_device_t));
+        memset(dev, 0, sizeof(spi_device_t));
     }
     dev->fd = -1;
 };
@@ -141,7 +141,7 @@ void GSPIdevice::PrintSettings() {
 
 bool GSPIdevice::Transfer(const void* tx_buf, void* rx_buf, uint32_t buf_len) {
     struct spi_ioc_transfer _msg;
-    bzero(&_msg, sizeof(_msg));
+    memset(&_msg, 0, sizeof(_msg));
 
     _msg.tx_buf    = (__u64)tx_buf;
     _msg.rx_buf    = (__u64)rx_buf;
@@ -158,7 +158,7 @@ bool GSPIdevice::Transfer(const void* tx_buf, void* rx_buf, uint32_t buf_len) {
 
 bool GSPIdevice::Read(void* rx_buf, uint32_t rx_buf_len) {
     struct spi_ioc_transfer _msg;
-    bzero(&_msg, sizeof(_msg));
+    memset(&_msg, 0, sizeof(_msg));
 
     _msg.rx_buf = (__u64)rx_buf;
     _msg.len    = (__u32)rx_buf_len;
@@ -173,7 +173,7 @@ bool GSPIdevice::Read(void* rx_buf, uint32_t rx_buf_len) {
 
 bool GSPIdevice::Write(void* tx_buf, uint32_t tx_buf_len) {
     struct spi_ioc_transfer _msg;
-    bzero(&_msg, sizeof(_msg));
+    memset(&_msg, 0, sizeof(_msg));
 
     _msg.rx_buf = (__u64)tx_buf;
     _msg.len    = (__u32)tx_buf_len;
@@ -188,7 +188,7 @@ bool GSPIdevice::Write(void* tx_buf, uint32_t tx_buf_len) {
 
 bool GSPIdevice::WriteThenRead(const void* tx_buf, uint32_t tx_buf_len, void* rx_buf, uint32_t rx_buf_len) {
     struct spi_ioc_transfer _msg[2];
-    bzero(_msg, sizeof(_msg));
+    memset(_msg, 0, sizeof(_msg));
 
     _msg[0].tx_buf = (__u64)tx_buf;
     _msg[0].len    = (__u32)tx_buf_len;

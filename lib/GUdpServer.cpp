@@ -15,7 +15,7 @@
 #include <netdb.h>  // addrinfo
 #include <stdio.h>  // snprintf
 #include <stdlib.h> // atoi
-#include <string.h> // bzero
+#include <string.h> // memset
 #include <unistd.h> // close
 
 GUdpServer::GUdpServer(const char* local_addr, uint16_t local_port, const char* tag_name) {
@@ -28,13 +28,13 @@ GUdpServer::GUdpServer(const char* local_addr, uint16_t local_port, const char* 
 
     struct addrinfo hints, *res;
 
-    bzero(&hints, sizeof(hints));
+    memset(&hints, 0, sizeof(hints));
     hints.ai_family   = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags    = AI_PASSIVE;
 
-    bzero(s_addr, sizeof(s_addr));
-    bzero(s_port, sizeof(s_port));
+    memset(s_addr, 0, sizeof(s_addr));
+    memset(s_port, 0, sizeof(s_port));
 
     snprintf(s_addr, sizeof(s_addr), "%s", local_addr);
     snprintf(s_port, sizeof(s_port), "%u", local_port);

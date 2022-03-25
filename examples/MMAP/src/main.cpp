@@ -10,7 +10,7 @@
 #include "GMAPdevice.hpp"
 #include "GRegisters.hpp"
 
-#include <strings.h> // bzero
+#include <cstring> // memset
 
 int main() {
     GLogger::Initialize("example_MMAP.log");
@@ -33,7 +33,7 @@ int main() {
         ps2pl_regs.Close();
     }
 
-    bzero(data, sizeof(data));
+    memset(data, 0, sizeof(data));
 
     if (pl2ps_regs.Open()) {
         if (pl2ps_regs.MapToMemory()) {

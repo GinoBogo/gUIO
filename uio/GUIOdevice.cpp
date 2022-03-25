@@ -16,7 +16,7 @@
 #include <stdio.h>    // snprintf
 #include <stdlib.h>   // strtoul
 #include <string.h>   // strncpy
-#include <strings.h>  // bzero
+#include <strings.h>  // memset
 #include <sys/mman.h> // mmap, munmap
 #include <unistd.h>   // close, read, write
 
@@ -24,7 +24,7 @@ auto uio_device_reset = [](uio_device_t* dev, bool clear_all) {
     auto uio_num = dev->uio_num;
     auto map_num = dev->map_num;
 
-    bzero(dev, sizeof(uio_device_t));
+    memset(dev, 0, sizeof(uio_device_t));
     dev->fd        = -1;
     dev->mmap_addr = MAP_FAILED;
     dev->virt_addr = MAP_FAILED;
