@@ -318,7 +318,7 @@ void load_options(const char* filename) {
 }
 
 int main() {
-    GLogger::Initialize("example_MUDP.log");
+    GLogger::Initialize("_mudp.log");
     LOG_WRITE(trace, "Process STARTED (main)");
 
     load_options("example_MUDP.cfg");

@@ -13,7 +13,7 @@
 #include <cstring> // memset
 
 int main() {
-    GLogger::Initialize("example_MMAP.log");
+    GLogger::Initialize("_mmap.log");
     LOG_WRITE(trace, "Process STARTED");
 
     auto ps2pl_regs{GMAPdevice(0xa0001000, 4096)};

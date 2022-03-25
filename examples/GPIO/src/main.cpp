@@ -32,7 +32,7 @@ void GPIO_printRegistersInfo(GUIOdevice *uio_dev) {
 #endif
 
 int main() {
-    GLogger::Initialize("example_GPIO.log");
+    GLogger::Initialize("_gpio.log");
     LOG_WRITE(trace, "Process STARTED");
 
     auto uio_dev{GUIOdevice(UIO_NUM, 0)};
