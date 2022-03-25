@@ -35,7 +35,7 @@ message("=======================================================================
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-project(examples)
+project(MMAP)
 
 add_compile_options(
     -fno-omit-frame-pointer
@@ -45,6 +45,7 @@ add_compile_options(
     -Wextra
     -Wfloat-equal
     -Wno-unused-parameter
+    -Wno-unused-result
     -Wno-unused-variable
     -Wshadow
     -Wsign-conversion
@@ -70,5 +71,7 @@ include_directories(
 "./src"
 )
 
-add_executable(example_MMAP "./src/main.cpp")
-target_link_libraries(example_MMAP pthread gLIB gUIO)
+add_executable(_mmap
+"./src/main.cpp"
+)
+target_link_libraries(_mmap pthread gLIB gUIO)

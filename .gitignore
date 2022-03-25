@@ -1,6 +1,9 @@
-.vscode
-.gitignore
-.DS_Store
-.clang-format
 _clang-format
+.clang-format
+.DS_Store
+.gitignore
+.vscode
+*.orig
+*.user
+*.rej
 build

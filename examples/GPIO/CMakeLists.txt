@@ -35,7 +35,7 @@ message("=======================================================================
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-project(examples)
+project(GPIO)
 
 add_compile_options(
     -fno-omit-frame-pointer
@@ -71,5 +71,7 @@ include_directories(
 "./src"
 )
 
-add_executable(example_GPIO "./src/main.cpp")
-target_link_libraries(example_GPIO pthread gLIB gUIO)
+add_executable(_gpio
+"./src/main.cpp"
+)
+target_link_libraries(_gpio pthread gLIB gUIO)

@@ -35,7 +35,7 @@ message("=======================================================================
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-project(examples)
+project(MUDP)
 
 add_compile_options(
     -fno-omit-frame-pointer
@@ -44,8 +44,9 @@ add_compile_options(
    #-Wcast-align
     -Wextra
     -Wfloat-equal
-   #-Wno-unused-parameter
-   #-Wno-unused-variable
+    -Wno-unused-parameter
+    -Wno-unused-result
+    -Wno-unused-variable
     -Wshadow
     -Wsign-conversion
     -Wswitch-default
@@ -87,9 +88,9 @@ include_directories(
 "./src"
 )
 
-add_executable(example_MUDP
+add_executable(_mudp
 "./src/GMessage.cpp"
 "./src/GPacket.cpp"
 "./src/main.cpp"
 )
-target_link_libraries(example_MUDP pthread gLIB gSDR gUIO)
+target_link_libraries(_mudp pthread gLIB gSDR gUIO)
