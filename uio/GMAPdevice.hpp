@@ -11,6 +11,7 @@
 
 #include <cstddef> // size_t
 #include <cstdint> // uint32_t
+#include <list>    // std::list
 
 struct map_device_t {
     // SECTION: node properties
@@ -25,12 +26,46 @@ struct map_device_t {
 
 class GMAPdevice {
     public:
+    typedef struct {
+        uint32_t offset;
+        uint32_t value;
+
+    } reg_pair_t;
+
+    typedef std::list<reg_pair_t> reg_list_t;
+
     GMAPdevice(size_t addr, size_t size);
     ~GMAPdevice();
 
     bool Open();
     void Close();
     bool MapToMemory();
+
+    auto Read(reg_list_t& list) {
+        if (list.size() > 0) {
+            auto virt_addr{static_cast<uint32_t*>(m_dev.virt_addr)};
+            for (auto it{list.begin()}; it != list.end(); ++it) {
+                if (it->offset <= m_dev.size / sizeof(uint32_t)) {
+                    it->value = virt_addr[it->offset];
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    auto Write(reg_list_t& list) {
+        if (list.size() > 0) {
+            auto virt_addr{static_cast<uint32_t*>(m_dev.virt_addr)};
+            for (auto it{list.cbegin()}; it != list.cend(); ++it) {
+                if (it->offset <= m_dev.size / sizeof(uint32_t)) {
+                    virt_addr[it->offset] = it->value;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
     template <typename T> auto Read(size_t offset, T* dst_buf, size_t words = 1) {
         auto _t1{dst_buf != nullptr && words > 0};
