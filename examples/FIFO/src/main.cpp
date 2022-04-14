@@ -41,7 +41,7 @@ int main(void) {
         GProfile profile;
 
         if (tx_fifo.SetPacketWords(SPACE_PACKET_WORDS)) {
-            bool     _err, _res;
+            bool     _err, _res{true};
             uint32_t _val;
             auto     _loop = 10000;
 
@@ -51,9 +51,9 @@ int main(void) {
             _val = tx_fifo.GetUnusedWords(&_err);
             LOG_FORMAT(debug, "Unused words %d", _val);
 
-            _res = tx_fifo.ClearEvent();
-            _res = tx_fifo.EnableReader();
-            _res = tx_fifo.WritePacket(buffer, SPACE_PACKET_WORDS);
+            _res &= tx_fifo.ClearEvent();
+            _res &= tx_fifo.EnableReader();
+            _res &= tx_fifo.WritePacket(buffer, SPACE_PACKET_WORDS);
 
             profile.Start();
             for (auto i{0}; (i < _loop) && _res; ++i) {
