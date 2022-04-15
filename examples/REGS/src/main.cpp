@@ -11,9 +11,7 @@
 #include "GRegisters.hpp"
 #include "GString.hpp"
 
-#include <cstring> // memset
 #include <fstream>
-#include <regex>
 
 #define PS2PL_REGS_ADDR 0xA0050000
 #define PS2PL_REGS_SIZE 4096
@@ -22,26 +20,6 @@
 #define PL2PS_REGS_ADDR 0xA0060000
 #define PL2PS_REGS_SIZE 4096
 #define PL2PS_REGS_NUMB 256
-
-static auto split = [](const std::string& data, const std::string& regex) {
-    std::vector<std::string> tokens;
-
-    std::regex                 re{regex};
-    std::sregex_token_iterator next{data.begin(), data.end(), re, -1};
-    std::sregex_token_iterator last;
-
-    while (next != last) {
-        tokens.push_back(next->str());
-        ++next;
-    }
-
-    auto filter = [](const std::string s) {
-        return (s.size() == 0);
-    };
-    auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
-    tokens.erase(junks, tokens.end());
-    return tokens;
-};
 
 static auto load_registers_values = [](const std::string& filename, GMAPdevice::reg_list_t& reg_list) {
     reg_list.clear();
@@ -56,7 +34,7 @@ static auto load_registers_values = [](const std::string& filename, GMAPdevice::
             while (!fs.eof()) {
                 std::getline(fs, line);
 
-                auto items{split(line, "[ \\t]")};
+                auto items{GString::split(line, "[ \\t]")};
                 if (items.size() == 2) {
                     GMAPdevice::reg_pair_t reg_pair;
 
