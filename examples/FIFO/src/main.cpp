@@ -10,6 +10,8 @@
 #include "GLogger.hpp"
 #include "GProfile.hpp"
 
+#include <fstream>
+
 #define FIFO_DEV_ADDR  0xA0010000
 #define FIFO_DEV_SIZE  4096
 #define FIFO_UIO_NUM   3
@@ -19,15 +21,39 @@
 #define SPACE_PACKET_BYTES 2040
 #define SPACE_PACKET_WORDS (SPACE_PACKET_BYTES / FIFO_WORD_SIZE)
 
-void load_space_packet(uint16_t* buffer) {
+static auto load_packet_words(uint16_t* buffer, uint32_t words, const char* filename = nullptr) {
+    auto _ret{false};
+
     if (buffer != nullptr) {
-        for (auto i{0U}; i < SPACE_PACKET_WORDS; ++i) {
-            buffer[i] = (uint16_t)(1 + i);
+        if (filename != nullptr) {
+            std::ifstream fs;
+            fs.open(filename);
+
+            if (fs.is_open()) {
+                std::string line;
+
+                auto _bytes = (uint8_t*)buffer;
+
+                for (auto i{0}; !fs.eof(); ++i) {
+                    std::getline(fs, line);
+                    _bytes[i] = (uint8_t)strtoul(line.c_str(), 0, 10);
+                }
+
+                fs.close();
+                _ret = true;
+            }
+        }
+        else {
+            for (decltype(words) i{0}; i < words; ++i) {
+                buffer[i] = (uint16_t)(1 + i);
+            }
+            _ret = true;
         }
     }
+    return _ret;
 }
 
-int main(void) {
+int main(int argc, char* argv[]) {
     GLogger::Initialize("MUST_FIFO.log");
     LOG_WRITE(trace, "Process STARTED");
 
@@ -36,9 +62,12 @@ int main(void) {
     if (tx_fifo.Open()) {
         auto buffer = new uint16_t[SPACE_PACKET_WORDS];
 
-        load_space_packet(buffer);
-
-        GProfile profile;
+        if (argc > 1) {
+            load_packet_words(buffer, SPACE_PACKET_WORDS, argv[1]);
+        }
+        else {
+            load_packet_words(buffer, SPACE_PACKET_WORDS);
+        }
 
         if (tx_fifo.SetPacketWords(SPACE_PACKET_WORDS)) {
             bool     _err, _res{true};
@@ -55,13 +84,15 @@ int main(void) {
             _res &= tx_fifo.EnableReader();
             _res &= tx_fifo.WritePacket(buffer, SPACE_PACKET_WORDS);
 
+            GProfile profile;
+
             profile.Start();
             for (auto i{0}; (i < _loop) && _res; ++i) {
                 _res = tx_fifo.WritePacket(buffer, SPACE_PACKET_WORDS);
                 if (_res) {
                     _res = tx_fifo.WaitEvent();
                     if (_res) {
-                        // load_space_packet(buffer);
+                        // load_packet_words(buffer);
                         _res = tx_fifo.ClearEvent();
                     }
                 }
