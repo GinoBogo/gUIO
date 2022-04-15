@@ -7,7 +7,7 @@ Clear-Host
 
 #Start-Sleep -Milliseconds 800
 
-Set-Location ./examples/MUDP
+Set-Location ./examples/FIFO
 
 New-Item -ItemType Directory -Force -Path ./build
 
