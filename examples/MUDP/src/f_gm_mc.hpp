@@ -33,10 +33,12 @@ namespace f_gm_mc {
             case TPacketType::wake_up_query: {
                 _packet->head.packet_type = TPacketType::wake_up_reply;
                 _client->Send(_packet, GPacket::PACKET_HEAD_SIZE);
+                LOG_FORMAT(info, "%s message: WAKE_UP (%s)", _client->TagName(), __func__);
             } break;
 
             case TPacketType::packet_quit: {
                 *_args.quit = true;
+                LOG_FORMAT(info, "%s message: QUIT (%s)", _client->TagName(), __func__);
             } break;
 
             default: {

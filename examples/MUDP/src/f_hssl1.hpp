@@ -32,6 +32,7 @@ namespace f_hssl1 {
             case TPacketType::wake_up_query: {
                 _packet->head.packet_type = TPacketType::wake_up_reply;
                 _client->Send(_packet, GPacket::PACKET_HEAD_SIZE);
+                LOG_FORMAT(info, "%s message: WAKE_UP (%s)", _client->TagName(), __func__);
             } break;
 
             default: {
