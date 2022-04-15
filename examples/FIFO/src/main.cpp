@@ -9,6 +9,7 @@
 #include "GFIFOdevice.hpp"
 #include "GLogger.hpp"
 #include "GProfile.hpp"
+#include "GString.hpp"
 
 #include <fstream>
 
@@ -36,7 +37,7 @@ static auto load_packet_words(uint16_t* buffer, uint32_t words, const char* file
 
                 for (auto i{0}; !fs.eof(); ++i) {
                     std::getline(fs, line);
-                    _bytes[i] = (uint8_t)strtoul(line.c_str(), 0, 10);
+                    _bytes[i] = GString::strtouc(line);
                 }
 
                 fs.close();

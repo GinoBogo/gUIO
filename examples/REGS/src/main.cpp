@@ -9,8 +9,9 @@
 #include "GLogger.hpp"
 #include "GMAPdevice.hpp"
 #include "GRegisters.hpp"
+#include "GString.hpp"
 
-#include <cstring> // string, memset
+#include <cstring> // memset
 #include <fstream>
 #include <regex>
 
@@ -42,22 +43,6 @@ static auto split = [](const std::string& data, const std::string& regex) {
     return tokens;
 };
 
-static auto strtoui = [](std::string& value) {
-    auto _base{10};
-    auto _last{value.back()};
-
-    if (_last == 'h' || _last == 'H') {
-        value.pop_back();
-        _base = 16;
-    }
-    else if (_last == 'b' || _last == 'B') {
-        value.pop_back();
-        _base = 2;
-    }
-
-    return static_cast<uint32_t>(std::strtoul(value.c_str(), 0, _base));
-};
-
 static auto load_registers_values = [](const std::string& filename, GMAPdevice::reg_list_t& reg_list) {
     reg_list.clear();
 
@@ -75,8 +60,8 @@ static auto load_registers_values = [](const std::string& filename, GMAPdevice::
                 if (items.size() == 2) {
                     GMAPdevice::reg_pair_t reg_pair;
 
-                    reg_pair.offset = strtoui(items[0]);
-                    reg_pair.value  = strtoui(items[1]);
+                    reg_pair.offset = GString::strtoui(items[0]);
+                    reg_pair.value  = GString::strtoui(items[1]);
                     reg_list.push_back(reg_pair);
                 }
             }
@@ -123,7 +108,7 @@ int main(int argc, char* argv[]) {
         }
     }
     else {
-        LOG_WRITE(warning, "Command line argument is empty");
+        LOG_WRITE(error, "Command line argument is empty");
     }
 
     LOG_WRITE(trace, "Process STOPPED");
