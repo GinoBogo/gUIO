@@ -321,7 +321,7 @@ int main() {
     GLogger::Initialize("_mudp.log");
     LOG_WRITE(trace, "Process STARTED (main)");
 
-    load_options("example_MUDP.cfg");
+    load_options("_mudp.cfg");
 
     auto gm_mc_server = GUdpServer(GM_MC_SERVER_ADDR.c_str(), GM_MC_SERVER_PORT, "GM-MC");
     auto gm_mc_client = GUdpClient(GM_MC_CLIENT_ADDR.c_str(), GM_MC_CLIENT_PORT, "GM-MC");
