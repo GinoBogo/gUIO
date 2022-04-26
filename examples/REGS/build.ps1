@@ -7,7 +7,7 @@ Clear-Host
 
 #Start-Sleep -Milliseconds 800
 
-Set-Location ./examples/MMAP
+Set-Location ./examples/REGS
 
 New-Item -ItemType Directory -Force -Path ./build
 
@@ -33,4 +33,4 @@ else {
 
 ninja.exe
 
-Copy-Item -Path ../../libs/* -Destination ./bin -Recurse
+Copy-Item -Path ../cfg/* -Destination ./bin -Recurse
