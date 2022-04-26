@@ -32,14 +32,14 @@ GFiFo::GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_
     if (m_size && m_depth) {
         p_fifo = new GBuffer*[m_depth];
 
-        for (decltype(m_depth) i{0}; i < m_depth; i++) {
+        for (decltype(m_depth) i{0}; i < m_depth; ++i) {
             p_fifo[i] = new GBuffer(m_size);
         }
     }
 }
 
 GFiFo::~GFiFo() {
-    for (decltype(m_depth) i{0}; i < m_depth; i++) {
+    for (decltype(m_depth) i{0}; i < m_depth; ++i) {
         delete p_fifo[i];
     }
 
@@ -49,10 +49,8 @@ GFiFo::~GFiFo() {
 void GFiFo::Reset() {
     const std::lock_guard<std::mutex> lock(m_mutex);
 
-    uint32_t i = 0, N = m_depth;
-
-    while (N--) {
-        p_fifo[i++]->Reset();
+    for (decltype(m_depth) i{0}; i < m_depth; ++i) {
+        p_fifo[i]->Reset();
     }
 
     m_count = 0;
@@ -67,10 +65,8 @@ void GFiFo::Reset() {
 void GFiFo::Clear() {
     const std::lock_guard<std::mutex> lock(m_mutex);
 
-    uint32_t i = 0, N = m_depth;
-
-    while (N--) {
-        p_fifo[i++]->Clear();
+    for (decltype(m_depth) i{0}; i < m_depth; ++i) {
+        p_fifo[i]->Clear();
     }
 
     m_count = 0;
@@ -85,10 +81,8 @@ void GFiFo::Clear() {
 void GFiFo::SmartClear() {
     const std::lock_guard<std::mutex> lock(m_mutex);
 
-    uint32_t i = 0, N = m_depth;
-
-    while (N--) {
-        p_fifo[i++]->SmartClear();
+    for (decltype(m_depth) i{0}; i < m_depth; ++i) {
+        p_fifo[i]->SmartClear();
     }
 
     m_count = 0;

@@ -42,28 +42,36 @@ class GFiFo {
 
     bool IsStateChanged(fsm_state_t* new_state = nullptr, fsm_state_t* old_state = nullptr);
 
-    inline bool IsEmpty() {
+    inline auto IsEmpty() {
         return !m_count;
     }
 
-    inline bool IsFull() {
+    inline auto IsFull() {
         return m_count == m_depth;
     }
 
-    inline uint32_t size() const {
+    inline auto size() const {
         return m_size;
     }
 
-    inline uint32_t depth() const {
+    inline auto depth() const {
         return m_depth;
     }
 
-    inline uint32_t count() const {
+    inline auto count() const {
         return m_count;
     }
 
-    inline uint32_t free() const {
+    inline auto free() const {
         return m_depth - m_count;
+    }
+
+    inline auto max_level() {
+        return m_max_level;
+    }
+
+    inline auto min_level() {
+        return m_min_level;
     }
 
     private:
