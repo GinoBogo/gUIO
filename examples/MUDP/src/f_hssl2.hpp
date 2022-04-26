@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file      f_hssl0.hpp
+/// \file      f_hssl2.hpp
 /// \version   0.1
 /// \date      February, 2022
 /// \author    Gino Francesco Bogo
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef F_HSSL0_HPP
-#define F_HSSL0_HPP
+#ifndef F_HSSL2_HPP
+#define F_HSSL2_HPP
 
 #include "GLogger.hpp"
 #include "GMessage.hpp"
@@ -15,7 +15,7 @@
 
 #include <any>
 
-namespace f_hssl0 {
+namespace f_hssl2 {
 
     typedef struct {
         GUdpClient* client;
@@ -57,6 +57,6 @@ namespace f_hssl0 {
         return false;
     }
 
-} // namespace f_hssl0
+} // namespace f_hssl2
 
-#endif // F_HSSL0_HPP
+#endif // F_HSSL2_HPP

@@ -36,7 +36,7 @@ namespace f_gm_mc {
                 LOG_FORMAT(info, "%s message: WAKE_UP (%s)", _client->TagName(), __func__);
             } break;
 
-            case TPacketType::packet_quit: {
+            case TPacketType::quit_process: {
                 *_args.quit = true;
                 LOG_FORMAT(info, "%s message: QUIT (%s)", _client->TagName(), __func__);
             } break;

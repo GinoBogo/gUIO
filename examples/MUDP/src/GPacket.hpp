@@ -43,25 +43,19 @@ typedef struct {
 } TPacket;
 
 typedef enum {
-    wake_up_query,
-    wake_up_reply,
-    packet_stop_flow,
-    packet_start_flow,
-    packet_to_spacewire,
-    packet_from_spacewire,
-    canbus_add_event,
-    canbus_remove_event,
-    canbus_configure_interface,
-    canbus_event_reply,
-    packet_from_hssl_1,
-    packet_to_hssl_1,
-    packet_from_hssl_2,
-    packet_to_hssl_2,
-    packet_from_multi_io,
-    packet_to_multi_io,
-    packet_from_power_supply,
-    packet_to_power_supply,
-    packet_quit = 0xFF
+    wake_up_query      = 0,
+    wake_up_reply      = 1,
+    signal_stop_flow   = 2,
+    signal_start_flow  = 3,
+    packet_to_hssl_1   = 13,
+    packet_from_hssl_1 = 14,
+    packet_to_hssl_2   = 15,
+    packet_from_hssl_2 = 16,
+    packet_to_gm_dh    = 17,
+    packet_from_gm_dh  = 18,
+    packet_to_gm_mc    = 19,
+    packet_from_gm_mc  = 20,
+    quit_process       = 255
 
 } TPacketType;
 
