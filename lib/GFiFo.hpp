@@ -42,11 +42,11 @@ class GFiFo {
 
     bool IsStateChanged(fsm_state_t* new_state = nullptr, fsm_state_t* old_state = nullptr);
 
-    inline auto IsEmpty() {
+    inline auto IsEmpty() const {
         return !m_count;
     }
 
-    inline auto IsFull() {
+    inline auto IsFull() const {
         return m_count == m_depth;
     }
 
@@ -66,11 +66,11 @@ class GFiFo {
         return m_depth - m_count;
     }
 
-    inline auto max_level() {
+    inline auto max_level() const {
         return m_max_level;
     }
 
-    inline auto min_level() {
+    inline auto min_level() const {
         return m_min_level;
     }
 
