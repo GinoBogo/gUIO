@@ -9,8 +9,8 @@
 #ifndef GUDPCLIENT_HPP
 #define GUDPCLIENT_HPP
 
-#include <cstdint>  // uint16_t
-#include <stddef.h> // size_t
+#include <cstddef> // size_t
+#include <cstdint> // uint16_t
 
 class GUdpClient {
     public:

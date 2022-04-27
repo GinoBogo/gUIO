@@ -9,8 +9,8 @@
 #ifndef GPACKET_HPP
 #define GPACKET_HPP
 
-#include <cstdint>  // uint8_t, uint16_t, uint32_t
-#include <stddef.h> // size_t
+#include <cstddef> // size_t
+#include <cstdint> // uint8_t, uint16_t, uint32_t
 
 namespace GPacket {
     static const auto MAX_DATA_WORDS = 4091;
