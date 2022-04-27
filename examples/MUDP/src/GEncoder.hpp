@@ -13,7 +13,7 @@
 #include "GLogger.hpp"
 #include "GMessage.hpp"
 
-#include <string.h> // bzero
+#include <cstring> // memcpy, memset
 
 class GEncoder {
     public:
@@ -29,7 +29,7 @@ class GEncoder {
     }
 
     bool Process(uint8_t packet_type, uint8_t* message_data = nullptr, uint32_t message_length = 0) {
-        bzero(&m_packet, GPacket::PACKET_HEAD_SIZE);
+        memset(&m_packet, 0, GPacket::PACKET_HEAD_SIZE);
 
         auto result{false};
 
