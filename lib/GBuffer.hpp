@@ -18,12 +18,6 @@ class GBuffer {
 
     ~GBuffer();
 
-    inline void Reset();
-
-    inline void Clear();
-
-    inline void SmartClear();
-
     bool Wrap(uint8_t* buf_data, const uint32_t buf_size);
 
     bool Append(const uint8_t* src_data, const uint32_t src_count);
@@ -32,61 +26,68 @@ class GBuffer {
 
     void Increase(const uint32_t delta);
 
-    inline bool IsWrapper() const {
+    inline void Reset() {
+        m_count = 0;
+        p_next  = p_data;
+    }
+
+    inline void Clear() {
+        memset(p_data, 0, m_size);
+        m_count = 0;
+        p_next  = p_data;
+    }
+
+    inline void SmartClear() {
+        if (m_count) {
+            memset(p_data, 0, m_count);
+            m_count = 0;
+            p_next  = p_data;
+        }
+    }
+
+    inline auto IsReady() {
+        return m_is_ready;
+    }
+
+    inline auto IsWrapper() const {
         return m_is_wrapper;
     }
 
-    inline bool IsEmpty() const {
+    inline auto IsEmpty() const {
         return !m_count;
     }
 
-    inline bool IsFull() const {
+    inline auto IsFull() const {
         return !(m_size - m_count);
     }
 
-    inline uint32_t size() const {
+    inline auto size() const {
         return m_size;
     }
 
-    inline uint32_t count() const {
+    inline auto count() const {
         return m_count;
     }
 
-    inline uint32_t free() const {
+    inline auto free() const {
         return m_size - m_count;
     }
 
-    inline uint8_t* data() const {
+    inline auto data() const {
         return p_data;
     }
 
-    inline uint8_t* next() const {
+    inline auto next() const {
         return p_next;
     }
 
     private:
+    bool     m_is_ready;
     bool     m_is_wrapper;
     uint32_t m_size;
     uint32_t m_count;
     uint8_t* p_data;
     uint8_t* p_next;
 };
-
-inline void GBuffer::Reset() {
-    m_count = 0;
-    p_next  = p_data;
-}
-
-inline void GBuffer::Clear() {
-    memset(p_data, 0, m_size);
-    Reset();
-}
-
-inline void GBuffer::SmartClear() {
-    if (m_count) {
-        memset(p_data, 0, m_count);
-        Reset();
-    }
-}
 
 #endif // GBUFFER_HPP

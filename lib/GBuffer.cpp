@@ -8,31 +8,32 @@
 
 #include "GBuffer.hpp"
 
-GBuffer::GBuffer(const uint32_t max_size) {
-    m_is_wrapper = true;
+GBuffer::GBuffer(const uint32_t max_size) : m_is_ready{false} {
+    m_is_wrapper = max_size == 0;
     m_size       = max_size;
 
-    if (max_size) {
-        m_is_wrapper = false;
-        p_data       = new uint8_t[max_size];
+    if (m_size) {
+        p_data     = new uint8_t[m_size];
+        m_is_ready = true;
         Reset();
     }
 }
 
 GBuffer::~GBuffer() {
-    if (!m_is_wrapper) {
+    if (!m_is_wrapper && m_is_ready) {
         delete[] p_data;
     }
 }
 
 bool GBuffer::Wrap(uint8_t* buf_data, const uint32_t buf_size) {
-    if (m_is_wrapper) {
+    if (m_is_wrapper && !m_is_ready) {
         if (buf_data && buf_size) {
-            m_size = buf_size;
-            p_data = buf_data;
+            m_size     = buf_size;
+            p_data     = buf_data;
+            m_is_ready = true;
             Reset();
-            return true;
         }
+        return m_is_ready;
     }
     return false;
 }
