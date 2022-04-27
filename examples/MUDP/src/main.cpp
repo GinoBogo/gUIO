@@ -20,242 +20,6 @@
 
 #include <thread> // thread, mutex
 
-static void send_signal_start_flow(GFiFo& fifo, GUdpClient& client) {
-    GFiFo::fsm_state_t new_state, old_state;
-
-    if (fifo.IsStateChanged(&new_state, &old_state)) {
-        if (new_state == GFiFo::MIN_LEVEL_PASSED) {
-            TPacketHead packet;
-            packet.packet_type     = TPacketType::signal_start_flow;
-            packet.file_id         = 0;
-            packet.data_length     = 0;
-            packet.current_segment = 1;
-            packet.total_segments  = 1;
-
-            client.Send(&packet, GPacket::PACKET_HEAD_SIZE);
-        }
-    }
-}
-
-static void send_signal_stop_flow(GFiFo& fifo, GUdpClient& client) {
-    GFiFo::fsm_state_t new_state, old_state;
-
-    if (fifo.IsStateChanged(&new_state, &old_state)) {
-        if (new_state == GFiFo::MAX_LEVEL_PASSED) {
-            TPacketHead packet;
-            packet.packet_type     = TPacketType::signal_stop_flow;
-            packet.file_id         = 0;
-            packet.data_length     = 0;
-            packet.current_segment = 1;
-            packet.total_segments  = 1;
-
-            client.Send(&packet, GPacket::PACKET_HEAD_SIZE);
-        }
-    }
-}
-
-static void f_gm_mc_server(bool& quit, GUdpServer& server, GUdpClient& client) {
-    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
-
-    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
-    std::mutex gate;
-
-    // SECTION: decoder thread
-
-    f_gm_mc::WorkerArgs args;
-    args.quit   = &quit;
-    args.client = &client;
-
-    auto decoder = GDecoder(f_gm_mc::decode_packet, f_gm_mc::decode_message, args);
-
-    std::thread t_decoder([&]() {
-        while (!quit) {
-            gate.lock();
-
-            while (!fifo.IsEmpty()) {
-                if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
-                    send_signal_start_flow(fifo, client);
-                    decoder.Process();
-                }
-            }
-        }
-        server.Stop();
-    });
-
-    // SECTION: socket thread
-
-    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
-    size_t  bytes;
-
-    while (!quit) {
-        if (server.Receive(buffer, &bytes)) {
-            if (GPacket::IsValid(buffer, bytes)) {
-                if (fifo.Push(buffer, bytes)) {
-                    send_signal_stop_flow(fifo, client);
-                    gate.unlock();
-                }
-            }
-            else {
-                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
-            }
-        }
-    }
-    gate.unlock();
-    t_decoder.join();
-
-    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
-}
-
-static void f_gm_dh_server(bool& quit, GUdpServer& server, GUdpClient& client) {
-    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
-
-    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
-    std::mutex gate;
-
-    // SECTION: decoder thread
-
-    f_gm_dh::WorkerArgs args;
-    args.client = &client;
-
-    auto decoder = GDecoder(f_gm_dh::decode_packet, f_gm_dh::decode_message, args);
-
-    std::thread t_decoder([&]() {
-        while (!quit) {
-            gate.lock();
-
-            while (!fifo.IsEmpty()) {
-                if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
-                    send_signal_start_flow(fifo, client);
-                    decoder.Process();
-                }
-            }
-        }
-    });
-
-    // SECTION: socket thread
-
-    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
-    size_t  bytes;
-
-    while (!quit) {
-        if (server.Receive(buffer, &bytes)) {
-            if (GPacket::IsValid(buffer, bytes)) {
-                if (fifo.Push(buffer, bytes)) {
-                    send_signal_stop_flow(fifo, client);
-                    gate.unlock();
-                }
-            }
-            else {
-                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
-            }
-        }
-    }
-    gate.unlock();
-    t_decoder.join();
-
-    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
-}
-
-static void f_hssl1_server(bool& quit, GUdpServer& server, GUdpClient& client) {
-    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
-
-    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
-    std::mutex gate;
-
-    // SECTION: decoder thread
-
-    f_hssl1::WorkerArgs args;
-    args.client = &client;
-
-    auto decoder = GDecoder(f_hssl1::decode_packet, f_hssl1::decode_message, args);
-
-    std::thread t_decoder([&]() {
-        while (!quit) {
-            gate.lock();
-
-            while (!fifo.IsEmpty()) {
-                if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
-                    send_signal_start_flow(fifo, client);
-                    decoder.Process();
-                }
-            }
-        }
-    });
-
-    // SECTION: socket thread
-
-    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
-    size_t  bytes;
-
-    while (!quit) {
-        if (server.Receive(buffer, &bytes)) {
-            if (GPacket::IsValid(buffer, bytes)) {
-                if (fifo.Push(buffer, bytes)) {
-                    send_signal_stop_flow(fifo, client);
-                    gate.unlock();
-                }
-            }
-            else {
-                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
-            }
-        }
-    }
-    gate.unlock();
-    t_decoder.join();
-
-    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
-}
-
-static void f_hssl2_server(bool& quit, GUdpServer& server, GUdpClient& client) {
-    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
-
-    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
-    std::mutex gate;
-
-    // SECTION: decoder thread
-
-    f_hssl2::WorkerArgs args;
-    args.client = &client;
-
-    auto decoder = GDecoder(f_hssl2::decode_packet, f_hssl2::decode_message, args);
-
-    std::thread t_decoder([&]() {
-        while (!quit) {
-            gate.lock();
-
-            while (!fifo.IsEmpty()) {
-                if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
-                    send_signal_start_flow(fifo, client);
-                    decoder.Process();
-                }
-            }
-        }
-    });
-
-    // SECTION: socket thread
-
-    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
-    size_t  bytes;
-
-    while (!quit) {
-        if (server.Receive(buffer, &bytes)) {
-            if (GPacket::IsValid(buffer, bytes)) {
-                if (fifo.Push(buffer, bytes)) {
-                    send_signal_stop_flow(fifo, client);
-                    gate.unlock();
-                }
-            }
-            else {
-                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
-            }
-        }
-    }
-    gate.unlock();
-    t_decoder.join();
-
-    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
-}
-
 std::string GM_MC_SERVER_ADDR = "127.0.0.1";
 int         GM_MC_SERVER_PORT = 30001;
 std::string GM_MC_CLIENT_ADDR = "127.0.0.1";
@@ -273,7 +37,7 @@ int         HSSL2_SERVER_PORT = 60001;
 std::string HSSL2_CLIENT_ADDR = "127.0.0.1";
 int         HSSL2_CLIENT_PORT = 60101;
 
-void load_options(const char* filename) {
+static void load_options(const char* filename) {
     auto opts = GOptions();
 
     // clang-format off
@@ -315,6 +79,242 @@ void load_options(const char* filename) {
         HSSL2_CLIENT_PORT = opts.Get<int        >("socket.HSSL2_CLIENT_PORT");
         // clang-format on
     }
+}
+
+static void send_signal_start_flow(GFiFo* fifo, GUdpClient* client) {
+    GFiFo::fsm_state_t new_state, old_state;
+
+    if (fifo->IsStateChanged(&new_state, &old_state)) {
+        if (new_state == GFiFo::MIN_LEVEL_PASSED) {
+            TPacketHead packet;
+            packet.packet_type     = TPacketType::signal_start_flow;
+            packet.file_id         = 0;
+            packet.data_length     = 0;
+            packet.current_segment = 1;
+            packet.total_segments  = 1;
+
+            client->Send(&packet, GPacket::PACKET_HEAD_SIZE);
+        }
+    }
+}
+
+static void send_signal_stop_flow(GFiFo* fifo, GUdpClient* client) {
+    GFiFo::fsm_state_t new_state, old_state;
+
+    if (fifo->IsStateChanged(&new_state, &old_state)) {
+        if (new_state == GFiFo::MAX_LEVEL_PASSED) {
+            TPacketHead packet;
+            packet.packet_type     = TPacketType::signal_stop_flow;
+            packet.file_id         = 0;
+            packet.data_length     = 0;
+            packet.current_segment = 1;
+            packet.total_segments  = 1;
+
+            client->Send(&packet, GPacket::PACKET_HEAD_SIZE);
+        }
+    }
+}
+
+static void f_gm_mc_server(bool& quit, GUdpServer& server, GUdpClient& client) {
+    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
+
+    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
+    std::mutex gate;
+
+    // SECTION: decoder thread
+
+    f_gm_mc::WorkerArgs args;
+    args.quit   = &quit;
+    args.client = &client;
+
+    auto decoder = GDecoder(f_gm_mc::decode_packet, f_gm_mc::decode_message, args);
+
+    std::thread t_decoder([&]() {
+        while (!quit) {
+            gate.lock();
+
+            while (!fifo.IsEmpty()) {
+                if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+                    send_signal_start_flow(&fifo, &client);
+                    decoder.Process();
+                }
+            }
+        }
+        server.Stop();
+    });
+
+    // SECTION: socket thread
+
+    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
+    size_t  bytes;
+
+    while (!quit) {
+        if (server.Receive(buffer, &bytes)) {
+            if (GPacket::IsValid(buffer, bytes)) {
+                if (fifo.Push(buffer, bytes)) {
+                    send_signal_stop_flow(&fifo, &client);
+                    gate.unlock();
+                }
+            }
+            else {
+                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
+            }
+        }
+    }
+    gate.unlock();
+    t_decoder.join();
+
+    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
+}
+
+static void f_gm_dh_server(const bool& quit, GUdpServer& server, GUdpClient& client) {
+    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
+
+    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
+    std::mutex gate;
+
+    // SECTION: decoder thread
+
+    f_gm_dh::WorkerArgs args;
+    args.client = &client;
+
+    auto decoder = GDecoder(f_gm_dh::decode_packet, f_gm_dh::decode_message, args);
+
+    std::thread t_decoder([&]() {
+        while (!quit) {
+            gate.lock();
+
+            while (!fifo.IsEmpty()) {
+                if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+                    send_signal_start_flow(&fifo, &client);
+                    decoder.Process();
+                }
+            }
+        }
+    });
+
+    // SECTION: socket thread
+
+    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
+    size_t  bytes;
+
+    while (!quit) {
+        if (server.Receive(buffer, &bytes)) {
+            if (GPacket::IsValid(buffer, bytes)) {
+                if (fifo.Push(buffer, bytes)) {
+                    send_signal_stop_flow(&fifo, &client);
+                    gate.unlock();
+                }
+            }
+            else {
+                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
+            }
+        }
+    }
+    gate.unlock();
+    t_decoder.join();
+
+    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
+}
+
+static void f_hssl1_server(const bool& quit, GUdpServer& server, GUdpClient& client) {
+    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
+
+    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
+    std::mutex gate;
+
+    // SECTION: decoder thread
+
+    f_hssl1::WorkerArgs args;
+    args.client = &client;
+
+    auto decoder = GDecoder(f_hssl1::decode_packet, f_hssl1::decode_message, args);
+
+    std::thread t_decoder([&]() {
+        while (!quit) {
+            gate.lock();
+
+            while (!fifo.IsEmpty()) {
+                if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+                    send_signal_start_flow(&fifo, &client);
+                    decoder.Process();
+                }
+            }
+        }
+    });
+
+    // SECTION: socket thread
+
+    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
+    size_t  bytes;
+
+    while (!quit) {
+        if (server.Receive(buffer, &bytes)) {
+            if (GPacket::IsValid(buffer, bytes)) {
+                if (fifo.Push(buffer, bytes)) {
+                    send_signal_stop_flow(&fifo, &client);
+                    gate.unlock();
+                }
+            }
+            else {
+                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
+            }
+        }
+    }
+    gate.unlock();
+    t_decoder.join();
+
+    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
+}
+
+static void f_hssl2_server(const bool& quit, GUdpServer& server, GUdpClient& client) {
+    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
+
+    auto       fifo = GFiFo(GPacket::PACKET_FULL_SIZE, 20, 15, 5);
+    std::mutex gate;
+
+    // SECTION: decoder thread
+
+    f_hssl2::WorkerArgs args;
+    args.client = &client;
+
+    auto decoder = GDecoder(f_hssl2::decode_packet, f_hssl2::decode_message, args);
+
+    std::thread t_decoder([&]() {
+        while (!quit) {
+            gate.lock();
+
+            while (!fifo.IsEmpty()) {
+                if (fifo.Pop(decoder.packet_ptr(), decoder.packet_len()) > 0) {
+                    send_signal_start_flow(&fifo, &client);
+                    decoder.Process();
+                }
+            }
+        }
+    });
+
+    // SECTION: socket thread
+
+    uint8_t buffer[GUdpServer::MAX_DATAGRAM_SIZE];
+    size_t  bytes;
+
+    while (!quit) {
+        if (server.Receive(buffer, &bytes)) {
+            if (GPacket::IsValid(buffer, bytes)) {
+                if (fifo.Push(buffer, bytes)) {
+                    send_signal_stop_flow(&fifo, &client);
+                    gate.unlock();
+                }
+            }
+            else {
+                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
+            }
+        }
+    }
+    gate.unlock();
+    t_decoder.join();
+
+    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
 }
 
 int main() {
