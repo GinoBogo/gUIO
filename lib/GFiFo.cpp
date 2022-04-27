@@ -88,6 +88,10 @@ void GFiFo::SmartClear() {
     m_count = 0;
     m_iW    = 0;
     m_iR    = 0;
+
+    if (m_fsm_state != TRANSITION_OFF) {
+        m_fsm_state = MIN_LEVEL_PASSED;
+    }
 }
 
 bool GFiFo::Push(const GBuffer* src_buff) {
