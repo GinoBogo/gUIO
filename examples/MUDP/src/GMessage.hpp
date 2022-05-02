@@ -23,30 +23,22 @@ class GMessage : public GBuffer {
     bool Append(TPacket* packet);
 
     auto IsValid() {
-        return m_no_error && (m_current_segment == m_total_segments);
-    }
-
-    auto PacketCounter() const {
-        return m_packet_counter;
+        return m_no_error && (m_message_head.current_segment == m_message_head.total_segments);
     }
 
     auto ErrorsCounter() const {
         return m_errors_counter;
     }
 
-    auto packet_type() const {
-        return m_packet_type;
+    auto head() const {
+        return m_message_head;
     }
 
     private:
-    bool     m_no_error;
-    bool     m_is_valid;
-    uint8_t  m_packet_type;
-    uint16_t m_file_id;
-    uint32_t m_packet_counter;
-    uint32_t m_errors_counter;
-    uint16_t m_current_segment;
-    uint16_t m_total_segments;
+    bool        m_no_error;
+    bool        m_is_valid;
+    uint32_t    m_errors_counter;
+    TPacketHead m_message_head;
 };
 
 #endif // GMESSAGE_HPP
