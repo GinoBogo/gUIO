@@ -11,7 +11,13 @@
 
 #include "GBuffer.hpp"
 
+//#define GFIFO_THREAD_SAFE
+
+#ifdef GFIFO_THREAD_SAFE
 #include <mutex>
+#else
+#define GFIFO_LOCK_GUARD
+#endif
 
 class GFiFo {
     public:
@@ -20,6 +26,7 @@ class GFiFo {
         REGULAR_LEVEL,
         MAX_LEVEL_PASSED,
         MIN_LEVEL_PASSED
+
     } fsm_state_t;
 
     GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_level = -1, const int min_level = -1);
@@ -81,10 +88,13 @@ class GFiFo {
     uint32_t    m_iR;
     uint32_t    m_iW;
     GBuffer**   p_fifo;
-    std::mutex  m_mutex;
     int         m_max_level;
     int         m_min_level;
     fsm_state_t m_fsm_state;
+
+#ifdef GFIFO_THREAD_SAFE
+    std::mutex m_mutex;
+#endif
 };
 
 #endif // GFIFO_HPP

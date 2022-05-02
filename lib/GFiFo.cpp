@@ -8,6 +8,8 @@
 
 #include "GFiFo.hpp"
 
+#include <algorithm> // std::min
+
 GFiFo::GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_level, const int min_level) {
     m_size  = item_size;
     m_depth = fifo_depth;
@@ -47,7 +49,9 @@ GFiFo::~GFiFo() {
 }
 
 void GFiFo::Reset() {
-    const std::lock_guard<std::mutex> lock(m_mutex);
+#ifdef GFIFO_THREAD_SAFE
+    std::lock_guard<std::mutex> lock(m_mutex);
+#endif
 
     for (decltype(m_depth) i{0}; i < m_depth; ++i) {
         p_fifo[i]->Reset();
@@ -63,7 +67,9 @@ void GFiFo::Reset() {
 }
 
 void GFiFo::Clear() {
-    const std::lock_guard<std::mutex> lock(m_mutex);
+#ifdef GFIFO_THREAD_SAFE
+    std::lock_guard<std::mutex> lock(m_mutex);
+#endif
 
     for (decltype(m_depth) i{0}; i < m_depth; ++i) {
         p_fifo[i]->Clear();
@@ -79,7 +85,9 @@ void GFiFo::Clear() {
 }
 
 void GFiFo::SmartClear() {
-    const std::lock_guard<std::mutex> lock(m_mutex);
+#ifdef GFIFO_THREAD_SAFE
+    std::lock_guard<std::mutex> lock(m_mutex);
+#endif
 
     for (decltype(m_depth) i{0}; i < m_depth; ++i) {
         p_fifo[i]->SmartClear();
@@ -95,9 +103,11 @@ void GFiFo::SmartClear() {
 }
 
 bool GFiFo::Push(const GBuffer* src_buff) {
-    if (src_buff) {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+#ifdef GFIFO_THREAD_SAFE
+    std::lock_guard<std::mutex> lock(m_mutex);
+#endif
 
+    if (src_buff) {
         if (!IsFull()) {
             GBuffer* _item = p_fifo[m_iW];
 
@@ -120,9 +130,11 @@ bool GFiFo::Push(const GBuffer* src_buff) {
 }
 
 bool GFiFo::Push(const uint8_t* src_data, const uint32_t src_count) {
-    if (src_data && src_count) {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+#ifdef GFIFO_THREAD_SAFE
+    std::lock_guard<std::mutex> lock(m_mutex);
+#endif
 
+    if (src_data && src_count) {
         if (!IsFull()) {
             GBuffer* _item = p_fifo[m_iW];
 
@@ -145,9 +157,11 @@ bool GFiFo::Push(const uint8_t* src_data, const uint32_t src_count) {
 }
 
 bool GFiFo::Pop(GBuffer* dst_buff) {
-    if (dst_buff) {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+#ifdef GFIFO_THREAD_SAFE
+    std::lock_guard<std::mutex> lock(m_mutex);
+#endif
 
+    if (dst_buff) {
         if (!IsEmpty()) {
             GBuffer* _item = p_fifo[m_iR];
 
@@ -170,9 +184,11 @@ bool GFiFo::Pop(GBuffer* dst_buff) {
 }
 
 int32_t GFiFo::Pop(uint8_t* dst_data, const uint32_t dst_size) {
-    if (dst_data && dst_size) {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+#ifdef GFIFO_THREAD_SAFE
+    std::lock_guard<std::mutex> lock(m_mutex);
+#endif
 
+    if (dst_data && dst_size) {
         if (!IsEmpty()) {
             GBuffer* _item = p_fifo[m_iR];
             uint32_t bytes = _item->count();
@@ -196,6 +212,10 @@ int32_t GFiFo::Pop(uint8_t* dst_data, const uint32_t dst_size) {
 }
 
 bool GFiFo::IsStateChanged(fsm_state_t* new_state, fsm_state_t* old_state) {
+#ifdef GFIFO_THREAD_SAFE
+    std::lock_guard<std::mutex> lock(m_mutex);
+#endif
+
     auto _state_changed{false};
 
     if (old_state != nullptr) {
