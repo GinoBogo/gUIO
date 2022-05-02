@@ -257,7 +257,7 @@ int32_t ad9361_check_cal_done(ad9361_rf_phy_t* phy, //
     }
     while (timeout--);
 
-    LOG_FORMAT(warning, "Calibration timeout [reg 0x%, mask 0x%] (%s)", reg, mask, __func__);
+    LOG_FORMAT(warning, "Calibration timeout [reg 0x%X, mask 0x%X] (%s)", reg, mask, __func__);
 
     return -ETIMEDOUT;
 }
