@@ -24,38 +24,40 @@ class GDecoder {
         m_args           = args;
     }
 
-    void Process() {
+    bool Process() {
         if (GPacket::IsSingle(&packet)) {
             if (GPacket::IsShort(&packet)) {
-                DecodePacket();
+                return m_decode_packet(&packet, m_args);
             }
             else {
                 message.Initialize(&packet);
                 message.Append(&packet);
                 if (message.IsValid()) {
-                    DecodeMessage();
+                    return m_decode_message(&message, m_args);
                 }
             }
-            return;
+            return false;
         }
 
         if (GPacket::IsFirst(&packet)) {
             message.Initialize(&packet);
             message.Append(&packet);
-            return;
+            return true;
         }
 
         if (GPacket::IsMiddle(&packet)) {
             message.Append(&packet);
-            return;
+            return true;
         }
 
         if (GPacket::IsLast(&packet)) {
             message.Append(&packet);
             if (message.IsValid()) {
-                DecodeMessage();
+                return m_decode_message(&message, m_args);
             }
         }
+
+        return false;
     }
 
     TPacket  packet;
@@ -70,14 +72,6 @@ class GDecoder {
     }
 
     private:
-    bool DecodePacket() {
-        return m_decode_packet(&packet, m_args);
-    }
-
-    bool DecodeMessage() {
-        return m_decode_message(&message, m_args);
-    }
-
     std::any   m_args;
     WorkerFunc m_decode_packet;
     WorkerFunc m_decode_message;
