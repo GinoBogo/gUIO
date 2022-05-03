@@ -7,3 +7,4 @@ _clang-format
 *.user
 *.rej
 build
+.fake
