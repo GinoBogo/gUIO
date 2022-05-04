@@ -32,9 +32,11 @@ class GFIFOdevice {
     bool     Open();
     void     Close();
     bool     Reset();
-    bool     SetPacketWords(uint32_t words);
-    uint32_t GetPacketWords(bool* error = nullptr);
-    uint32_t GetUnusedWords(bool* error = nullptr);
+    bool     SetTxPacketWords(uint32_t words);
+    uint32_t GetTxPacketWords(bool* error = nullptr);
+    uint32_t GetTxUnusedWords(bool* error = nullptr);
+    uint32_t GetRxLengthLevel(bool* error = nullptr);
+    uint32_t GetRxPacketWords(bool* error = nullptr);
 
     bool WritePacket(uint16_t* src_buf, size_t words) {
         if (m_is_ready) {
@@ -72,6 +74,19 @@ class GFIFOdevice {
     bool WaitEvent(int timeout = -1) {
         if (m_is_ready) {
             return m_uio->IRQ_Wait(timeout);
+        }
+        return false;
+    }
+
+    bool WaitEventThenClear(int timeout = -1) {
+        if (m_is_ready) {
+            if (m_uio->IRQ_Wait(timeout)) {
+                auto _val{GPIO_getIpInterruptStatus(m_uio_regs)};
+                if (_val & BIT_GPIO_IP_ISR_1) {
+                    GPIO_setIpInterruptStatus(m_uio_regs, BIT_GPIO_IP_ISR_1);
+                }
+                return m_uio->IRQ_Clear();
+            }
         }
         return false;
     }

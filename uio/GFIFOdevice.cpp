@@ -84,7 +84,7 @@ bool GFIFOdevice::Reset() {
     return _res;
 }
 
-bool GFIFOdevice::SetPacketWords(uint32_t words) {
+bool GFIFOdevice::SetTxPacketWords(uint32_t words) {
     auto _res{false};
     m_words = words;
 
@@ -100,7 +100,7 @@ bool GFIFOdevice::SetPacketWords(uint32_t words) {
     return _res;
 }
 
-uint32_t GFIFOdevice::GetPacketWords(bool* error) {
+uint32_t GFIFOdevice::GetTxPacketWords(bool* error) {
     uint32_t _val{0};
     auto     _res{false};
 
@@ -115,13 +115,45 @@ uint32_t GFIFOdevice::GetPacketWords(bool* error) {
     return _val;
 }
 
-uint32_t GFIFOdevice::GetUnusedWords(bool* error) {
+uint32_t GFIFOdevice::GetTxUnusedWords(bool* error) {
     uint32_t _val{0};
     auto     _res{false};
 
     if (m_is_ready) {
         _res = m_dev->Read(TX_UNUSED_WORDS, &_val);
         _val = 0x00001FFF & _val;
+    }
+
+    if (error != nullptr) {
+        *error = !_res;
+    }
+
+    return _val;
+}
+
+uint32_t GFIFOdevice::GetRxLengthLevel(bool* error) {
+    uint32_t _val{0};
+    auto     _res{false};
+
+    if (m_is_ready) {
+        _res = m_dev->Read(RX_LENGTH_LEVEL, &_val);
+        _val = 0x0000FFFF & _val;
+    }
+
+    if (error != nullptr) {
+        *error = !_res;
+    }
+
+    return _val;
+}
+
+uint32_t GFIFOdevice::GetRxPacketWords(bool* error) {
+    uint32_t _val{0};
+    auto     _res{false};
+
+    if (m_is_ready) {
+        _res = m_dev->Read(RX_PACKET_WORDS, &_val);
+        _val = 0x0000FFFF & _val;
     }
 
     if (error != nullptr) {
