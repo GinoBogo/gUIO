@@ -15,6 +15,8 @@ GMessage::GMessage(const uint32_t max_size) : GBuffer(max_size) {
 }
 
 void GMessage::Clear() {
+    m_packet_counter = 0;
+    m_missed_counter = 0;
     m_errors_counter = 0;
     GBuffer::Clear();
 }
@@ -23,25 +25,36 @@ void GMessage::Initialize(TPacket* packet) {
     m_no_error = true;
     m_is_valid = false;
 
-    memcpy(&m_message_head, &packet->head, GPacket::PACKET_HEAD_SIZE);
-
-    m_message_head.packet_counter  = 0;
+    m_message_head                 = packet->head;
     m_message_head.current_segment = 0;
 
     GBuffer::Reset();
 }
 
 bool GMessage::Append(TPacket* packet) {
-    ++m_message_head.packet_counter;
+    auto _packet_counter{packet->head.packet_counter};
+
+    if (m_packet_counter != _packet_counter) {
+        if (m_packet_counter < _packet_counter) {
+            m_missed_counter += _packet_counter - m_packet_counter;
+        }
+        m_packet_counter = _packet_counter;
+    }
+
+    ++m_packet_counter;
+    ++m_message_head.current_segment;
 
     if (m_no_error) {
-        auto check_1 = packet->head.packet_type == m_message_head.packet_type;
-        auto check_2 = packet->head.file_id == m_message_head.file_id;
-        auto check_3 = packet->head.current_segment == ++m_message_head.current_segment;
-        m_no_error   = check_1 && check_2 && check_3;
+        // clang-format off
+        auto check_1 = packet->head.packet_type     == m_message_head.packet_type;
+        auto check_2 = packet->head.file_id         == m_message_head.file_id;
+        auto check_3 = packet->head.current_segment == m_message_head.current_segment;
+        auto check_4 = packet->head.total_segments  == m_message_head.total_segments;
+        // clang-format on
+        m_no_error = check_1 && check_2 && check_3 && check_4;
 
         if (m_no_error) {
-            auto src_data  = (uint8_t*)&packet->data;
+            auto src_data  = packet->data.bytes;
             auto src_count = packet->head.data_length;
             return GBuffer::Append(src_data, src_count);
         }

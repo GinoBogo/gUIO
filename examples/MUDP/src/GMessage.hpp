@@ -22,21 +22,31 @@ class GMessage : public GBuffer {
     void Initialize(TPacket* packet);
     bool Append(TPacket* packet);
 
-    auto IsValid() {
+    auto IsValid() const {
         return m_no_error && (m_message_head.current_segment == m_message_head.total_segments);
     }
 
-    auto ErrorsCounter() const {
-        return m_errors_counter;
+    auto head() const {
+        return &m_message_head;
     }
 
-    auto head() const {
-        return m_message_head;
+    inline auto PacketCounter() const {
+        return m_packet_counter;
+    }
+
+    inline auto MissedCounter() const {
+        return m_missed_counter;
+    }
+
+    inline auto ErrorsCounter() const {
+        return m_errors_counter;
     }
 
     private:
     bool        m_no_error;
     bool        m_is_valid;
+    uint32_t    m_packet_counter;
+    uint32_t    m_missed_counter;
     uint32_t    m_errors_counter;
     TPacketHead m_message_head;
 };
