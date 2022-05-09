@@ -8,8 +8,6 @@
 
 #include "GMessage.hpp"
 
-#include "GLogger.hpp"
-
 GMessage::GMessage(const uint32_t max_size) : GBuffer(max_size) {
     Clear();
 }
