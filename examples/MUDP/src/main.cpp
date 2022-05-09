@@ -18,9 +18,9 @@
 #include "f_hssl1.hpp"
 #include "f_hssl2.hpp"
 
-#include <condition_variable>
-#include <mutex>  // mutex, lock_guard
-#include <thread> // thread
+#include <condition_variable> // condition_variable
+#include <mutex>              // mutex, lock_guard, unique_lock
+#include <thread>             // thread
 
 std::string  GM_MC_SERVER_ADDR   = "127.0.0.1";
 int          GM_MC_SERVER_PORT   = 30001;

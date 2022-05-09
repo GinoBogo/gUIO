@@ -5168,13 +5168,13 @@ int32_t ad9361_dig_tune(ad9361_rf_phy_t* phy, //
 int32_t ad9361_post_setup(ad9361_rf_phy_t* phy) {
 
     int32_t rx2tx2 = phy->pdata.rx2tx2;
-    int32_t tmp;
     int32_t _val;
 
-    tmp = 0x00000000;
+    int32_t tmp = 0x00000000;
 
     if (rx2tx2) {
         tmp &= ~BIT(5);
+        UNUSED(tmp);
     }
 
     _val = ad9361_dig_tune(phy, 61440000);
