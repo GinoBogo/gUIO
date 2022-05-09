@@ -84,16 +84,40 @@ bool GFIFOdevice::Reset() {
     return _res;
 }
 
+uint32_t GFIFOdevice::PEEK(uint32_t offset, bool* error) {
+    uint32_t _val{0};
+    auto     _res{false};
+
+    if (m_is_ready) {
+        _res = m_dev->Read(offset, &_val);
+    }
+
+    if (error != nullptr) {
+        *error = !_res;
+    }
+
+    return _val;
+}
+
+bool GFIFOdevice::POKE(uint32_t offset, uint32_t value) {
+    auto _res{false};
+
+    if (m_is_ready) {
+        _res = m_dev->Write(offset, &value);
+    }
+
+    return _res;
+}
+
 bool GFIFOdevice::SetTxPacketWords(uint32_t words) {
     auto _res{false};
-    m_words = words;
 
     if (m_is_ready) {
         uint32_t _enable{1};
         uint32_t _forbid{0};
 
         _res = _res || m_dev->Write(IP_CONTROL, &_enable);
-        _res = _res && m_dev->Write(TX_PACKET_WORDS, &m_words);
+        _res = _res && m_dev->Write(TX_PACKET_WORDS, &words);
         _res = _res && m_dev->Write(IP_CONTROL, &_forbid);
     }
 
@@ -109,7 +133,7 @@ uint32_t GFIFOdevice::GetTxPacketWords(bool* error) {
     }
 
     if (error != nullptr) {
-        *error = !_res || (_val != m_words);
+        *error = !_res;
     }
 
     return _val;

@@ -29,9 +29,13 @@ class GFIFOdevice {
     GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_map);
     ~GFIFOdevice();
 
-    bool     Open();
-    void     Close();
-    bool     Reset();
+    bool Open();
+    void Close();
+    bool Reset();
+
+    uint32_t PEEK(uint32_t offset, bool* error = nullptr);
+    bool     POKE(uint32_t offset, uint32_t value);
+
     bool     SetTxPacketWords(uint32_t words);
     uint32_t GetTxPacketWords(bool* error = nullptr);
     uint32_t GetTxUnusedWords(bool* error = nullptr);
@@ -78,7 +82,7 @@ class GFIFOdevice {
         return false;
     }
 
-    bool WaitEventThenClear(int timeout = -1) {
+    bool WaitThenClearEvent(int timeout = -1) {
         if (m_is_ready) {
             if (m_uio->IRQ_Wait(timeout)) {
                 auto _val{GPIO_getIpInterruptStatus(m_uio_regs)};
@@ -92,11 +96,10 @@ class GFIFOdevice {
     }
 
     private:
-    size_t   m_dev_addr;
-    size_t   m_dev_size;
-    int      m_uio_num;
-    int      m_uio_map;
-    uint32_t m_words;
+    size_t m_dev_addr;
+    size_t m_dev_size;
+    int    m_uio_num;
+    int    m_uio_map;
 
     GMAPdevice* m_dev;
     GUIOdevice* m_uio;
