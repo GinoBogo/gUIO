@@ -9,13 +9,25 @@
 #include "GBuffer.hpp"
 
 GBuffer::GBuffer(const uint32_t max_size) : m_is_ready{false} {
-    m_is_wrapper = max_size == 0;
     m_size       = max_size;
+    m_is_wrapper = m_size == 0;
 
-    if (m_size) {
+    if (!m_is_wrapper) {
         p_data     = new uint8_t[m_size];
         m_is_ready = true;
         Reset();
+    }
+}
+
+GBuffer::GBuffer(const GBuffer& buffer) : m_is_ready{false} {
+    m_size       = buffer.size();
+    m_is_wrapper = m_size == 0;
+
+    if (!m_is_wrapper) {
+        p_data     = new uint8_t[m_size];
+        m_is_ready = true;
+        Reset();
+        Append(buffer.data(), buffer.count());
     }
 }
 
@@ -23,6 +35,24 @@ GBuffer::~GBuffer() {
     if (!m_is_wrapper && m_is_ready) {
         delete[] p_data;
     }
+    m_is_ready = false;
+}
+
+GBuffer& GBuffer::operator=(const GBuffer& buffer) {
+    if (this != &buffer) {
+        this->~GBuffer();
+
+        m_size       = buffer.size();
+        m_is_wrapper = m_size == 0;
+
+        if (!m_is_wrapper) {
+            p_data     = new uint8_t[m_size];
+            m_is_ready = true;
+            Reset();
+            Append(buffer.data(), buffer.count());
+        }
+    }
+    return *this;
 }
 
 bool GBuffer::Wrap(uint8_t* buf_data, const uint32_t buf_size) {
@@ -39,7 +69,7 @@ bool GBuffer::Wrap(uint8_t* buf_data, const uint32_t buf_size) {
 }
 
 bool GBuffer::Append(const uint8_t* src_data, const uint32_t src_count) {
-    if (!src_data || !src_count || free() < src_count) {
+    if (!m_is_ready || !src_data || !src_count || free() < src_count) {
         return false;
     }
 
@@ -52,6 +82,8 @@ bool GBuffer::Append(const uint8_t* src_data, const uint32_t src_count) {
 }
 
 void GBuffer::SetCount(const uint32_t value) {
+    if (!m_is_ready) return;
+
     if (value >= m_size) {
         m_count = m_size;
         p_next  = nullptr;
@@ -63,6 +95,8 @@ void GBuffer::SetCount(const uint32_t value) {
 }
 
 void GBuffer::Increase(const uint32_t delta) {
+    if (!m_is_ready) return;
+
     if (delta >= free()) {
         m_count = m_size;
         p_next  = nullptr;

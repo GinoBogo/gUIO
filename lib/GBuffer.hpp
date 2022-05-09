@@ -16,7 +16,11 @@ class GBuffer {
     public:
     GBuffer(const uint32_t max_size = 0);
 
+    GBuffer(const GBuffer& buffer);
+
     ~GBuffer();
+
+    GBuffer& operator=(const GBuffer& buffer);
 
     bool Wrap(uint8_t* buf_data, const uint32_t buf_size);
 
