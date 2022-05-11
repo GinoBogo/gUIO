@@ -176,8 +176,8 @@ uint32_t GFIFOdevice::GetRxPacketWords(bool* error) {
     auto     _res{false};
 
     if (m_is_ready) {
-        _res = m_dev->Read(RX_PACKET_WORDS, &_val);
-        _val = 0x0000FFFF & _val;
+        _res = m_dev->Read(RX_PACKET_BYTES, &_val);
+        _val = 0x0000FFFF & ((_val + 1) / sizeof(uint16_t));
     }
 
     if (error != nullptr) {

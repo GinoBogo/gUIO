@@ -21,7 +21,7 @@ class GFIFOdevice {
         TX_UNUSED_WORDS = 2,
         RX_LENGTH_LEVEL = 2,
         TX_EVENTS_COUNT = 3,
-        RX_PACKET_WORDS = 7,
+        RX_PACKET_BYTES = 7,
         TX_BUFFER_BEGIN = 8,
         RX_BUFFER_BEGIN = 8,
     };
@@ -42,16 +42,16 @@ class GFIFOdevice {
     uint32_t GetRxLengthLevel(bool* error = nullptr);
     uint32_t GetRxPacketWords(bool* error = nullptr);
 
-    bool WritePacket(uint16_t* src_buf, size_t words) {
+    bool ReadPacket(uint16_t* dst_buf, size_t words) {
         if (m_is_ready) {
-            return m_dev->OverWrite(TX_BUFFER_BEGIN, src_buf, words);
+            return m_dev->OverRead(RX_BUFFER_BEGIN, dst_buf, words);
         }
         return false;
     }
 
-    bool ReadPacket(uint16_t* dst_buf, size_t words) {
+    bool WritePacket(uint16_t* src_buf, size_t words) {
         if (m_is_ready) {
-            return m_dev->OverRead(RX_BUFFER_BEGIN, dst_buf, words);
+            return m_dev->OverWrite(TX_BUFFER_BEGIN, src_buf, words);
         }
         return false;
     }
