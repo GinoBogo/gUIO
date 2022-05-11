@@ -18,6 +18,7 @@ GFIFOdevice::GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_
 
     m_dev      = new GMAPdevice(m_dev_addr, m_dev_size);
     m_uio      = new GUIOdevice(m_uio_num, m_uio_map);
+    m_uio_regs = nullptr;
     m_is_ready = false;
 
     LOG_WRITE(trace, "FIFO device created");
