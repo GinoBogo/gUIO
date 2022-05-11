@@ -51,7 +51,7 @@ ad9361_init_parameters_t init_params = {
     (uInt08)SPI_SDR1_CS, // id_no
 
     // reference clock
-    (uInt32)40000000UL, // reference_clk_rate
+    (uInt32)50000000UL, // reference_clk_rate
 
     // base configuration
     (uInt08)0,              // two_rx_two_tx_mode_enable
@@ -112,7 +112,7 @@ ad9361_init_parameters_t init_params = {
     (uInt08)0,     // update_tx_gain_in_alert_enable
 
     // reference clock control
-    (uInt08)0, // xo_disable_use_ext_refclk_enable
+    (uInt08)1, // xo_disable_use_ext_refclk_enable
     {
         (uInt32)8,   // dcxo_coarse_and_fine_tune[2]
         (uInt32)5920 //
