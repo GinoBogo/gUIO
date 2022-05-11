@@ -103,7 +103,7 @@ class GMAPdevice {
         if (_t1) {
             volatile auto virt_addr{static_cast<R*>(m_dev.virt_addr)};
             if (words == 1)
-                *dst_buf = virt_addr[offset];
+                *dst_buf = static_cast<T>(virt_addr[offset]);
             else
                 for (decltype(words) i{0}; i < words;) dst_buf[i++] = static_cast<T>(virt_addr[offset]);
             return true;
@@ -117,7 +117,7 @@ class GMAPdevice {
         if (_t1) {
             volatile auto virt_addr{static_cast<R*>(m_dev.virt_addr)};
             if (words == 1)
-                virt_addr[offset] = *src_buf;
+                virt_addr[offset] = static_cast<R>(*src_buf);
             else
                 for (decltype(words) i{0}; i < words;) virt_addr[offset] = static_cast<R>(src_buf[i++]);
             return true;
