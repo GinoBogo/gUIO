@@ -33,14 +33,14 @@ class GFIFOdevice {
     void Close();
     bool Reset();
 
-    uint32_t PEEK(uint32_t offset, bool* error = nullptr);
+    uint32_t PEEK(uint32_t offset, bool& error);
     bool     POKE(uint32_t offset, uint32_t value);
 
     bool     SetTxPacketWords(uint32_t words);
-    uint32_t GetTxPacketWords(bool* error = nullptr);
-    uint32_t GetTxUnusedWords(bool* error = nullptr);
-    uint32_t GetRxLengthLevel(bool* error = nullptr);
-    uint32_t GetRxPacketWords(bool* error = nullptr);
+    uint32_t GetTxPacketWords(bool& error);
+    uint32_t GetTxUnusedWords(bool& error);
+    uint32_t GetRxLengthLevel(bool& error);
+    uint32_t GetRxPacketWords(bool& error);
 
     bool ReadPacket(uint16_t* dst_buf, size_t words) {
         if (m_is_ready) {

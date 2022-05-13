@@ -85,16 +85,12 @@ bool GFIFOdevice::Reset() {
     return _res;
 }
 
-uint32_t GFIFOdevice::PEEK(uint32_t offset, bool* error) {
+uint32_t GFIFOdevice::PEEK(uint32_t offset, bool& error) {
     uint32_t _val{0};
-    auto     _res{false};
 
+    error = false;
     if (m_is_ready) {
-        _res = m_dev->Read(offset, &_val);
-    }
-
-    if (error != nullptr) {
-        *error = !_res;
+        error = !m_dev->Read(offset, &_val);
     }
 
     return _val;
@@ -125,64 +121,48 @@ bool GFIFOdevice::SetTxPacketWords(uint32_t words) {
     return _res;
 }
 
-uint32_t GFIFOdevice::GetTxPacketWords(bool* error) {
+uint32_t GFIFOdevice::GetTxPacketWords(bool& error) {
     uint32_t _val{0};
-    auto     _res{false};
 
+    error = false;
     if (m_is_ready) {
-        _res = m_dev->Read(TX_PACKET_WORDS, &_val);
-    }
-
-    if (error != nullptr) {
-        *error = !_res;
+        error = !m_dev->Read(TX_PACKET_WORDS, &_val);
     }
 
     return _val;
 }
 
-uint32_t GFIFOdevice::GetTxUnusedWords(bool* error) {
+uint32_t GFIFOdevice::GetTxUnusedWords(bool& error) {
     uint32_t _val{0};
-    auto     _res{false};
 
+    error = false;
     if (m_is_ready) {
-        _res = m_dev->Read(TX_UNUSED_WORDS, &_val);
-        _val = 0x00001FFF & _val;
-    }
-
-    if (error != nullptr) {
-        *error = !_res;
+        error = !m_dev->Read(TX_UNUSED_WORDS, &_val);
+        _val  = 0x00001FFF & _val;
     }
 
     return _val;
 }
 
-uint32_t GFIFOdevice::GetRxLengthLevel(bool* error) {
+uint32_t GFIFOdevice::GetRxLengthLevel(bool& error) {
     uint32_t _val{0};
-    auto     _res{false};
 
+    error = false;
     if (m_is_ready) {
-        _res = m_dev->Read(RX_LENGTH_LEVEL, &_val);
-        _val = 0x0000FFFF & _val;
-    }
-
-    if (error != nullptr) {
-        *error = !_res;
+        error = !m_dev->Read(RX_LENGTH_LEVEL, &_val);
+        _val  = 0x0000FFFF & _val;
     }
 
     return _val;
 }
 
-uint32_t GFIFOdevice::GetRxPacketWords(bool* error) {
+uint32_t GFIFOdevice::GetRxPacketWords(bool& error) {
     uint32_t _val{0};
-    auto     _res{false};
 
+    error = false;
     if (m_is_ready) {
-        _res = m_dev->Read(RX_PACKET_BYTES, &_val);
-        _val = 0x0000FFFF & ((_val + 1) / sizeof(uint16_t));
-    }
-
-    if (error != nullptr) {
-        *error = !_res;
+        error = !m_dev->Read(RX_PACKET_BYTES, &_val);
+        _val  = 0x0000FFFF & ((_val + 1) / sizeof(uint16_t));
     }
 
     return _val;
