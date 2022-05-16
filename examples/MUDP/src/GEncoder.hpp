@@ -37,10 +37,10 @@ class GEncoder {
         m_packet.head.packet_counter  = m_packet_counter++;
         m_packet.head.current_segment = 1;
 
-        if (!message_length) {
+        if (message_length == 0) {
             m_packet.head.total_segments = 1;
 
-            result = m_fifo.Push((uint8_t*)&m_packet, GPacket::PACKET_HEAD_SIZE);
+            result = m_fifo.Push((uint8_t *)&m_packet, GPacket::PACKET_HEAD_SIZE);
         }
         else {
             if (message_data != nullptr) {
@@ -52,10 +52,10 @@ class GEncoder {
 
                 auto _loop{true};
 
-                while (_loop && _num--) {
+                while (_loop && (_num-- > 0)) {
                     m_packet.head.data_length = GPacket::PACKET_DATA_SIZE;
                     memcpy(m_packet.data.bytes, message_data, GPacket::PACKET_DATA_SIZE);
-                    _loop = m_fifo.Push((uint8_t*)&m_packet, GPacket::PACKET_FULL_SIZE);
+                    _loop = m_fifo.Push((uint8_t *)&m_packet, GPacket::PACKET_FULL_SIZE);
 
                     message_data += GPacket::PACKET_DATA_SIZE;
                     m_packet.head.current_segment += 1;
@@ -64,7 +64,7 @@ class GEncoder {
                 if (_loop && _rem != 0) {
                     m_packet.head.data_length = _rem;
                     memcpy(m_packet.data.bytes, message_data, _rem);
-                    _loop = m_fifo.Push((uint8_t*)&m_packet, GPacket::PACKET_HEAD_SIZE + _rem);
+                    _loop = m_fifo.Push((uint8_t *)&m_packet, GPacket::PACKET_HEAD_SIZE + _rem);
                 }
 
                 result = _loop;
@@ -86,7 +86,7 @@ class GEncoder {
         return m_fifo.IsFull();
     }
 
-    auto Pop(uint8_t* dst_data, uint32_t dst_size) {
+    auto Pop(uint8_t *dst_data, uint32_t dst_size) {
         return m_fifo.Pop(dst_data, dst_size);
     }
 

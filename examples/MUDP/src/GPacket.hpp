@@ -64,12 +64,12 @@ namespace GPacket {
     const auto PACKET_DATA_SIZE = sizeof(TPacketData);
     const auto PACKET_FULL_SIZE = sizeof(TPacket);
 
-    bool IsValid(uint8_t* buffer, size_t bytes);
-    bool IsSingle(TPacket* packet);
-    bool IsShort(TPacket* packet);
-    bool IsFirst(TPacket* packet);
-    bool IsMiddle(TPacket* packet);
-    bool IsLast(TPacket* packet);
+    bool IsValid(uint8_t *buffer, size_t bytes);
+    bool IsSingle(TPacket *packet);
+    bool IsShort(TPacket *packet);
+    bool IsFirst(TPacket *packet);
+    bool IsMiddle(TPacket *packet);
+    bool IsLast(TPacket *packet);
 } // namespace GPacket
 
 #endif // GPACKET_HPP

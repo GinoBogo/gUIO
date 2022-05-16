@@ -16,29 +16,29 @@ class GMessage : public GBuffer {
     public:
     static const size_t MAX_MESSAGE_SIZE = 64 * 1024;
 
-    GMessage(const uint32_t max_size = GMessage::MAX_MESSAGE_SIZE);
+    GMessage(uint32_t max_size = GMessage::MAX_MESSAGE_SIZE);
 
     void Clear();
-    void Initialize(TPacket* packet);
-    bool Append(TPacket* packet);
+    void Initialize(TPacket *packet);
+    bool Append(TPacket *packet);
 
-    auto IsValid() const {
+    [[nodiscard]] auto IsValid() const {
         return m_no_error && (m_message_head.current_segment == m_message_head.total_segments);
     }
 
-    auto head() const {
+    [[nodiscard]] auto head() const {
         return &m_message_head;
     }
 
-    inline auto PacketCounter() const {
+    [[nodiscard]] auto PacketCounter() const {
         return m_packet_counter;
     }
 
-    inline auto MissedCounter() const {
+    [[nodiscard]] auto MissedCounter() const {
         return m_missed_counter;
     }
 
-    inline auto ErrorsCounter() const {
+    [[nodiscard]] auto ErrorsCounter() const {
         return m_errors_counter;
     }
 
