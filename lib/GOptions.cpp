@@ -25,7 +25,7 @@ auto split = [](const std::string& data, const std::string& regex) {
         ++next;
     }
 
-    auto filter = [](const std::string s) {
+    auto filter = [](const std::string& s) {
         return (s.size() == 0);
     };
     auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
@@ -303,7 +303,7 @@ GOptions::Sections GOptions::ToSections() {
             const auto label = join(lower, ".");
             const auto _pair = Pair(label, it->value);
 
-            auto found = std::find_if(sections.begin(), sections.end(), [title](const Section s) { return (s.title == title); });
+            auto found = std::find_if(sections.begin(), sections.end(), [title](const Section& s) { return (s.title == title); });
             if (found == sections.end()) {
                 auto _section = Section(title);
                 _section.pairs.push_back(_pair);
@@ -329,13 +329,13 @@ bool GOptions::Read(const std::string& filename) {
             std::ifstream stream(filename);
             std::string   line;
             while (std::getline(stream, line)) {
-                auto check_1{line.find("[")};
-                auto check_2{line.rfind("]")};
+                auto check_1{line.find('[')};
+                auto check_2{line.rfind(']')};
                 if (check_1 < check_2) {
                     auto tokens = split(line, "[\\[\\] \\t\\r]");
                     auto title  = tokens[0];
 
-                    auto filter = [title](const Section s) {
+                    auto filter = [title](const Section& s) {
                         return (s.title == title);
                     };
                     auto found = std::find_if(sections.begin(), sections.end(), filter);
@@ -355,8 +355,8 @@ bool GOptions::Read(const std::string& filename) {
             }
             stream.close();
 
-            for (const auto& item: sections) {
-                for (const auto& pair: item.pairs) {
+            for (const auto& item : sections) {
+                for (const auto& pair : item.pairs) {
                     bool     is_valid;
                     std::any value;
 
@@ -441,9 +441,9 @@ bool GOptions::Write(const std::string& filename) {
         auto stream   = std::ofstream(filename);
         auto sections = ToSections();
 
-        for (const auto& section: sections) {
+        for (const auto& section : sections) {
             stream << "[" << section.title << "]" << std::endl;
-            for (const auto& pair: section.pairs) {
+            for (const auto& pair : section.pairs) {
                 stream << pair.label << " = " << pair.value << std::endl;
             }
             stream << std::endl;
@@ -457,7 +457,7 @@ bool GOptions::Write(const std::string& filename) {
 
 GOptions& GOptions::operator+=(const GOptions& options) {
     if (this != &options) {
-        for (const auto& pair: options) {
+        for (const auto& pair : options) {
             this->insert_or_assign(pair.first, pair.second);
         }
     }
