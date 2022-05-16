@@ -26,18 +26,14 @@ template <typename T> class GArrayRoller {
         m_arrays = nullptr;
         if (m_length > 0 && m_number > 0) {
             m_arrays = new GArray<T>*[m_number];
-            for (auto i{0U}; i < m_number; ++i) {
-                m_arrays[i] = new GArray<T>(m_length);
-            }
+            for (auto i{0U}; i < m_number; ++i) { m_arrays[i] = new GArray<T>(m_length); }
         }
         Reset();
     }
 
     ~GArrayRoller() {
         if (m_arrays != nullptr) {
-            for (auto i{0U}; i < m_number; ++i) {
-                delete m_arrays[i];
-            }
+            for (auto i{0U}; i < m_number; ++i) { delete m_arrays[i]; }
             delete[] m_arrays;
         }
     }
@@ -95,13 +91,13 @@ template <typename T> class GArrayRoller {
                 break;
 
             case IS_READING:
-                if (++m_iR == m_number) m_iR = 0;
+                if (++m_iR == m_number) { m_iR = 0; }
                 m_count--;
                 m_status = IS_UNCLAIMED;
                 break;
 
             case IS_READING_AND_WRITING:
-                if (++m_iR == m_number) m_iR = 0;
+                if (++m_iR == m_number) { m_iR = 0; }
                 m_count--;
                 m_status = IS_WRITING;
                 break;
@@ -157,13 +153,13 @@ template <typename T> class GArrayRoller {
                 break;
 
             case IS_WRITING:
-                if (++m_iW == m_number) m_iW = 0;
+                if (++m_iW == m_number) { m_iW = 0; }
                 m_count++;
                 m_status = IS_UNCLAIMED;
                 break;
 
             case IS_READING_AND_WRITING:
-                if (++m_iW == m_number) m_iW = 0;
+                if (++m_iW == m_number) { m_iW = 0; }
                 m_count++;
                 m_status = IS_READING;
                 break;

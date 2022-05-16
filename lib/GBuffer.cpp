@@ -32,9 +32,7 @@ GBuffer::GBuffer(const GBuffer& buffer) : m_is_ready{false} {
 }
 
 GBuffer::~GBuffer() {
-    if (!m_is_wrapper && m_is_ready) {
-        delete[] p_data;
-    }
+    if (!m_is_wrapper && m_is_ready) { delete[] p_data; }
     m_is_ready = false;
 }
 
@@ -57,7 +55,7 @@ GBuffer& GBuffer::operator=(const GBuffer& buffer) {
 
 bool GBuffer::Wrap(uint8_t* buf_data, const uint32_t buf_size) {
     if (m_is_wrapper && !m_is_ready) {
-        if (buf_data && buf_size) {
+        if ((buf_data != nullptr) && (buf_size > 0)) {
             m_size     = buf_size;
             p_data     = buf_data;
             m_is_ready = true;
@@ -69,9 +67,7 @@ bool GBuffer::Wrap(uint8_t* buf_data, const uint32_t buf_size) {
 }
 
 bool GBuffer::Append(const uint8_t* src_data, const uint32_t src_count) {
-    if (!m_is_ready || !src_data || !src_count || free() < src_count) {
-        return false;
-    }
+    if (!m_is_ready || (src_data == nullptr) || (src_count == 0) || free() < src_count) { return false; }
 
     memcpy(p_next, src_data, src_count);
 
@@ -82,7 +78,7 @@ bool GBuffer::Append(const uint8_t* src_data, const uint32_t src_count) {
 }
 
 void GBuffer::SetCount(const uint32_t value) {
-    if (!m_is_ready) return;
+    if (!m_is_ready) { return; }
 
     if (value >= m_size) {
         m_count = m_size;
@@ -95,7 +91,7 @@ void GBuffer::SetCount(const uint32_t value) {
 }
 
 void GBuffer::Increase(const uint32_t delta) {
-    if (!m_is_ready) return;
+    if (!m_is_ready) { return; }
 
     if (delta >= free()) {
         m_count = m_size;

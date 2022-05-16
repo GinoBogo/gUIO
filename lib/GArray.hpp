@@ -28,7 +28,7 @@ template <typename T> class GArray {
             m_size = array.m_size;
             m_used = array.m_used;
 
-            for (decltype(m_used) i{0}; i < m_used; ++i) m_data[i] = array.m_data[i];
+            for (decltype(m_used) i{0}; i < m_used; ++i) { m_data[i] = array.m_data[i]; }
         }
     }
 
@@ -44,7 +44,7 @@ template <typename T> class GArray {
             m_size = array.m_size;
             m_used = array.m_used;
 
-            for (decltype(m_used) i{0}; i < m_used; ++i) m_data[i] = array.m_data[i];
+            for (decltype(m_used) i{0}; i < m_used; ++i) { m_data[i] = array.m_data[i]; }
         }
         return *this;
     }
@@ -63,7 +63,7 @@ template <typename T> class GArray {
 
     auto used(const size_t value) {
         auto _res{value <= m_size};
-        if (_res) m_used = value;
+        if (_res) { m_used = value; }
         return _res;
     }
 
@@ -73,7 +73,7 @@ template <typename T> class GArray {
 
     auto free(const size_t value) {
         auto _res{value <= m_size};
-        if (_res) m_used = m_size - value;
+        if (_res) { m_used = m_size - value; }
         return _res;
     }
 

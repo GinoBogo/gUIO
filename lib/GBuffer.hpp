@@ -14,7 +14,7 @@
 
 class GBuffer {
     public:
-    GBuffer(const uint32_t max_size = 0);
+    GBuffer(uint32_t max_size = 0);
 
     GBuffer(const GBuffer& buffer);
 
@@ -22,13 +22,13 @@ class GBuffer {
 
     GBuffer& operator=(const GBuffer& buffer);
 
-    bool Wrap(uint8_t* buf_data, const uint32_t buf_size);
+    bool Wrap(uint8_t* buf_data, uint32_t buf_size);
 
-    bool Append(const uint8_t* src_data, const uint32_t src_count);
+    bool Append(const uint8_t* src_data, uint32_t src_count);
 
-    void SetCount(const uint32_t value);
+    void SetCount(uint32_t value);
 
-    void Increase(const uint32_t delta);
+    void Increase(uint32_t delta);
 
     inline void Reset() {
         m_count = 0;
@@ -42,14 +42,14 @@ class GBuffer {
     }
 
     inline void SmartClear() {
-        if (m_count) {
+        if (m_count > 0) {
             memset(p_data, 0, m_count);
             m_count = 0;
             p_next  = p_data;
         }
     }
 
-    inline auto IsReady() {
+    inline auto IsReady() const {
         return m_is_ready;
     }
 
@@ -58,11 +58,11 @@ class GBuffer {
     }
 
     inline auto IsEmpty() const {
-        return !m_count;
+        return (m_count == 0);
     }
 
     inline auto IsFull() const {
-        return !(m_size - m_count);
+        return ((m_size - m_count) == 0);
     }
 
     inline auto size() const {
