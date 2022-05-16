@@ -93,7 +93,7 @@ namespace GString {
             ++next;
         }
 
-        auto filter = [](const std::string s) {
+        auto filter = [](const std::string& s) {
             return (s.size() == 0);
         };
         auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
