@@ -55,13 +55,12 @@ template <typename T> class GArrayRoller {
     auto Reading_Start(bool& error) {
         std::lock_guard<std::mutex> _lock(m_mutex);
 
-        error = m_count == 0;
+        error = (m_count == 0);
 
         if (!error) {
             switch (m_status) {
                 case IS_UNCLAIMED:
                     m_status = IS_READING;
-                    m_count--;
                     break;
 
                 case IS_READING:
@@ -71,7 +70,6 @@ template <typename T> class GArrayRoller {
 
                 case IS_WRITING:
                     m_status = IS_READING_AND_WRITING;
-                    m_count--;
                     break;
 
                 default:
@@ -98,11 +96,13 @@ template <typename T> class GArrayRoller {
 
             case IS_READING:
                 if (++m_iR == m_number) m_iR = 0;
+                m_count--;
                 m_status = IS_UNCLAIMED;
                 break;
 
             case IS_READING_AND_WRITING:
                 if (++m_iR == m_number) m_iR = 0;
+                m_count--;
                 m_status = IS_WRITING;
                 break;
 
@@ -117,13 +117,12 @@ template <typename T> class GArrayRoller {
     auto Writing_Start(bool& error) {
         std::lock_guard<std::mutex> _lock(m_mutex);
 
-        error = m_count < m_number;
+        error = !(m_count < m_number);
 
         if (!error) {
             switch (m_status) {
                 case IS_UNCLAIMED:
                     m_status = IS_WRITING;
-                    m_count++;
                     break;
 
                 case IS_WRITING:
@@ -133,7 +132,6 @@ template <typename T> class GArrayRoller {
 
                 case IS_READING:
                     m_status = IS_READING_AND_WRITING;
-                    m_count++;
                     break;
 
                 default:
@@ -160,11 +158,13 @@ template <typename T> class GArrayRoller {
 
             case IS_WRITING:
                 if (++m_iW == m_number) m_iW = 0;
+                m_count++;
                 m_status = IS_UNCLAIMED;
                 break;
 
             case IS_READING_AND_WRITING:
                 if (++m_iW == m_number) m_iW = 0;
+                m_count++;
                 m_status = IS_READING;
                 break;
 
