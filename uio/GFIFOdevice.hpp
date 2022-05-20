@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GFIFOdevice.hpp
 /// \version   0.1
@@ -27,7 +28,10 @@ class GFIFOdevice {
     };
 
     GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_map);
+    GFIFOdevice(const GFIFOdevice& fifo_device);
     ~GFIFOdevice();
+
+    GFIFOdevice& operator=(const GFIFOdevice& fifo_device);
 
     bool Open();
     void Close();
@@ -67,7 +71,7 @@ class GFIFOdevice {
     bool ClearEvent() {
         if (m_is_ready) {
             auto _val{GPIO_getIpInterruptStatus(m_uio_regs)};
-            if (_val & BIT_GPIO_IP_ISR_1) {
+            if ((_val & BIT_GPIO_IP_ISR_1) != 0) {
                 GPIO_setIpInterruptStatus(m_uio_regs, BIT_GPIO_IP_ISR_1);
             }
             return m_uio->IRQ_Clear();
@@ -86,7 +90,7 @@ class GFIFOdevice {
         if (m_is_ready) {
             if (m_uio->IRQ_Wait(timeout)) {
                 auto _val{GPIO_getIpInterruptStatus(m_uio_regs)};
-                if (_val & BIT_GPIO_IP_ISR_1) {
+                if ((_val & BIT_GPIO_IP_ISR_1) != 0) {
                     GPIO_setIpInterruptStatus(m_uio_regs, BIT_GPIO_IP_ISR_1);
                 }
                 return m_uio->IRQ_Clear();

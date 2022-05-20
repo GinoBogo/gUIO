@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GLogger.hpp
 /// \version   0.1
@@ -21,8 +22,6 @@ namespace GLogger {
 
     enum Type { debug, error, fatal, info, trace, warning };
 
-    enum Alignment { left, center, right };
-
     void Initialize(const char* file_path);
 
     void Write(Type type, const char* file, size_t line, const char* message);
@@ -33,7 +32,6 @@ namespace GLogger {
         Write(type, file, line, msg);
     }
 
-    char* AlignText(Alignment mode, const char* src, char* dst, size_t span, char filler = ' ');
     char* AlignToLeft(const char* src, char* dst, size_t span, char filler = ' ');
     char* AlignToCenter(const char* src, char* dst, size_t span, char filler = ' ');
     char* AlignToRight(const char* src, char* dst, size_t span, char filler = ' ');

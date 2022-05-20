@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GMAPdevice.cpp
 /// \version   0.1
@@ -10,10 +11,10 @@
 
 #include "GLogger.hpp"
 
-#include <errno.h>    // errno
+#include <cerrno>     // errno
+#include <cstdio>     // snprintf
+#include <cstring>    // memset
 #include <fcntl.h>    // open
-#include <stdio.h>    // snprintf
-#include <string.h>   // memset
 #include <sys/mman.h> // mmap, munmap
 #include <unistd.h>   // close, read, write
 
@@ -36,7 +37,7 @@ GMAPdevice::GMAPdevice(size_t addr, size_t size) {
     map_device_reset(&m_dev, true);
     m_dev.addr = addr;
     m_dev.size = size;
-    if (!size) {
+    if (size == 0) {
         LOG_FORMAT(error, "Wrong block size for the 0x%08x base address", addr);
     }
 }
@@ -60,7 +61,7 @@ void GMAPdevice::Close() {
     }
 
     if (m_dev.mmap_addr != MAP_FAILED) {
-        if (munmap(m_dev.mmap_addr, m_dev.size) == -1) {
+        if (munmap(m_dev.mmap_addr, m_dev.size) == -1) { //
             LOG_FORMAT(error, "Cannot unmap the 0x%08x address from user space [E%d]", m_dev.addr, errno);
         }
     }
@@ -69,7 +70,7 @@ void GMAPdevice::Close() {
 }
 
 bool GMAPdevice::MapToMemory() {
-    const size_t page_size   = (size_t)sysconf(_SC_PAGESIZE);
+    const auto   page_size   = (size_t)sysconf(_SC_PAGESIZE);
     const size_t page_mask   = page_size - 1;
     const size_t mmap_offset = m_dev.addr & ~page_mask;
     const size_t virt_offset = m_dev.addr & page_mask;

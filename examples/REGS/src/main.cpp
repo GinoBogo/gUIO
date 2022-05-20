@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      main.cpp
 /// \version   0.1
@@ -85,9 +86,7 @@ int main(int argc, char* argv[]) {
             ps2pl_regs.Close();
         }
     }
-    else {
-        LOG_WRITE(error, "Command line argument is empty");
-    }
+    else { LOG_WRITE(error, "Command line argument is empty"); }
 
     LOG_WRITE(trace, "Process STOPPED");
     return _exit_code;

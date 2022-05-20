@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GString.hpp
 /// \version   0.1
@@ -30,7 +31,7 @@ namespace GString {
             _base = 2;
         }
 
-        return static_cast<uint8_t>(std::strtoul(_str.c_str(), 0, _base));
+        return static_cast<uint8_t>(std::strtoul(_str.c_str(), nullptr, _base));
     }
 
     auto strtous(std::string& _str) {
@@ -46,7 +47,7 @@ namespace GString {
             _base = 2;
         }
 
-        return static_cast<uint16_t>(std::strtoul(_str.c_str(), 0, _base));
+        return static_cast<uint16_t>(std::strtoul(_str.c_str(), nullptr, _base));
     }
 
     auto strtoui(std::string& _str) {
@@ -62,7 +63,7 @@ namespace GString {
             _base = 2;
         }
 
-        return static_cast<uint32_t>(std::strtoul(_str.c_str(), 0, _base));
+        return static_cast<uint32_t>(std::strtoul(_str.c_str(), nullptr, _base));
     }
 
     auto strtoul(std::string& _str) {
@@ -78,7 +79,7 @@ namespace GString {
             _base = 2;
         }
 
-        return std::strtoul(_str.c_str(), 0, _base);
+        return std::strtoul(_str.c_str(), nullptr, _base);
     }
 
     auto split(const std::string& _str, const std::string& regex) {
@@ -94,7 +95,7 @@ namespace GString {
         }
 
         auto filter = [](const std::string& s) {
-            return (s.size() == 0);
+            return s.empty();
         };
         auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
         tokens.erase(junks, tokens.end());

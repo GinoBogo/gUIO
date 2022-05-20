@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GAXIQuadSPI.hpp
 /// \version   0.1
@@ -18,7 +19,7 @@ class GAXIQuadSPI : public GMAPdevice {
     GAXIQuadSPI(size_t addr, size_t size);
     ~GAXIQuadSPI();
 
-    auto is_valid() {
+    [[nodiscard]] auto is_valid() const {
         return m_is_valid;
     }
 
@@ -26,7 +27,7 @@ class GAXIQuadSPI : public GMAPdevice {
     void     Initialize(bool clock_phase, bool clock_polarity, bool loopback_mode = false);
     void     Start();
     void     Stop();
-    uint32_t WriteThenRead(uint8_t* tx_buf, uint32_t tx_buf_len, uint8_t* rx_buf, uint32_t rx_buf_len);
+    uint32_t WriteThenRead(const uint8_t* tx_buf, uint32_t tx_buf_len, uint8_t* rx_buf, uint32_t rx_buf_len);
 
     private:
     void update_ctrl_reg(const char* func);

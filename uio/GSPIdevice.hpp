@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GSPIdevice.hpp
 /// \version   0.1
@@ -39,10 +40,10 @@ class GSPIdevice {
     void Close();
     void PrintSettings();
 
-    bool Transfer(const void* tx_buf, void* rx_buf, uint32_t buf_len);
-    bool Read(void* rx_buf, uint32_t rx_buf_len);
-    bool Write(void* tx_buf, uint32_t tx_buf_len);
-    bool WriteThenRead(const void* tx_buf, uint32_t tx_buf_len, void* rx_buf, uint32_t rx_buf_len);
+    bool Transfer(const void* tx_buf, void* rx_buf, uint32_t buf_len) const;
+    bool Read(void* rx_buf, uint32_t rx_buf_len) const;
+    bool Write(void* tx_buf, uint32_t tx_buf_len) const;
+    bool WriteThenRead(const void* tx_buf, uint32_t tx_buf_len, void* rx_buf, uint32_t rx_buf_len) const;
 
     private:
     spi_device_t m_dev;

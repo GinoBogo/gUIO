@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GLogger.cpp
 /// \version   0.1
@@ -17,7 +18,7 @@
 
 constexpr const char* file_name(const char* path) {
     const char* _file = path;
-    while (*path) {
+    while (*path != 0) {
         if (*path++ == '/') {
             _file = path;
         }
@@ -27,16 +28,18 @@ constexpr const char* file_name(const char* path) {
 
 constexpr const char* last_dot(const char* path) {
     const char* _last = nullptr;
-    while (*path) {
+    while (*path != 0) {
         if (*path == '.') {
             _last = path;
         }
         ++path;
     }
-    return _last ? _last : path;
+    return _last != nullptr ? _last : path;
 }
 
 namespace GLogger {
+
+    enum Alignment { left, center, right };
 
     static bool is_open{false};
 
@@ -49,14 +52,14 @@ namespace GLogger {
         timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
 
-        auto tm{std::localtime(&ts.tv_sec)};
-        auto _Y{tm->tm_year + 1900};
-        auto _M{tm->tm_mon + 1};
-        auto _D{tm->tm_mday};
-        auto _h{tm->tm_hour};
-        auto _m{tm->tm_min};
-        auto _s{tm->tm_sec};
-        auto _u{static_cast<int>(ts.tv_nsec / 1000)};
+        auto* tm{std::localtime(&ts.tv_sec)};
+        auto  _Y{tm->tm_year + 1900};
+        auto  _M{tm->tm_mon + 1};
+        auto  _D{tm->tm_mday};
+        auto  _h{tm->tm_hour};
+        auto  _m{tm->tm_min};
+        auto  _s{tm->tm_sec};
+        auto  _u{static_cast<int>(ts.tv_nsec / 1000)};
 
         snprintf(dst_buffer, dst_buffer_size, "%04d-%02d-%02d %02d:%02d:%02d.%06d", _Y, _M, _D, _h, _m, _s, _u);
     }
@@ -78,14 +81,14 @@ namespace GLogger {
 
         GetDateTime(_text, sizeof(_text));
 
-        auto _flag{flags[type]};
-        auto _name{file_name(file)};
+        const auto* _flag{flags[type]};
+        const auto* _name{file_name(file)};
 
-        snprintf(_text + 26, sizeof(_text) - 26, " | %8s | %24s (%04ld) | %s", _flag, _name, line, message);
+        snprintf(_text + 26, sizeof(_text) - 26, " | %8s | %24s (%04lu) | %s", _flag, _name, line, message);
 
         if (!is_open) {
-            auto name_len = strnlen(_name, 256) + 5;
-            auto name_log = new char[name_len];
+            auto  name_len = strnlen(_name, 256) + 5;
+            auto* name_log = new char[name_len];
             strncpy(name_log, _name, name_len);
             strncpy((char*)last_dot(name_log), ".log", name_len);
 
@@ -104,7 +107,7 @@ namespace GLogger {
     }
 
     // WARNING: unsafe function
-    char* AlignText(Alignment mode, const char* src, char* dst, size_t span, char filler) {
+    char* align_text(Alignment mode, const char* src, char* dst, size_t span, char filler) {
         if (src == nullptr || dst == nullptr) {
             return nullptr;
         }
@@ -135,14 +138,14 @@ namespace GLogger {
     }
 
     char* AlignToLeft(const char* src, char* dst, size_t span, char filler) {
-        return AlignText(left, src, dst, span, filler);
+        return align_text(left, src, dst, span, filler);
     }
 
     char* AlignToCenter(const char* src, char* dst, size_t span, char filler) {
-        return AlignText(center, src, dst, span, filler);
+        return align_text(center, src, dst, span, filler);
     }
 
     char* AlignToRight(const char* src, char* dst, size_t span, char filler) {
-        return AlignText(right, src, dst, span, filler);
+        return align_text(right, src, dst, span, filler);
     }
 } // namespace GLogger

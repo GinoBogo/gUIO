@@ -24,7 +24,7 @@
 // STD libraries
 #include "definitions.hpp" // SYS function prototypes
 
-#include <inttypes.h>
+#include <cinttypes>
 
 // project libraries
 #include "GLogger.hpp"
@@ -586,9 +586,7 @@ bool SDR_Configure(uint8_t module) {
             LOG_FORMAT(info, "ENSM in FDD state 0x%02X (%s)", ENSM_state, __func__);
             return true;
         }
-        else {
-            LOG_FORMAT(error, "ENSM in FDD state 0x%02X, expected 0x%02X (%s)", ENSM_state, ENSM_STATE_FDD, __func__);
-        }
+        LOG_FORMAT(error, "ENSM in FDD state 0x%02X, expected 0x%02X (%s)", ENSM_state, ENSM_STATE_FDD, __func__);
     }
     return false;
 }
@@ -762,7 +760,7 @@ void SDR_TX_Atten_Test(uint8_t module) {
     // TX attenuation [mdB]
     uint32_t tx_attenuation = 45000;
 
-    while (1) {
+    while (true) {
         // set TX attenuation - channel 1
         ad9361_set_tx_attenuation(&ad9361_phy[module], 0, tx_attenuation);
         // update TX attenuation

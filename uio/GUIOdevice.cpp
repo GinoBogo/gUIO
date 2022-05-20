@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GUIOdevice.cpp
 /// \version   0.1
@@ -10,12 +11,12 @@
 
 #include "GLogger.hpp"
 
-#include <errno.h>    // errno
+#include <cerrno>     // errno
+#include <cstdio>     // snprintf
+#include <cstdlib>    // strtoul
+#include <cstring>    // strncpy
 #include <fcntl.h>    // open, ioctl
 #include <poll.h>     // poll
-#include <stdio.h>    // snprintf
-#include <stdlib.h>   // strtoul
-#include <string.h>   // strncpy
 #include <strings.h>  // memset
 #include <sys/mman.h> // mmap, munmap
 #include <unistd.h>   // close, read, write
@@ -104,21 +105,23 @@ bool GUIOdevice::IRQ_Wait(int timeout) {
     return false;
 }
 
-bool GUIOdevice::IRQ_Clear() {
+bool GUIOdevice::IRQ_Clear() const {
     int32_t _val{0x00000001};
 
     auto _ret{write(m_dev.fd, &_val, sizeof(_val))};
     return _ret != -1;
 }
 
-size_t GUIOdevice::GetMapAttribute(const char* attr_name, bool* error, char* dst_buff) {
+size_t GUIOdevice::GetMapAttribute(const char* attr_name, bool* error, char* dst_buff) const {
     char _buf[64];
     snprintf(_buf, sizeof(_buf), "/sys/class/uio/uio%d/maps/map%d/%s", m_dev.uio_num, m_dev.map_num, attr_name);
 
     int _fd{open(_buf, O_RDONLY)};
     if (_fd < 0) {
         LOG_FORMAT(error, "Cannot open the \"uio%d/map%d/%s\" attribute [E%d]", m_dev.uio_num, m_dev.map_num, attr_name, errno);
-        if (error != nullptr) *error = true;
+        if (error != nullptr) {
+            *error = true;
+        }
         return 0;
     }
 
@@ -127,29 +130,33 @@ size_t GUIOdevice::GetMapAttribute(const char* attr_name, bool* error, char* dst
 
     if (bytes < 0) {
         LOG_FORMAT(error, "Cannot read the \"uio%d/map%d/%s\" attribute [E%d]", m_dev.uio_num, m_dev.map_num, attr_name, errno);
-        if (error != nullptr) *error = true;
+        if (error != nullptr) {
+            *error = true;
+        }
         return 0;
     }
 
     if (bytes > 0) {
         _buf[bytes - 1] = 0;
         if (dst_buff == nullptr) {
-            auto _val{strtoul(_buf, NULL, 16)};
-            if (error != nullptr) *error = false;
+            auto _val{strtoul(_buf, nullptr, 16)};
+            if (error != nullptr) {
+                *error = false;
+            }
             return _val;
         }
-        else {
-            strncpy(dst_buff, _buf, (size_t)bytes - 1);
-            return 0;
-        }
+        strncpy(dst_buff, _buf, (size_t)bytes - 1);
+        return 0;
     }
 
     LOG_FORMAT(warning, "The \"uio%d/map%d/%s\" attribute is empty", m_dev.uio_num, m_dev.map_num, attr_name);
-    if (error != nullptr) *error = true;
+    if (error != nullptr) {
+        *error = true;
+    }
     return 0;
 }
 
-void GUIOdevice::PrintMapAttributes() {
+void GUIOdevice::PrintMapAttributes() const {
     char _file[32];
     snprintf(_file, sizeof(_file), "uio%d/maps/map%d", uio_num(), map_num());
 

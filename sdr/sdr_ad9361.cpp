@@ -22,13 +22,13 @@
 // *****************************************************************************
 
 // STD libraries
+#include <cinttypes>
+#include <climits>
 #include <cmath>
+#include <cstdint>
+#include <cstdio>
 #include <cstdlib>
-#include <inttypes.h>
-#include <limits.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstring>
 
 // project libraries
 #include "GLogger.hpp"

@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      main.cpp
 /// \version   0.1
@@ -93,7 +94,8 @@ static void load_options(const char* filename) {
 }
 
 static void send_signal_start_flow(GFiFo* fifo, GUdpClient* client) {
-    GFiFo::fsm_state_t new_state, old_state;
+    GFiFo::fsm_state_t new_state;
+    GFiFo::fsm_state_t old_state;
 
     if (fifo->IsStateChanged(&new_state, &old_state)) {
         if (new_state == GFiFo::MIN_LEVEL_PASSED) {
@@ -110,7 +112,8 @@ static void send_signal_start_flow(GFiFo* fifo, GUdpClient* client) {
 }
 
 static void send_signal_stop_flow(GFiFo* fifo, GUdpClient* client) {
-    GFiFo::fsm_state_t new_state, old_state;
+    GFiFo::fsm_state_t new_state;
+    GFiFo::fsm_state_t old_state;
 
     if (fifo->IsStateChanged(&new_state, &old_state)) {
         if (new_state == GFiFo::MAX_LEVEL_PASSED) {
@@ -160,9 +163,7 @@ static void f_gm_mc_server(bool& quit, GUdpServer& server, GUdpClient& client) {
             _total--;
             _guard.unlock();
 
-            if (_new_data) {
-                decoder.Process();
-            }
+            if (_new_data) { decoder.Process(); }
         }
         server.Stop();
     });
@@ -185,9 +186,7 @@ static void f_gm_mc_server(bool& quit, GUdpServer& server, GUdpClient& client) {
                     _event.notify_one();
                 }
             }
-            else {
-                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
-            }
+            else { LOG_FORMAT(error, "Wrong packet format (%s)", __func__); }
         }
     }
     _total = 1;
@@ -225,9 +224,7 @@ static void f_gm_dh_server(const bool& quit, GUdpServer& server, GUdpClient& cli
             _total--;
             _guard.unlock();
 
-            if (_new_data) {
-                decoder.Process();
-            }
+            if (_new_data) { decoder.Process(); }
         }
     });
 
@@ -249,9 +246,7 @@ static void f_gm_dh_server(const bool& quit, GUdpServer& server, GUdpClient& cli
                     _event.notify_one();
                 }
             }
-            else {
-                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
-            }
+            else { LOG_FORMAT(error, "Wrong packet format (%s)", __func__); }
         }
     }
     _total = 1;
@@ -289,9 +284,7 @@ static void f_hssl1_server(const bool& quit, GUdpServer& server, GUdpClient& cli
             _total--;
             _guard.unlock();
 
-            if (_new_data) {
-                decoder.Process();
-            }
+            if (_new_data) { decoder.Process(); }
         }
     });
 
@@ -313,9 +306,7 @@ static void f_hssl1_server(const bool& quit, GUdpServer& server, GUdpClient& cli
                     _event.notify_one();
                 }
             }
-            else {
-                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
-            }
+            else { LOG_FORMAT(error, "Wrong packet format (%s)", __func__); }
         }
     }
     _total = 1;
@@ -353,9 +344,7 @@ static void f_hssl2_server(const bool& quit, GUdpServer& server, GUdpClient& cli
             _total--;
             _guard.unlock();
 
-            if (_new_data) {
-                decoder.Process();
-            }
+            if (_new_data) { decoder.Process(); }
         }
     });
 
@@ -377,9 +366,7 @@ static void f_hssl2_server(const bool& quit, GUdpServer& server, GUdpClient& cli
                     _event.notify_one();
                 }
             }
-            else {
-                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
-            }
+            else { LOG_FORMAT(error, "Wrong packet format (%s)", __func__); }
         }
     }
     _total = 1;

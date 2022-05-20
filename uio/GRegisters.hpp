@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GRegisters.hpp
 /// \version   0.1
@@ -49,9 +50,11 @@ template <typename T> auto not_bit(uint8_t pos) {
     return ~set_bit<T>(pos);
 }
 
-template <typename T> auto set_mask(std::vector<uint8_t>& pos_list) {
+template <typename T> auto set_mask(std::vector<uint8_t> pos_list) {
     T _res{0};
-    for (auto pos : pos_list) _res |= set_bit<T>(pos);
+    for (auto pos : pos_list) {
+        _res |= set_bit<T>(pos);
+    }
     return _res;
 }
 

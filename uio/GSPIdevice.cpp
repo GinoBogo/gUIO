@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GSPIdevice.cpp
 /// \version   0.1
@@ -10,9 +11,9 @@
 
 #include "GLogger.hpp"
 
-#include <errno.h>     // errno
+#include <cerrno>      // errno
+#include <cstring>     // memset, strncpy
 #include <fcntl.h>     // open
-#include <string.h>    // memset, strncpy
 #include <sys/ioctl.h> // ioctl
 #include <unistd.h>    // close
 
@@ -104,8 +105,10 @@ void GSPIdevice::Close() {
 }
 
 void GSPIdevice::PrintSettings() {
-    __u8  lsb_first = 0, bits_per_word = 0;
-    __u32 mode = 0, max_speed_hz = 0;
+    __u8  lsb_first     = 0;
+    __u8  bits_per_word = 0;
+    __u32 mode          = 0;
+    __u32 max_speed_hz  = 0;
 
     if (ioctl(m_dev.fd, SPI_IOC_RD_MODE32, &mode) == -1) {
         LOG_FORMAT(error, "SPI MODE32 reading failure [E%d]", errno);
@@ -139,7 +142,7 @@ void GSPIdevice::PrintSettings() {
     LOG_FORMAT(info, "  MAX_SPEED_HZ  | %d", max_speed_hz);
 }
 
-bool GSPIdevice::Transfer(const void* tx_buf, void* rx_buf, uint32_t buf_len) {
+bool GSPIdevice::Transfer(const void* tx_buf, void* rx_buf, uint32_t buf_len) const {
     struct spi_ioc_transfer _msg;
     memset(&_msg, 0, sizeof(_msg));
 
@@ -156,7 +159,7 @@ bool GSPIdevice::Transfer(const void* tx_buf, void* rx_buf, uint32_t buf_len) {
     return true;
 }
 
-bool GSPIdevice::Read(void* rx_buf, uint32_t rx_buf_len) {
+bool GSPIdevice::Read(void* rx_buf, uint32_t rx_buf_len) const {
     struct spi_ioc_transfer _msg;
     memset(&_msg, 0, sizeof(_msg));
 
@@ -171,7 +174,7 @@ bool GSPIdevice::Read(void* rx_buf, uint32_t rx_buf_len) {
     return true;
 }
 
-bool GSPIdevice::Write(void* tx_buf, uint32_t tx_buf_len) {
+bool GSPIdevice::Write(void* tx_buf, uint32_t tx_buf_len) const {
     struct spi_ioc_transfer _msg;
     memset(&_msg, 0, sizeof(_msg));
 
@@ -186,7 +189,7 @@ bool GSPIdevice::Write(void* tx_buf, uint32_t tx_buf_len) {
     return true;
 }
 
-bool GSPIdevice::WriteThenRead(const void* tx_buf, uint32_t tx_buf_len, void* rx_buf, uint32_t rx_buf_len) {
+bool GSPIdevice::WriteThenRead(const void* tx_buf, uint32_t tx_buf_len, void* rx_buf, uint32_t rx_buf_len) const {
     struct spi_ioc_transfer _msg[2];
     memset(_msg, 0, sizeof(_msg));
 

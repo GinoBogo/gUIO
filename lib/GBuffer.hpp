@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GBuffer.hpp
 /// \version   0.1
@@ -14,7 +15,7 @@
 
 class GBuffer {
     public:
-    GBuffer(uint32_t max_size = 0);
+    GBuffer(uint32_t size = 0);
 
     GBuffer(const GBuffer& buffer);
 
@@ -30,18 +31,18 @@ class GBuffer {
 
     void Increase(uint32_t delta);
 
-    inline void Reset() {
+    auto Reset() {
         m_count = 0;
         p_next  = p_data;
     }
 
-    inline void Clear() {
+    auto Clear() {
         memset(p_data, 0, m_size);
         m_count = 0;
         p_next  = p_data;
     }
 
-    inline void SmartClear() {
+    auto SmartClear() {
         if (m_count > 0) {
             memset(p_data, 0, m_count);
             m_count = 0;
@@ -49,44 +50,52 @@ class GBuffer {
         }
     }
 
-    inline auto IsReady() const {
+    [[nodiscard]] auto IsReady() const {
         return m_is_ready;
     }
 
-    inline auto IsWrapper() const {
+    [[nodiscard]] auto IsWrapper() const {
         return m_is_wrapper;
     }
 
-    inline auto IsEmpty() const {
+    [[nodiscard]] auto IsEmpty() const {
         return (m_count == 0);
     }
 
-    inline auto IsFull() const {
+    [[nodiscard]] auto IsFull() const {
         return ((m_size - m_count) == 0);
     }
 
-    inline auto size() const {
+    [[nodiscard]] auto size() const {
         return m_size;
     }
 
-    inline auto count() const {
+    [[nodiscard]] auto count() const {
         return m_count;
     }
 
-    inline auto free() const {
+    [[nodiscard]] auto free() const {
         return m_size - m_count;
     }
 
-    inline auto data() const {
+    [[nodiscard]] auto data() const {
         return p_data;
     }
 
-    inline auto next() const {
+    [[nodiscard]] auto next() const {
         return p_next;
     }
 
     private:
-    bool     m_is_ready;
+    void release_resources() {
+        if (!m_is_wrapper && m_is_ready) {
+            delete[] p_data;
+            p_data = nullptr;
+        }
+        m_is_ready = false;
+    }
+
+    bool     m_is_ready{false};
     bool     m_is_wrapper;
     uint32_t m_size;
     uint32_t m_count;

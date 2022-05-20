@@ -78,30 +78,30 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->clk_refin.rate = init_param->reference_clk_rate;
 
     // base configuration
-    phy->pdata.fdd                        = init_param->frequency_division_duplex_mode_enable;
-    phy->pdata.fdd_independent_mode       = init_param->frequency_division_duplex_independent_mode_enable;
-    phy->pdata.rx2tx2                     = init_param->two_rx_two_tx_mode_enable;
-    phy->pdata.tdd_use_dual_synth         = init_param->tdd_use_dual_synth_mode_enable;
-    phy->pdata.tdd_skip_vco_cal           = init_param->tdd_skip_vco_cal_enable;
+    phy->pdata.fdd                        = init_param->frequency_division_duplex_mode_enable != 0;
+    phy->pdata.fdd_independent_mode       = init_param->frequency_division_duplex_independent_mode_enable != 0;
+    phy->pdata.rx2tx2                     = init_param->two_rx_two_tx_mode_enable != 0;
+    phy->pdata.tdd_use_dual_synth         = init_param->tdd_use_dual_synth_mode_enable != 0;
+    phy->pdata.tdd_skip_vco_cal           = init_param->tdd_skip_vco_cal_enable != 0;
     phy->pdata.rx_fastlock_delay_ns       = init_param->rx_fastlock_delay_ns;
     phy->pdata.tx_fastlock_delay_ns       = init_param->tx_fastlock_delay_ns;
-    phy->pdata.trx_fastlock_pinctrl_en[0] = init_param->rx_fastlock_pincontrol_enable;
-    phy->pdata.trx_fastlock_pinctrl_en[1] = init_param->tx_fastlock_pincontrol_enable;
-    phy->pdata.use_ext_rx_lo              = init_param->external_rx_lo_enable;
-    phy->pdata.use_ext_tx_lo              = init_param->external_tx_lo_enable;
+    phy->pdata.trx_fastlock_pinctrl_en[0] = init_param->rx_fastlock_pincontrol_enable != 0;
+    phy->pdata.trx_fastlock_pinctrl_en[1] = init_param->tx_fastlock_pincontrol_enable != 0;
+    phy->pdata.use_ext_rx_lo              = init_param->external_rx_lo_enable != 0;
+    phy->pdata.use_ext_tx_lo              = init_param->external_tx_lo_enable != 0;
     phy->pdata.dc_offset_update_events    = init_param->dc_offset_tracking_update_event_mask;
     phy->pdata.dc_offset_attenuation_high = init_param->dc_offset_attenuation_high_range;
     phy->pdata.dc_offset_attenuation_low  = init_param->dc_offset_attenuation_low_range;
     phy->pdata.rf_dc_offset_count_high    = init_param->dc_offset_count_high_range;
     phy->pdata.rf_dc_offset_count_low     = init_param->dc_offset_count_low_range;
-    phy->pdata.tdd_use_fdd_tables         = init_param->tdd_use_fdd_vco_tables_enable;
-    phy->pdata.split_gt                   = init_param->split_gain_table_mode_enable;
+    phy->pdata.tdd_use_fdd_tables         = init_param->tdd_use_fdd_vco_tables_enable != 0;
+    phy->pdata.split_gt                   = init_param->split_gain_table_mode_enable != 0;
     phy->pdata.trx_synth_max_fref         = init_param->trx_synthesizer_target_fref_overwrite_hz;
-    phy->pdata.qec_tracking_slow_mode_en  = init_param->qec_tracking_slow_mode_enable;
+    phy->pdata.qec_tracking_slow_mode_en  = init_param->qec_tracking_slow_mode_enable != 0;
 
     // ENSM control
-    phy->pdata.ensm_pin_pulse_mode = init_param->ensm_enable_pin_pulse_mode_enable;
-    phy->pdata.ensm_pin_ctrl       = init_param->ensm_enable_txnrx_control_enable;
+    phy->pdata.ensm_pin_pulse_mode = init_param->ensm_enable_pin_pulse_mode_enable != 0;
+    phy->pdata.ensm_pin_ctrl       = init_param->ensm_enable_txnrx_control_enable != 0;
 
     // LO control
     phy->pdata.rx_synth_freq = init_param->rx_synthesizer_frequency_hz;
@@ -124,10 +124,10 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
 
     // TX attenuation control
     phy->pdata.tx_atten                 = init_param->tx_attenuation_mdB;
-    phy->pdata.update_tx_gain_via_alert = init_param->update_tx_gain_in_alert_enable;
+    phy->pdata.update_tx_gain_via_alert = init_param->update_tx_gain_in_alert_enable != 0;
 
     // reference clock control
-    phy->pdata.use_extclk         = init_param->xo_disable_use_ext_refclk_enable;
+    phy->pdata.use_extclk         = init_param->xo_disable_use_ext_refclk_enable != 0;
     phy->pdata.dcxo_coarse        = init_param->dcxo_coarse_and_fine_tune[0];
     phy->pdata.dcxo_fine          = init_param->dcxo_coarse_and_fine_tune[1];
     phy->pdata.ad9361_clkout_mode = (ad9361_clkout_t)init_param->clk_output_mode_select;
@@ -139,7 +139,7 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->pdata.gain_ctrl.adc_ovr_sample_size         = init_param->gc_adc_ovr_sample_size;
     phy->pdata.gain_ctrl.adc_small_overload_thresh   = init_param->gc_adc_small_overload_thresh;
     phy->pdata.gain_ctrl.dec_pow_measuremnt_duration = init_param->gc_dec_pow_measurement_duration;
-    phy->pdata.gain_ctrl.dig_gain_en                 = init_param->gc_dig_gain_enable;
+    phy->pdata.gain_ctrl.dig_gain_en                 = init_param->gc_dig_gain_enable != 0;
     phy->pdata.gain_ctrl.lmt_overload_high_thresh    = init_param->gc_lmt_overload_high_thresh;
     phy->pdata.gain_ctrl.lmt_overload_low_thresh     = init_param->gc_lmt_overload_low_thresh;
     phy->pdata.gain_ctrl.low_power_thresh            = init_param->gc_low_power_thresh;
@@ -148,20 +148,20 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     // MGC control
     phy->pdata.gain_ctrl.mgc_dec_gain_step                  = init_param->mgc_dec_gain_step;
     phy->pdata.gain_ctrl.mgc_inc_gain_step                  = init_param->mgc_inc_gain_step;
-    phy->pdata.gain_ctrl.mgc_rx1_ctrl_inp_en                = init_param->mgc_rx1_ctrl_inp_enable;
-    phy->pdata.gain_ctrl.mgc_rx2_ctrl_inp_en                = init_param->mgc_rx2_ctrl_inp_enable;
+    phy->pdata.gain_ctrl.mgc_rx1_ctrl_inp_en                = init_param->mgc_rx1_ctrl_inp_enable != 0;
+    phy->pdata.gain_ctrl.mgc_rx2_ctrl_inp_en                = init_param->mgc_rx2_ctrl_inp_enable != 0;
     phy->pdata.gain_ctrl.mgc_split_table_ctrl_inp_gain_mode = init_param->mgc_split_table_ctrl_inp_gain_mode;
 
     // AGC control
     phy->pdata.gain_ctrl.adc_large_overload_exceed_counter       = init_param->agc_adc_large_overload_exceed_counter;
     phy->pdata.gain_ctrl.adc_large_overload_inc_steps            = init_param->agc_adc_large_overload_inc_steps;
-    phy->pdata.gain_ctrl.adc_lmt_small_overload_prevent_gain_inc = init_param->agc_adc_lmt_small_overload_prevent_gain_inc_enable;
+    phy->pdata.gain_ctrl.adc_lmt_small_overload_prevent_gain_inc = init_param->agc_adc_lmt_small_overload_prevent_gain_inc_enable != 0;
     phy->pdata.gain_ctrl.adc_small_overload_exceed_counter       = init_param->agc_adc_small_overload_exceed_counter;
     phy->pdata.gain_ctrl.dig_gain_step_size                      = init_param->agc_dig_gain_step_size;
     phy->pdata.gain_ctrl.dig_saturation_exceed_counter           = init_param->agc_dig_saturation_exceed_counter;
     phy->pdata.gain_ctrl.gain_update_interval_us                 = init_param->agc_gain_update_interval_us;
-    phy->pdata.gain_ctrl.immed_gain_change_if_large_adc_overload = init_param->agc_immed_gain_change_if_large_adc_overload_enable;
-    phy->pdata.gain_ctrl.immed_gain_change_if_large_lmt_overload = init_param->agc_immed_gain_change_if_large_lmt_overload_enable;
+    phy->pdata.gain_ctrl.immed_gain_change_if_large_adc_overload = init_param->agc_immed_gain_change_if_large_adc_overload_enable != 0;
+    phy->pdata.gain_ctrl.immed_gain_change_if_large_lmt_overload = init_param->agc_immed_gain_change_if_large_lmt_overload_enable != 0;
     phy->pdata.gain_ctrl.agc_inner_thresh_high                   = init_param->agc_inner_thresh_high;
     phy->pdata.gain_ctrl.agc_inner_thresh_high_dec_steps         = init_param->agc_inner_thresh_high_dec_steps;
     phy->pdata.gain_ctrl.agc_inner_thresh_low                    = init_param->agc_inner_thresh_low;
@@ -174,20 +174,20 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->pdata.gain_ctrl.agc_outer_thresh_low                    = init_param->agc_outer_thresh_low;
     phy->pdata.gain_ctrl.agc_outer_thresh_low_inc_steps          = init_param->agc_outer_thresh_low_inc_steps;
     phy->pdata.gain_ctrl.agc_attack_delay_extra_margin_us        = init_param->agc_attack_delay_extra_margin_us;
-    phy->pdata.gain_ctrl.sync_for_gain_counter_en                = init_param->agc_sync_for_gain_counter_enable;
+    phy->pdata.gain_ctrl.sync_for_gain_counter_en                = init_param->agc_sync_for_gain_counter_enable != 0;
 
     // fast AGC
     phy->pdata.gain_ctrl.f_agc_dec_pow_measuremnt_duration = init_param->fagc_dec_pow_measuremnt_duration;
     phy->pdata.gain_ctrl.f_agc_state_wait_time_ns          = init_param->fagc_state_wait_time_ns;
 
     // fast AGC - low power
-    phy->pdata.gain_ctrl.f_agc_allow_agc_gain_increase   = init_param->fagc_allow_agc_gain_increase;
+    phy->pdata.gain_ctrl.f_agc_allow_agc_gain_increase   = init_param->fagc_allow_agc_gain_increase != 0;
     phy->pdata.gain_ctrl.f_agc_lp_thresh_increment_time  = init_param->fagc_lp_thresh_increment_time;
     phy->pdata.gain_ctrl.f_agc_lp_thresh_increment_steps = init_param->fagc_lp_thresh_increment_steps;
 
     // fast AGC - lock level
     phy->pdata.gain_ctrl.f_agc_lock_level                           = init_param->fagc_lock_level;
-    phy->pdata.gain_ctrl.f_agc_lock_level_lmt_gain_increase_en      = init_param->fagc_lock_level_lmt_gain_increase_en;
+    phy->pdata.gain_ctrl.f_agc_lock_level_lmt_gain_increase_en      = init_param->fagc_lock_level_lmt_gain_increase_en != 0;
     phy->pdata.gain_ctrl.f_agc_lock_level_gain_increase_upper_limit = init_param->fagc_lock_level_gain_increase_upper_limit;
 
     // fast AGC - peak detectors and final settling
@@ -196,21 +196,21 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->pdata.gain_ctrl.f_agc_final_overrange_count    = init_param->fagc_final_overrange_count;
 
     // fast AGC - final power test
-    phy->pdata.gain_ctrl.f_agc_gain_increase_after_gain_lock_en = init_param->fagc_gain_increase_after_gain_lock_en;
+    phy->pdata.gain_ctrl.f_agc_gain_increase_after_gain_lock_en = init_param->fagc_gain_increase_after_gain_lock_en != 0;
 
     // fast AGC - unlocking the gain
     phy->pdata.gain_ctrl.f_agc_gain_index_type_after_exit_rx_mode          = (f_agc_target_gain_index_t)init_param->fagc_gain_index_type_after_exit_rx_mode;
-    phy->pdata.gain_ctrl.f_agc_use_last_lock_level_for_set_gain_en         = init_param->fagc_use_last_lock_level_for_set_gain_en;
-    phy->pdata.gain_ctrl.f_agc_rst_gla_stronger_sig_thresh_exceeded_en     = init_param->fagc_rst_gla_stronger_sig_thresh_exceeded_en;
+    phy->pdata.gain_ctrl.f_agc_use_last_lock_level_for_set_gain_en         = init_param->fagc_use_last_lock_level_for_set_gain_en != 0;
+    phy->pdata.gain_ctrl.f_agc_rst_gla_stronger_sig_thresh_exceeded_en     = init_param->fagc_rst_gla_stronger_sig_thresh_exceeded_en != 0;
     phy->pdata.gain_ctrl.f_agc_optimized_gain_offset                       = init_param->fagc_optimized_gain_offset;
     phy->pdata.gain_ctrl.f_agc_rst_gla_stronger_sig_thresh_above_ll        = init_param->fagc_rst_gla_stronger_sig_thresh_above_ll;
-    phy->pdata.gain_ctrl.f_agc_rst_gla_engergy_lost_sig_thresh_exceeded_en = init_param->fagc_rst_gla_engergy_lost_sig_thresh_exceeded_en;
-    phy->pdata.gain_ctrl.f_agc_rst_gla_engergy_lost_goto_optim_gain_en     = init_param->fagc_rst_gla_engergy_lost_goto_optim_gain_en;
+    phy->pdata.gain_ctrl.f_agc_rst_gla_engergy_lost_sig_thresh_exceeded_en = init_param->fagc_rst_gla_engergy_lost_sig_thresh_exceeded_en != 0;
+    phy->pdata.gain_ctrl.f_agc_rst_gla_engergy_lost_goto_optim_gain_en     = init_param->fagc_rst_gla_engergy_lost_goto_optim_gain_en != 0;
     phy->pdata.gain_ctrl.f_agc_rst_gla_engergy_lost_sig_thresh_below_ll    = init_param->fagc_rst_gla_engergy_lost_sig_thresh_below_ll;
     phy->pdata.gain_ctrl.f_agc_energy_lost_stronger_sig_gain_lock_exit_cnt = init_param->fagc_energy_lost_stronger_sig_gain_lock_exit_cnt;
-    phy->pdata.gain_ctrl.f_agc_rst_gla_large_adc_overload_en               = init_param->fagc_rst_gla_large_adc_overload_en;
-    phy->pdata.gain_ctrl.f_agc_rst_gla_large_lmt_overload_en               = init_param->fagc_rst_gla_large_lmt_overload_en;
-    phy->pdata.gain_ctrl.f_agc_rst_gla_en_agc_pulled_high_en               = init_param->fagc_rst_gla_en_agc_pulled_high_en;
+    phy->pdata.gain_ctrl.f_agc_rst_gla_large_adc_overload_en               = init_param->fagc_rst_gla_large_adc_overload_en != 0;
+    phy->pdata.gain_ctrl.f_agc_rst_gla_large_lmt_overload_en               = init_param->fagc_rst_gla_large_lmt_overload_en != 0;
+    phy->pdata.gain_ctrl.f_agc_rst_gla_en_agc_pulled_high_en               = init_param->fagc_rst_gla_en_agc_pulled_high_en != 0;
     phy->pdata.gain_ctrl.f_agc_rst_gla_if_en_agc_pulled_high_mode          = (f_agc_target_gain_index_t)init_param->fagc_rst_gla_if_en_agc_pulled_high_mode;
     phy->pdata.gain_ctrl.f_agc_power_measurement_duration_in_state5        = init_param->fagc_power_measurement_duration_in_state5;
 
@@ -218,7 +218,7 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->pdata.rssi_ctrl.rssi_delay              = init_param->rssi_delay;
     phy->pdata.rssi_ctrl.rssi_duration           = init_param->rssi_duration;
     phy->pdata.rssi_ctrl.restart_mode            = (rssi_restart_mode_t)init_param->rssi_restart_mode;
-    phy->pdata.rssi_ctrl.rssi_unit_is_rx_samples = init_param->rssi_unit_is_rx_samples_enable;
+    phy->pdata.rssi_ctrl.rssi_unit_is_rx_samples = init_param->rssi_unit_is_rx_samples_enable != 0;
     phy->pdata.rssi_ctrl.rssi_wait               = init_param->rssi_wait;
 
     // aux ADC control
@@ -226,17 +226,17 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->pdata.auxadc_ctrl.auxadc_clock_rate = init_param->aux_adc_rate;
 
     // aux DAC control
-    phy->pdata.auxdac_ctrl.auxdac_manual_mode_en = init_param->aux_dac_manual_mode_enable;
+    phy->pdata.auxdac_ctrl.auxdac_manual_mode_en = init_param->aux_dac_manual_mode_enable != 0;
     phy->pdata.auxdac_ctrl.dac1_default_value    = init_param->aux_dac1_default_value_mV;
-    phy->pdata.auxdac_ctrl.dac1_in_rx_en         = init_param->aux_dac1_active_in_rx_enable;
-    phy->pdata.auxdac_ctrl.dac1_in_tx_en         = init_param->aux_dac1_active_in_tx_enable;
-    phy->pdata.auxdac_ctrl.dac1_in_alert_en      = init_param->aux_dac1_active_in_alert_enable;
+    phy->pdata.auxdac_ctrl.dac1_in_rx_en         = init_param->aux_dac1_active_in_rx_enable != 0;
+    phy->pdata.auxdac_ctrl.dac1_in_tx_en         = init_param->aux_dac1_active_in_tx_enable != 0;
+    phy->pdata.auxdac_ctrl.dac1_in_alert_en      = init_param->aux_dac1_active_in_alert_enable != 0;
     phy->pdata.auxdac_ctrl.dac1_rx_delay_us      = init_param->aux_dac1_rx_delay_us;
     phy->pdata.auxdac_ctrl.dac1_tx_delay_us      = init_param->aux_dac1_tx_delay_us;
     phy->pdata.auxdac_ctrl.dac2_default_value    = init_param->aux_dac2_default_value_mV;
-    phy->pdata.auxdac_ctrl.dac2_in_rx_en         = init_param->aux_dac2_active_in_rx_enable;
-    phy->pdata.auxdac_ctrl.dac2_in_tx_en         = init_param->aux_dac2_active_in_tx_enable;
-    phy->pdata.auxdac_ctrl.dac2_in_alert_en      = init_param->aux_dac2_active_in_alert_enable;
+    phy->pdata.auxdac_ctrl.dac2_in_rx_en         = init_param->aux_dac2_active_in_rx_enable != 0;
+    phy->pdata.auxdac_ctrl.dac2_in_tx_en         = init_param->aux_dac2_active_in_tx_enable != 0;
+    phy->pdata.auxdac_ctrl.dac2_in_alert_en      = init_param->aux_dac2_active_in_alert_enable != 0;
     phy->pdata.auxdac_ctrl.dac2_rx_delay_us      = init_param->aux_dac2_rx_delay_us;
     phy->pdata.auxdac_ctrl.dac2_tx_delay_us      = init_param->aux_dac2_tx_delay_us;
 
@@ -244,7 +244,7 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->pdata.auxadc_ctrl.temp_sensor_decimation   = init_param->temp_sense_decimation;
     phy->pdata.auxadc_ctrl.temp_time_inteval_ms     = init_param->temp_sense_measurement_interval_ms;
     phy->pdata.auxadc_ctrl.offset                   = init_param->temp_sense_offset_signed;
-    phy->pdata.auxadc_ctrl.periodic_temp_measuremnt = init_param->temp_sense_periodic_measurement_enable;
+    phy->pdata.auxadc_ctrl.periodic_temp_measuremnt = init_param->temp_sense_periodic_measurement_enable != 0;
 
     // control out setup
     phy->pdata.ctrl_outs_ctrl.en_mask = init_param->ctrl_outs_enable_mask;
@@ -254,8 +254,8 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->pdata.elna_ctrl.settling_delay_ns = init_param->elna_settling_delay_ns;
     phy->pdata.elna_ctrl.gain_mdB          = init_param->elna_gain_mdB;
     phy->pdata.elna_ctrl.bypass_loss_mdB   = init_param->elna_bypass_loss_mdB;
-    phy->pdata.elna_ctrl.elna_1_control_en = init_param->elna_rx1_gpo0_control_enable;
-    phy->pdata.elna_ctrl.elna_2_control_en = init_param->elna_rx2_gpo1_control_enable;
+    phy->pdata.elna_ctrl.elna_1_control_en = init_param->elna_rx1_gpo0_control_enable != 0;
+    phy->pdata.elna_ctrl.elna_2_control_en = init_param->elna_rx2_gpo1_control_enable != 0;
 
     // digital interface control
     phy->pdata.dig_interface_tune_skipmode = (init_param->digital_interface_tune_skip_mode);
@@ -284,22 +284,22 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->pdata.port_ctrl.tx_clk_data_delay |= TX_DATA_DELAY(init_param->tx_data_delay);
     phy->pdata.port_ctrl.lvds_bias_ctrl = (init_param->lvds_bias_mV / 75) & 0x07;
     phy->pdata.port_ctrl.lvds_bias_ctrl |= (init_param->lvds_rx_onchip_termination_enable << 5);
-    phy->pdata.rx1rx2_phase_inversion_en = init_param->rx1rx2_phase_inversion_en;
+    phy->pdata.rx1rx2_phase_inversion_en = init_param->rx1rx2_phase_inversion_en != 0;
 
     // GPO control
-    phy->pdata.gpo_ctrl.gpo0_inactive_state_high_en = init_param->gpo0_inactive_state_high_enable;
-    phy->pdata.gpo_ctrl.gpo1_inactive_state_high_en = init_param->gpo1_inactive_state_high_enable;
-    phy->pdata.gpo_ctrl.gpo2_inactive_state_high_en = init_param->gpo2_inactive_state_high_enable;
-    phy->pdata.gpo_ctrl.gpo3_inactive_state_high_en = init_param->gpo3_inactive_state_high_enable;
+    phy->pdata.gpo_ctrl.gpo0_inactive_state_high_en = init_param->gpo0_inactive_state_high_enable != 0;
+    phy->pdata.gpo_ctrl.gpo1_inactive_state_high_en = init_param->gpo1_inactive_state_high_enable != 0;
+    phy->pdata.gpo_ctrl.gpo2_inactive_state_high_en = init_param->gpo2_inactive_state_high_enable != 0;
+    phy->pdata.gpo_ctrl.gpo3_inactive_state_high_en = init_param->gpo3_inactive_state_high_enable != 0;
 
-    phy->pdata.gpo_ctrl.gpo0_slave_rx_en = init_param->gpo0_slave_rx_enable;
-    phy->pdata.gpo_ctrl.gpo0_slave_tx_en = init_param->gpo0_slave_tx_enable;
-    phy->pdata.gpo_ctrl.gpo1_slave_rx_en = init_param->gpo1_slave_rx_enable;
-    phy->pdata.gpo_ctrl.gpo1_slave_tx_en = init_param->gpo1_slave_tx_enable;
-    phy->pdata.gpo_ctrl.gpo2_slave_rx_en = init_param->gpo2_slave_rx_enable;
-    phy->pdata.gpo_ctrl.gpo2_slave_tx_en = init_param->gpo2_slave_tx_enable;
-    phy->pdata.gpo_ctrl.gpo3_slave_rx_en = init_param->gpo3_slave_rx_enable;
-    phy->pdata.gpo_ctrl.gpo3_slave_tx_en = init_param->gpo3_slave_tx_enable;
+    phy->pdata.gpo_ctrl.gpo0_slave_rx_en = init_param->gpo0_slave_rx_enable != 0;
+    phy->pdata.gpo_ctrl.gpo0_slave_tx_en = init_param->gpo0_slave_tx_enable != 0;
+    phy->pdata.gpo_ctrl.gpo1_slave_rx_en = init_param->gpo1_slave_rx_enable != 0;
+    phy->pdata.gpo_ctrl.gpo1_slave_tx_en = init_param->gpo1_slave_tx_enable != 0;
+    phy->pdata.gpo_ctrl.gpo2_slave_rx_en = init_param->gpo2_slave_rx_enable != 0;
+    phy->pdata.gpo_ctrl.gpo2_slave_tx_en = init_param->gpo2_slave_tx_enable != 0;
+    phy->pdata.gpo_ctrl.gpo3_slave_rx_en = init_param->gpo3_slave_rx_enable != 0;
+    phy->pdata.gpo_ctrl.gpo3_slave_tx_en = init_param->gpo3_slave_tx_enable != 0;
 
     phy->pdata.gpo_ctrl.gpo0_rx_delay_us = init_param->gpo0_rx_delay_us;
     phy->pdata.gpo_ctrl.gpo0_tx_delay_us = init_param->gpo0_tx_delay_us;
@@ -314,8 +314,8 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
     phy->pdata.txmon_ctrl.low_high_gain_threshold_mdB = init_param->low_high_gain_threshold_mdB;
     phy->pdata.txmon_ctrl.low_gain_dB                 = init_param->low_gain_dB;
     phy->pdata.txmon_ctrl.high_gain_dB                = init_param->high_gain_dB;
-    phy->pdata.txmon_ctrl.tx_mon_track_en             = init_param->tx_mon_track_en;
-    phy->pdata.txmon_ctrl.one_shot_mode_en            = init_param->one_shot_mode_en;
+    phy->pdata.txmon_ctrl.tx_mon_track_en             = init_param->tx_mon_track_en != 0;
+    phy->pdata.txmon_ctrl.one_shot_mode_en            = init_param->one_shot_mode_en != 0;
     phy->pdata.txmon_ctrl.tx_mon_delay                = init_param->tx_mon_delay;
     phy->pdata.txmon_ctrl.tx_mon_duration             = init_param->tx_mon_duration;
     phy->pdata.txmon_ctrl.tx1_mon_front_end_gain      = init_param->tx1_mon_front_end_gain;
@@ -350,7 +350,8 @@ int32_t ad9361_init(ad9361_rf_phy_t*          phy, //
 
     SDR_SoftReset(phy->id_no);
 
-    int32_t _ret, _rev;
+    int32_t _ret;
+    int32_t _rev;
 
     _ret = SPI_SDR_Read(phy->id_no, REG_PRODUCT_ID);
     if ((_ret & PRODUCT_ID_MASK) != PRODUCT_ID_9361) {
@@ -453,11 +454,11 @@ int32_t ad9361_set_tx_attenuation(ad9361_rf_phy_t* phy, //
  */
 int32_t ad9361_get_tx_attenuation(ad9361_rf_phy_t* phy, //
                                   uint8_t          ch,
-                                  uint32_t*        attenuation_db) {
+                                  uint32_t*        attenuation_mdb) {
 
-    *attenuation_db = (uint32_t)ad9361_get_tx_atten(phy, ch + 1);
+    *attenuation_mdb = (uint32_t)ad9361_get_tx_atten(phy, ch + 1);
 
-    return (int32_t)*attenuation_db > 0 ? 0 : -1;
+    return (int32_t)*attenuation_mdb > 0 ? 0 : -1;
 }
 
 /**

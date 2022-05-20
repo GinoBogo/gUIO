@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      spi_if.cpp
 /// \version   0.1
@@ -19,7 +20,7 @@
 #include "definitions.hpp"
 #include "sdr_ad9361.hpp"
 
-#include <string.h> // memcpy
+#include <cstring> // memcpy
 
 GMAPdevice*  ad9361_regs = nullptr;
 GAXIQuadSPI* ad9361_qspi = nullptr;
@@ -43,7 +44,7 @@ uint32_t __ffs(uint32_t word) {
         num += 2;
         word >>= 2;
     }
-    if ((word & 0x1) == 0) num += 1;
+    if ((word & 0x1) == 0) { num += 1; }
     return num;
 }
 
@@ -84,9 +85,7 @@ uint8_t SPI_SDR_Read(uint8_t id, uint32_t reg, bool* error) {
         _ret = false;
     }
 
-    if (error != nullptr) {
-        *error = _ret;
-    }
+    if (error != nullptr) { *error = _ret; }
     return _buf;
 }
 
@@ -94,7 +93,7 @@ uint8_t SPI_SDR_ReadF(uint8_t id, uint32_t reg, uint8_t mask, bool* error) {
     auto    _ret{true};
     uint8_t _buf{0};
 
-    if (!mask) {
+    if (mask == 0) {
         LOG_FORMAT(error, "Wrong Mask [mask: 0x%04X] (%s)", mask, __func__);
         _ret = false;
         goto _exit;
@@ -110,9 +109,7 @@ uint8_t SPI_SDR_ReadF(uint8_t id, uint32_t reg, uint8_t mask, bool* error) {
     _buf >>= __ffs(mask);
 
 _exit:
-    if (error != nullptr) {
-        *error = _ret;
-    }
+    if (error != nullptr) { *error = _ret; }
     return _buf;
 }
 
@@ -148,7 +145,7 @@ bool SPI_SDR_Write(uint8_t id, uint32_t reg, uint8_t val) {
 bool SPI_SDR_WriteF(uint8_t id, uint32_t reg, uint8_t mask, uint8_t val) {
     UNUSED(id);
 
-    if (!mask) {
+    if (mask == 0) {
         LOG_FORMAT(error, "Wrong Mask [mask: 0x%04X] (%s)", mask, __func__);
         return false;
     }
@@ -195,9 +192,7 @@ bool SPI_FPGA_Write(uint32_t reg, uint32_t val) {
     auto _ret{false};
 
     if (ad9361_regs->Open()) {
-        if (ad9361_regs->MapToMemory()) {
-            _ret = ad9361_regs->Write(reg, &val);
-        }
+        if (ad9361_regs->MapToMemory()) { _ret = ad9361_regs->Write(reg, &val); }
         ad9361_regs->Close();
     }
     return _ret;
@@ -209,14 +204,10 @@ uint32_t SPI_FPGA_Read(uint32_t reg, bool* error) {
     uint32_t _buf{0};
 
     if (ad9361_regs->Open()) {
-        if (ad9361_regs->MapToMemory()) {
-            _ret = ad9361_regs->Read(reg, &_buf, 1);
-        }
+        if (ad9361_regs->MapToMemory()) { _ret = ad9361_regs->Read(reg, &_buf, 1); }
         ad9361_regs->Close();
     }
 
-    if (error != nullptr) {
-        *error = _ret;
-    }
+    if (error != nullptr) { *error = _ret; }
     return _buf;
 }

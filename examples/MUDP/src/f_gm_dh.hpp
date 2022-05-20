@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      f_gm_dh.hpp
 /// \version   0.1
@@ -23,10 +24,10 @@ namespace f_gm_dh {
     } WorkerArgs;
 
     bool decode_packet(std::any data, std::any args) {
-        auto _packet  = std::any_cast<TPacket*>(data);
-        auto _args    = std::any_cast<WorkerArgs>(args);
-        auto _client  = _args.client;
-        auto _type_id = _packet->head.packet_type;
+        auto* _packet  = std::any_cast<TPacket*>(data);
+        auto  _args    = std::any_cast<WorkerArgs>(args);
+        auto* _client  = _args.client;
+        auto  _type_id = _packet->head.packet_type;
 
         switch (_type_id) {
 
@@ -45,10 +46,10 @@ namespace f_gm_dh {
     }
 
     bool decode_message(std::any data, std::any args) {
-        auto _message = std::any_cast<GMessage*>(data);
-        auto _args    = std::any_cast<WorkerArgs>(args);
-        auto _client  = _args.client;
-        auto _type_id = _message->head()->packet_type;
+        auto* _message = std::any_cast<GMessage*>(data);
+        auto  _args    = std::any_cast<WorkerArgs>(args);
+        auto* _client  = _args.client;
+        auto  _type_id = _message->head()->packet_type;
 
         switch (_type_id) {
             default: {

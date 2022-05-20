@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GUdpClient.hpp
 /// \version   0.1
@@ -21,17 +22,17 @@ class GUdpClient {
 
     ~GUdpClient();
 
-    auto IsReady() {
+    [[nodiscard]] auto IsReady() const {
         return m_is_ready;
     }
 
-    auto TagName() {
+    [[nodiscard]] auto TagName() const {
         return m_tag_name;
     }
 
-    bool Receive(void* dst_buffer, size_t* dst_bytes);
+    bool Receive(void* dst_buffer, size_t* dst_bytes) const;
 
-    bool Send(void* src_buffer, size_t src_bytes);
+    bool Send(void* src_buffer, size_t src_bytes) const;
 
     void Stop();
 

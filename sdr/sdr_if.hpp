@@ -5,7 +5,7 @@
     Airbus Italia S.p.A.
 
   @File Name
-    sdr_if.h
+    sdr_if.hpp
 
   @Summary
     SDR (AD9361) interface API (SPI)

@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      main.cpp
 /// \version   0.1
@@ -7,19 +8,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "GLogger.hpp"
-#include "GUIOdevice.hpp"
 #include "GRegisters.hpp"
+#include "GUIOdevice.hpp"
 
-void GPIO_printRegistersInfo(GUIOdevice *uio_dev) {
+void GPIO_printRegistersInfo(GUIOdevice* uio_dev) {
     register_info info_list[gpio_registers_number];
 
-    auto base_addr{uio_dev->virt_addr()};
+    auto* base_addr{uio_dev->virt_addr()};
 
     GPIO_getRegistersInfo(base_addr, info_list);
 
     LOG_FORMAT(info, "GPIO_%d Registers Info <OFFSET> <VALUE> <LABEL>:", uio_dev->uio_num());
-    for (auto i = 0; i < gpio_registers_number; ++i) {
-        LOG_FORMAT(info, "  0x%04x | 0x%08x | %s", info_list[i].offset, info_list[i].value, info_list[i].label);
+    for (const auto& item : info_list) { //
+        LOG_FORMAT(info, "  0x%04x | 0x%08x | %s", item.offset, item.value, item.label);
     }
 }
 
@@ -41,7 +42,7 @@ int main() {
         if (uio_dev.MapToMemory()) {
             uio_dev.PrintMapAttributes();
 
-            auto base_addr{uio_dev.virt_addr()};
+            auto* base_addr{uio_dev.virt_addr()};
 
             // SECTION: interrupts
             GPIO_setIpInterruptEnable(base_addr, 1 * BIT_GPIO_IP_IER_2);

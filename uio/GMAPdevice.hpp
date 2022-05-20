@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GMAPdevice.hpp
 /// \version   0.1
@@ -41,9 +42,9 @@ class GMAPdevice {
     void Close();
     bool MapToMemory();
 
-    auto Read(reg_list_t& list) {
-        if (list.size() > 0) {
-            auto _virt_addr{static_cast<uint32_t*>(m_dev.virt_addr)};
+    auto Read(reg_list_t& list) const {
+        if (!list.empty()) {
+            auto* _virt_addr{static_cast<uint32_t*>(m_dev.virt_addr)};
             for (auto it{list.begin()}; it != list.end(); ++it) {
                 if (it->offset <= m_dev.size / sizeof(uint32_t)) {
                     it->value = _virt_addr[it->offset];
@@ -54,9 +55,9 @@ class GMAPdevice {
         return false;
     }
 
-    auto Write(reg_list_t& list) {
-        if (list.size() > 0) {
-            auto _virt_addr{static_cast<uint32_t*>(m_dev.virt_addr)};
+    auto Write(reg_list_t& list) const {
+        if (!list.empty()) {
+            auto* _virt_addr{static_cast<uint32_t*>(m_dev.virt_addr)};
             for (auto it{list.cbegin()}; it != list.cend(); ++it) {
                 if (it->offset <= m_dev.size / sizeof(uint32_t)) {
                     _virt_addr[it->offset] = it->value;
@@ -72,11 +73,15 @@ class GMAPdevice {
         auto _t2{offset + words - 1 <= m_dev.size / sizeof(T)};
 
         if (_t1 && _t2) {
-            auto _virt_addr{static_cast<T*>(m_dev.virt_addr)};
-            if (words == 1)
+            auto* _virt_addr{static_cast<T*>(m_dev.virt_addr)};
+            if (words == 1) {
                 *dst_buf = _virt_addr[offset];
-            else
-                for (decltype(words) i{0}; i < words; ++i) dst_buf[i] = _virt_addr[offset + i];
+            }
+            else {
+                for (decltype(words) i{0}; i < words; ++i) {
+                    dst_buf[i] = _virt_addr[offset + i];
+                }
+            }
             return true;
         }
         return false;
@@ -87,11 +92,15 @@ class GMAPdevice {
         auto _t2{offset + words - 1 <= m_dev.size / sizeof(T)};
 
         if (_t1 && _t2) {
-            auto _virt_addr{static_cast<T*>(m_dev.virt_addr)};
-            if (words == 1)
+            auto* _virt_addr{static_cast<T*>(m_dev.virt_addr)};
+            if (words == 1) {
                 _virt_addr[offset] = *src_buf;
-            else
-                for (decltype(words) i{0}; i < words; ++i) _virt_addr[offset + i] = src_buf[i];
+            }
+            else {
+                for (decltype(words) i{0}; i < words; ++i) {
+                    _virt_addr[offset + i] = src_buf[i];
+                }
+            }
             return true;
         }
         return false;
@@ -101,11 +110,15 @@ class GMAPdevice {
         auto _t1{dst_buf != nullptr && words > 0};
 
         if (_t1) {
-            volatile auto _virt_addr{static_cast<R*>(m_dev.virt_addr)};
-            if (words == 1)
+            auto volatile* _virt_addr{static_cast<R*>(m_dev.virt_addr)};
+            if (words == 1) {
                 *dst_buf = static_cast<T>(_virt_addr[offset]);
-            else
-                for (decltype(words) i{0}; i < words;) dst_buf[i++] = static_cast<T>(_virt_addr[offset]);
+            }
+            else {
+                for (decltype(words) i{0}; i < words;) {
+                    dst_buf[i++] = static_cast<T>(_virt_addr[offset]);
+                }
+            }
             return true;
         }
         return false;
@@ -115,17 +128,21 @@ class GMAPdevice {
         auto _t1{src_buf != nullptr && words > 0};
 
         if (_t1) {
-            volatile auto _virt_addr{static_cast<R*>(m_dev.virt_addr)};
-            if (words == 1)
+            auto volatile* _virt_addr{static_cast<R*>(m_dev.virt_addr)};
+            if (words == 1) {
                 _virt_addr[offset] = static_cast<R>(*src_buf);
-            else
-                for (decltype(words) i{0}; i < words;) _virt_addr[offset] = static_cast<R>(src_buf[i++]);
+            }
+            else {
+                for (decltype(words) i{0}; i < words;) {
+                    _virt_addr[offset] = static_cast<R>(src_buf[i++]);
+                }
+            }
             return true;
         }
         return false;
     }
 
-    auto virt_addr() {
+    [[nodiscard]] auto virt_addr() const {
         return m_dev.virt_addr;
     }
 

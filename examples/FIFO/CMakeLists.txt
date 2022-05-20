@@ -43,7 +43,7 @@ add_compile_options(
     -Wall
    #-Wcast-align
     -Wextra
-    -Wfloat-equal
+   #-Wfloat-equal
     -Wno-unused-parameter
     -Wno-unused-result
     -Wno-unused-variable
@@ -58,6 +58,7 @@ endif()
 
 add_library(gLIB OBJECT
 "../../lib/GLogger.cpp"
+"../../lib/GOptions.cpp"
 )
 
 add_library(gUIO OBJECT

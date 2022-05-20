@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GOptions.cpp
 /// \version   0.2
@@ -13,6 +14,16 @@
 #include <regex>
 #include <sstream>
 
+auto sanitize = [](std::string& line) {
+    auto remark = false;
+    auto filter = [&remark](char c) {
+        remark |= (c == '#') || (c == ';');
+        return remark || (bool)std::isspace(c);
+    };
+
+    line.erase(std::remove_if(line.begin(), line.end(), filter), line.end());
+};
+
 auto split = [](const std::string& data, const std::string& regex) {
     std::vector<std::string> tokens;
 
@@ -26,7 +37,7 @@ auto split = [](const std::string& data, const std::string& regex) {
     }
 
     auto filter = [](const std::string& s) {
-        return (s.size() == 0);
+        return s.empty();
     };
     auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
     tokens.erase(junks, tokens.end());
@@ -46,9 +57,9 @@ auto join = [](const std::vector<std::string>& data, const std::string& delimite
     return result.str();
 };
 
-template <typename T> auto expand_and_check(const std::string& value, T& type) {
+template <typename T, int B> auto expand_and_check(const std::string& value, T& type) {
     if (std::is_signed_v<T>) {
-        auto n1{std::strtoll(value.c_str(), 0, 10)};
+        auto n1{std::strtoll(value.c_str(), nullptr, B)};
         auto n2{static_cast<T>(n1)};
         auto n3{static_cast<long long>(n2)};
         if (n1 == n3 && errno != ERANGE) {
@@ -57,7 +68,7 @@ template <typename T> auto expand_and_check(const std::string& value, T& type) {
         }
     }
     else {
-        auto n1{std::strtoull(value.c_str(), 0, 10)};
+        auto n1{std::strtoull(value.c_str(), nullptr, B)};
         auto n2{static_cast<T>(n1)};
         auto n3{static_cast<unsigned long long>(n2)};
         if (n1 == n3 && errno != ERANGE) {
@@ -68,220 +79,297 @@ template <typename T> auto expand_and_check(const std::string& value, T& type) {
     return false;
 }
 
-template <typename T> auto string_to_type(const std::string& value, bool& is_valid) {
-    T type{};
-    is_valid = false;
+template <typename T> auto try_string_to_boolean(const std::string& _value, T& _type) {
 
-    if constexpr (std::is_same_v<T, bool>) {
-        if (value == "0" || value == "false" || value == "FALSE") {
-            type     = false;
-            is_valid = true;
-        }
-        else if (value == "1" || value == "true" || value == "TRUE") {
-            type     = true;
-            is_valid = true;
-        }
-        return type;
+    static auto _filter_0 = std::regex(R"(^[0]|(\bfalse\b|\blow\b|\boff\b)$)", std::regex::icase);
+    static auto _filter_1 = std::regex(R"(^[1]|(\btrue\b|\bhigh\b|\bon\b)$)", std::regex::icase);
+
+    if (std::regex_match(_value, _filter_0)) {
+        _type = false;
+        return true;
+    }
+    if (std::regex_match(_value, _filter_1)) {
+        _type = true;
+        return true;
     }
 
-    static auto integers = std::regex("^((-?)|(\\+?))\\d+(u?l?l?)$");
+    return false;
+}
 
-    if (std::regex_match(value, integers)) {
+template <typename T> auto try_string_to_integer(const std::string& _value, T& _type) {
+
+    static auto _filter = std::regex(R"(^([+-])?\d+((u|U)?(l|U)?(l|L)?)$)");
+
+    if (std::regex_match(_value, _filter)) {
         if constexpr (std::is_same_v<T, char>) {
-            is_valid = expand_and_check<T>(value, type);
-            return type;
+            return expand_and_check<T, 10>(_value, _type);
         }
 
         if constexpr (std::is_same_v<T, unsigned char>) {
-            is_valid = expand_and_check<T>(value, type);
-            return type;
+            return expand_and_check<T, 10>(_value, _type);
         }
 
         if constexpr (std::is_same_v<T, short>) {
-            is_valid = expand_and_check<T>(value, type);
-            return type;
+            return expand_and_check<T, 10>(_value, _type);
         }
 
         if constexpr (std::is_same_v<T, unsigned short>) {
-            is_valid = expand_and_check<T>(value, type);
-            return type;
+            return expand_and_check<T, 10>(_value, _type);
         }
 
         if constexpr (std::is_same_v<T, int>) {
-            is_valid = expand_and_check<T>(value, type);
-            return type;
+            return expand_and_check<T, 10>(_value, _type);
         }
 
         if constexpr (std::is_same_v<T, unsigned int>) {
-            is_valid = expand_and_check<T>(value, type);
-            return type;
+            return expand_and_check<T, 10>(_value, _type);
         }
 
         if constexpr (std::is_same_v<T, long>) {
-            is_valid = expand_and_check<T>(value, type);
-            return type;
+            return expand_and_check<T, 10>(_value, _type);
         }
 
         if constexpr (std::is_same_v<T, unsigned long>) {
-            is_valid = expand_and_check<T>(value, type);
-            return type;
+            return expand_and_check<T, 10>(_value, _type);
         }
 
         if constexpr (std::is_same_v<T, long long>) {
-            type     = std::stoll(value);
-            is_valid = true;
-            return type;
+            _type = std::strtoll(_value.c_str(), nullptr, 10);
+            return true;
         }
 
         if constexpr (std::is_same_v<T, unsigned long long>) {
-            type     = std::strtoull(value.c_str(), 0, 10);
-            is_valid = true;
-            return type;
+            _type = std::strtoull(_value.c_str(), nullptr, 10);
+            return true;
         }
     }
+    return false;
+}
 
-    static auto decimals = std::regex("^((-?)|(\\+?))((\\d+\\.\\d*)|(\\d*\\.\\d+))(((e)|(E))((-?)|(\\+?))0?\\d+|)$");
+template <typename T> auto try_string_to_decimal(const std::string& _value, T& _type) {
 
-    if (std::regex_match(value, decimals)) {
+    static auto _filter = std::regex(R"(^([+-])?((\d+\.\d*)|(\d*\.\d+))(((e)|(E))((-?)|(\+?))0?\d+|)$)");
+
+    if (std::regex_match(_value, _filter)) {
         if constexpr (std::is_same_v<T, float>) {
             try {
-                type     = std::stof(value);
-                is_valid = true;
+                _type = std::stof(_value);
+                return true;
             }
             catch (const std::invalid_argument&) {
             }
             catch (const std::out_of_range&) {
             };
-            return type;
         }
 
         if constexpr (std::is_same_v<T, double>) {
             try {
-                type     = std::stod(value);
-                is_valid = true;
+                _type = std::stod(_value);
+                return true;
             }
             catch (const std::invalid_argument&) {
             }
             catch (const std::out_of_range&) {
             };
-            return type;
         }
 
         if constexpr (std::is_same_v<T, long double>) {
             try {
-                type     = std::stold(value);
-                is_valid = true;
+                _type = std::stold(_value);
+                return true;
             }
             catch (const std::invalid_argument&) {
             }
             catch (const std::out_of_range&) {
             };
-            return type;
         }
     }
+    return false;
+}
 
+template <typename T> auto try_string_to_hexadecimal(const std::string& _value, T& _type) {
+
+    static auto _filter = std::regex(R"(^0(x|X)((\d?)|([a-f]?|[A-F]?))+$)");
+
+    if (std::regex_match(_value, _filter)) {
+        if constexpr (std::is_same_v<T, char>) {
+            return expand_and_check<T, 16>(_value, _type);
+        }
+
+        if constexpr (std::is_same_v<T, unsigned char>) {
+            return expand_and_check<T, 16>(_value, _type);
+        }
+
+        if constexpr (std::is_same_v<T, short>) {
+            return expand_and_check<T, 16>(_value, _type);
+        }
+
+        if constexpr (std::is_same_v<T, unsigned short>) {
+            return expand_and_check<T, 16>(_value, _type);
+        }
+
+        if constexpr (std::is_same_v<T, int>) {
+            return expand_and_check<T, 16>(_value, _type);
+        }
+
+        if constexpr (std::is_same_v<T, unsigned int>) {
+            return expand_and_check<T, 16>(_value, _type);
+        }
+
+        if constexpr (std::is_same_v<T, long>) {
+            return expand_and_check<T, 16>(_value, _type);
+        }
+
+        if constexpr (std::is_same_v<T, unsigned long>) {
+            return expand_and_check<T, 16>(_value, _type);
+        }
+
+        if constexpr (std::is_same_v<T, long long>) {
+            _type = strtoll(_value.c_str(), nullptr, 16);
+            return true;
+        }
+
+        if constexpr (std::is_same_v<T, unsigned long long>) {
+            _type = std::strtoull(_value.c_str(), nullptr, 16);
+            return true;
+        }
+    }
+    return false;
+}
+
+template <typename T> auto try_string_to_text(const std::string& _value, T& _type) {
     if constexpr (std::is_same_v<T, std::string>) {
         try {
             if constexpr (!std::is_arithmetic_v<T>) {
-                type     = value;
-                is_valid = true;
+                _type = _value;
+                return true;
             }
         }
         catch (const std::invalid_argument&) {
         };
+    }
+    return false;
+}
+
+template <typename T> auto string_to_type(const std::string& value, bool& is_valid) {
+    T type{};
+
+    is_valid = try_string_to_boolean(value, type);
+    if (is_valid) {
         return type;
     }
 
+    is_valid = try_string_to_integer(value, type);
+    if (is_valid) {
+        return type;
+    }
+
+    is_valid = try_string_to_decimal(value, type);
+    if (is_valid) {
+        return type;
+    }
+
+    is_valid = try_string_to_hexadecimal(value, type);
+    if (is_valid) {
+        return type;
+    }
+
+    is_valid = try_string_to_text(value, type);
+
     return type;
+}
+
+static auto decode_type_then_push_pair(GOptions::Pairs& pairs, const std::string& label, const std::any& value) {
+    if (value.type() == typeid(bool)) {
+        GOptions::Pair pair{label, (std::any_cast<bool>(value)) ? "true" : "false"};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(char)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<char>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(unsigned char)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<unsigned char>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(short)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<short>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(unsigned short)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<unsigned short>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(int)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<int>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(unsigned int)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<unsigned int>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(long)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<long>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(unsigned long)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<unsigned long>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(long long)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<long long>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(unsigned long long)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<unsigned long long>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(float)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<float>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(double)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<double>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(long double)) {
+        GOptions::Pair pair{label, std::to_string(std::any_cast<long double>(value))};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(std::string)) {
+        GOptions::Pair pair{label, std::any_cast<std::string>(value)};
+        pairs.push_back(pair);
+        return;
+    }
+    if (value.type() == typeid(const char*)) {
+        GOptions::Pair pair{label, std::string(std::any_cast<const char*>(value))};
+        pairs.push_back(pair);
+        return;
+    }
 }
 
 GOptions::Pairs GOptions::ToPairs() {
     Pairs pairs{};
 
-    for (auto it = this->begin(); it != this->end(); ++it) {
-        const auto& label{it->first};
-        const auto& value{it->second};
+    for (const auto& it : *this) {
+        const auto& label{it.first};
+        const auto& value{it.second};
 
-        if (value.type() == typeid(bool)) {
-            Pair pair{label, (std::any_cast<bool>(value)) ? "true" : "false"};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(char)) {
-            Pair pair{label, std::to_string(std::any_cast<char>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(unsigned char)) {
-            Pair pair{label, std::to_string(std::any_cast<unsigned char>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(short)) {
-            Pair pair{label, std::to_string(std::any_cast<short>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(unsigned short)) {
-            Pair pair{label, std::to_string(std::any_cast<unsigned short>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(int)) {
-            Pair pair{label, std::to_string(std::any_cast<int>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(unsigned int)) {
-            Pair pair{label, std::to_string(std::any_cast<unsigned int>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(long)) {
-            Pair pair{label, std::to_string(std::any_cast<long>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(unsigned long)) {
-            Pair pair{label, std::to_string(std::any_cast<unsigned long>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(long long)) {
-            Pair pair{label, std::to_string(std::any_cast<long long>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(unsigned long long)) {
-            Pair pair{label, std::to_string(std::any_cast<unsigned long long>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(float)) {
-            Pair pair{label, std::to_string(std::any_cast<float>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(double)) {
-            Pair pair{label, std::to_string(std::any_cast<double>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(long double)) {
-            Pair pair{label, std::to_string(std::any_cast<long double>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(std::string)) {
-            Pair pair{label, std::any_cast<std::string>(value)};
-            pairs.push_back(pair);
-            continue;
-        }
-        if (value.type() == typeid(const char*)) {
-            Pair pair{label, std::string(std::any_cast<const char*>(value))};
-            pairs.push_back(pair);
-            continue;
-        }
+        decode_type_then_push_pair(pairs, label, value);
     }
 
     return pairs;
@@ -291,8 +379,8 @@ GOptions::Sections GOptions::ToSections() {
     Sections sections{};
 
     auto pairs = ToPairs();
-    for (auto it = pairs.begin(); it != pairs.end(); ++it) {
-        auto tokens      = split(it->label, "[. \\t]");
+    for (const auto& pair : pairs) {
+        auto tokens      = split(pair.label, "R([. \t])");
         auto tokens_size = tokens.size();
         if (tokens_size >= 1U) {
             auto                     index(static_cast<ssize_t>(tokens_size - 1));
@@ -301,9 +389,12 @@ GOptions::Sections GOptions::ToSections() {
 
             const auto title = join(upper, ".");
             const auto label = join(lower, ".");
-            const auto _pair = Pair(label, it->value);
+            const auto _pair = Pair(label, pair.value);
 
-            auto found = std::find_if(sections.begin(), sections.end(), [title](const Section& s) { return (s.title == title); });
+            auto filter = [title](const Section& s) {
+                return (s.title == title);
+            };
+            auto found = std::find_if(sections.begin(), sections.end(), filter);
             if (found == sections.end()) {
                 auto _section = Section(title);
                 _section.pairs.push_back(_pair);
@@ -318,6 +409,115 @@ GOptions::Sections GOptions::ToSections() {
     return sections;
 }
 
+static auto populate_sections(const std::string& filename, GOptions::Sections& sections) {
+    std::ifstream stream(filename);
+    std::string   line;
+
+    while (std::getline(stream, line)) {
+        sanitize(line);
+
+        auto check_1{line.find('[')};
+        auto check_2{line.rfind(']')};
+        if (check_1 < check_2) {
+            auto tokens = split(line, "[\\[\\]]");
+            auto title  = tokens[0];
+
+            auto filter = [title](const GOptions::Section& s) {
+                return (s.title == title);
+            };
+            auto found = std::find_if(sections.begin(), sections.end(), filter);
+            if (found == sections.end()) {
+                auto section = GOptions::Section(title);
+                sections.push_back(section);
+            }
+        }
+        else {
+            auto tokens = split(line, "[=\"]");
+            switch (tokens.size()) {
+                case 1: {
+                    auto pair = GOptions::Pair(tokens[0], "");
+                    auto last = --sections.end();
+                    last->pairs.push_back(pair);
+                } break;
+
+                case 2: {
+                    auto pair = GOptions::Pair(tokens[0], tokens[1]);
+                    auto last = --sections.end();
+                    last->pairs.push_back(pair);
+                } break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    stream.close();
+}
+
+static auto find_minimal_type(const std::string& _value, std::any& _type) {
+    auto is_valid{false};
+
+    _type = string_to_type<bool>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<char>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<unsigned char>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<short>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<unsigned short>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<int>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<unsigned int>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<long>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<unsigned long>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<long long>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<unsigned long long>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<float>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<double>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<long double>(_value, is_valid);
+    if (is_valid) {
+        return true;
+    }
+    _type = string_to_type<std::string>(_value, is_valid);
+
+    return is_valid;
+}
+
 bool GOptions::Read(const std::string& filename) {
     const auto filepath{std::filesystem::path(filename)};
 
@@ -326,104 +526,14 @@ bool GOptions::Read(const std::string& filename) {
         if (bytes > 0) {
             Sections sections;
 
-            std::ifstream stream(filename);
-            std::string   line;
-            while (std::getline(stream, line)) {
-                auto check_1{line.find('[')};
-                auto check_2{line.rfind(']')};
-                if (check_1 < check_2) {
-                    auto tokens = split(line, "[\\[\\] \\t\\r]");
-                    auto title  = tokens[0];
+            populate_sections(filename, sections);
 
-                    auto filter = [title](const Section& s) {
-                        return (s.title == title);
-                    };
-                    auto found = std::find_if(sections.begin(), sections.end(), filter);
-                    if (found == sections.end()) {
-                        auto section = Section(title);
-                        sections.push_back(section);
-                    }
-                }
-                else {
-                    auto tokens = split(line, "[= \\t\\r]");
-                    if (tokens.size() == 2) {
-                        auto pair = Pair(tokens[0], tokens[1]);
-                        auto last = --sections.end();
-                        last->pairs.push_back(pair);
-                    }
-                }
-            }
-            stream.close();
-
-            for (const auto& item : sections) {
-                for (const auto& pair : item.pairs) {
-                    bool     is_valid;
+            for (const auto& section : sections) {
+                for (const auto& pair : section.pairs) {
                     std::any value;
 
-                    value = string_to_type<bool>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<char>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<unsigned char>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<short>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<unsigned short>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<int>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<unsigned int>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<long>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<unsigned long>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<long long>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<unsigned long long>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<float>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<double>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<long double>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-                    value = string_to_type<std::string>(pair.value, is_valid);
-                    if (is_valid) {
-                        goto jmp_insert_or_assign;
-                    }
-
-jmp_insert_or_assign:
-                    if (is_valid) {
-                        auto label = item.title + "." + pair.label;
+                    if (find_minimal_type(pair.value, value)) {
+                        auto label = section.title + "." + pair.label;
                         this->insert_or_assign(label, value);
                     }
                 }

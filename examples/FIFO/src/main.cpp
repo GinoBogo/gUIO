@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      main.cpp
 /// \version   0.1
@@ -8,226 +9,306 @@
 
 #include "GArray.hpp"
 #include "GArrayRoller.hpp"
+#include "GDefine.hpp"
 #include "GFIFOdevice.hpp"
 #include "GLogger.hpp"
+#include "GOptions.hpp"
 #include "GProfile.hpp"
 #include "GString.hpp"
 
 #include <cstring>
 #include <fstream>
+#include <thread>
 
 #define FIFO_WORD_SIZE sizeof(uint16_t)
 
 // SECTION: from PL to PS
-#define RX_FIFO_DEV_ADDR 0xA0070000
-#define RX_FIFO_DEV_SIZE 65536
-#define RX_FIFO_UIO_NUM  2
-#define RX_FIFO_UIO_MAP  0
+bool         RX_MODE_ENABLED  = true;
+unsigned int RX_MODE_LOOPS    = 20;
+std::string  RX_FILE_NAME     = "rx_data.txt";
+unsigned int RX_PACKET_WORDS  = 1024;
+unsigned int RX_FIFO_DEV_ADDR = 0xA0010000;
+unsigned int RX_FIFO_DEV_SIZE = 4096;
+int          RX_FIFO_UIO_NUM  = 1;
+int          RX_FIFO_UIO_MAP  = 1;
 
 // SECTION: from PS to PL
-#define TX_FIFO_DEV_ADDR 0xA0010000
-#define TX_FIFO_DEV_SIZE 4096
-#define TX_FIFO_UIO_NUM  3
-#define TX_FIFO_UIO_MAP  0
+bool         TX_MODE_ENABLED  = true;
+unsigned int TX_MODE_LOOPS    = 20;
+std::string  TX_FILE_NAME     = "tx_data.txt";
+unsigned int TX_PACKET_WORDS  = 1024;
+unsigned int TX_FIFO_DEV_ADDR = 0xA0020000;
+unsigned int TX_FIFO_DEV_SIZE = 4096;
+int          TX_FIFO_UIO_NUM  = 2;
+int          TX_FIFO_UIO_MAP  = 2;
 
-#define CADU_PACKET_BYTES 2044
-#define CADU_PACKET_WORDS (CADU_PACKET_BYTES / FIFO_WORD_SIZE)
+static auto reader_of_packet_words(GArray<uint16_t>& array, const char* filename = nullptr) {
+    auto words{array.size()};
 
-#define SPACE_PACKET_BYTES 65536
-#define SPACE_PACKET_WORDS (SPACE_PACKET_BYTES / FIFO_WORD_SIZE)
+    if (filename != nullptr) {
+        std::ifstream fs;
+        fs.open(filename);
 
-const auto ENABLE_TX_MODE = 1;
-const auto ENABLE_RX_MODE = 0;
+        if (fs.is_open()) {
+            std::string line;
 
-static auto load_packet_words(uint16_t* buffer, uint32_t words, const char* filename = nullptr) {
-    auto _ret{false};
-
-    if (buffer != nullptr && words > 0) {
-        if (filename != nullptr) {
-            std::ifstream fs;
-            fs.open(filename);
-
-            if (fs.is_open()) {
-                std::string line;
-
-                auto _bytes{(uint8_t*)buffer};
-
-                for (auto i{0}; !fs.eof(); ++i) {
-                    std::getline(fs, line);
-                    _bytes[i] = GString::strtouc(line);
-                }
-
-                fs.close();
-                _ret = true;
-            }
-        }
-        else {
             for (decltype(words) i{0}; i < words; ++i) {
-                buffer[i] = (uint16_t)(1 + i);
+                uint16_t word = 0x0000;
+
+                std::getline(fs, line);
+                word |= GString::strtous(line) << 8;
+                std::getline(fs, line);
+                word |= GString::strtous(line) << 0;
+
+                array.data()[i] = word;
             }
-            _ret = true;
+
+            fs.close();
+
+            array.free(0);
+            LOG_FORMAT(info, "Words from \"%s\" file (%s)", filename, __func__);
+            return;
         }
     }
-    return _ret;
+
+    for (decltype(words) i{0}; i < words; ++i) {
+        array.data()[i] = (uint16_t)(1 + i);
+    }
+
+    array.free(0);
+    LOG_FORMAT(info, "Words from internal generator (%s)", __func__);
 }
 
 int p_num = 0; // dump progressive number
 int p_val = 0; // dump previous byte value
 
-static auto dump_packet_words(const uint16_t* buffer, uint32_t words, const char* filename = nullptr) {
-    auto _ret{false};
+static auto writer_of_packet_words(GArray<uint16_t>& array, const char* filename = nullptr) {
+    auto words{array.used()};
 
-    if (buffer != nullptr && words > 0) {
-        if (filename != nullptr) {
-            std::ofstream fs;
-            fs.open(filename);
+    if (filename != nullptr) {
+        std::ofstream fs;
+        fs.open(filename);
 
-            if (fs.is_open()) {
-                char h_line[16];
-                char l_line[16];
+        if (fs.is_open()) {
+            char h_line[16];
+            char l_line[16];
 
-                for (decltype(words) i{0}; i < words; ++i) {
-                    auto h_val{(0xFF00 & buffer[i]) >> 8};
-                    auto l_val{(0x00FF & buffer[i]) >> 0};
-
-                    sprintf(h_line, "0x%02X\n", h_val);
-                    sprintf(l_line, "0x%02X\n", l_val);
-
-                    fs.write(h_line, (signed)strlen(h_line));
-                    fs.write(l_line, (signed)strlen(l_line));
-                }
-
-                fs.close();
-            }
-        }
-        else {
             for (decltype(words) i{0}; i < words; ++i) {
-                auto h_val{(0xFF00 & buffer[i]) >> 8};
-                auto l_val{(0x00FF & buffer[i]) >> 0};
+                auto word = array.data()[i];
 
-                auto h_dif{h_val - p_val};
-                auto l_dif{l_val - h_val};
+                auto h_val{(0xFF00 & word) >> 8};
+                auto l_val{(0x00FF & word) >> 0};
 
-                auto check_1{(h_val == 0) && (l_val == 247)};
-                auto check_2{(p_val == 0) && (h_val == 247)};
+                sprintf(h_line, "0x%02X\n", h_val);
+                sprintf(l_line, "0x%02X\n", l_val);
 
-                if (check_1 || check_2) {
-                    p_num = 0;
-                }
-
-                p_val = l_val;
-
-                LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, h_val, h_dif);
-                LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, l_val, l_dif);
+                fs.write(h_line, (signed)strlen(h_line));
+                fs.write(l_line, (signed)strlen(l_line));
             }
+
+            fs.close();
+            return;
         }
     }
 
-    return _ret;
+    for (decltype(words) i{0}; i < words; ++i) {
+        auto word = array.data()[i];
+
+        auto h_val{(0xFF00 & word) >> 8};
+        auto l_val{(0x00FF & word) >> 0};
+
+        auto h_dif{h_val - p_val};
+        auto l_dif{l_val - h_val};
+
+        auto check_1{(h_val == 0) && (l_val == 247)};
+        auto check_2{(p_val == 0) && (h_val == 247)};
+
+        if (check_1 || check_2) {
+            p_num = 0;
+        }
+
+        p_val = l_val;
+
+        LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, h_val, h_dif);
+        LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, l_val, l_dif);
+    }
 }
 
-int main(int argc, char* argv[]) {
-    GLogger::Initialize("_fifo.log");
-    LOG_FORMAT(trace, "Process STARTED (%s)", __func__);
+static auto worker_for_rx_mode() {
+    RETURN_IF(!RX_MODE_ENABLED);
 
-    if (ENABLE_TX_MODE) {
-        auto tx_fifo = GFIFOdevice(TX_FIFO_DEV_ADDR, TX_FIFO_DEV_SIZE, TX_FIFO_UIO_NUM, TX_FIFO_UIO_MAP);
-        auto tx_buff = GArray<uint16_t>(CADU_PACKET_WORDS);
+    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
 
-        if (tx_fifo.Open()) {
-            if (argc > 1) {
-                load_packet_words(tx_buff.data(), tx_buff.size(), argv[1]);
+    auto _device = GFIFOdevice(RX_FIFO_DEV_ADDR, RX_FIFO_DEV_SIZE, RX_FIFO_UIO_NUM, RX_FIFO_UIO_MAP);
+    auto _roller = GArrayRoller<uint16_t>(RX_PACKET_WORDS, RX_MODE_LOOPS);
+
+    RETURN_IF(!_device.Open());
+
+    auto _error = false;
+    auto _bytes = 0UL;
+
+    _device.Reset();
+    _device.ClearEvent();
+
+    GProfile profile;
+    profile.Start();
+    // -------------------------------------------------------------------
+    for (decltype(RX_MODE_LOOPS) i{0}; (i < RX_MODE_LOOPS) && !_error; ++i) {
+        _error = !_device.WaitThenClearEvent();
+        BREAK_IF(_error);
+
+        auto level{_device.GetRxLengthLevel(_error)};
+        BREAK_IF(_error || (level == 0));
+
+        auto words{_device.GetRxPacketWords(_error)};
+        BREAK_IF(_error || words < 8);
+
+        auto* dst_buf{_roller.Writing_Start(_error)};
+        BREAK_IF(_error);
+
+        _error = !_device.ReadPacket(dst_buf->data(), words);
+        BREAK_IF(_error);
+
+        _error = !dst_buf->used(words);
+        _bytes += FIFO_WORD_SIZE * words;
+
+        _roller.Writing_Stop(_error);
+    }
+    // -------------------------------------------------------------------
+    profile.Stop();
+    LOG_FORMAT(info, "[RX] Data speed %0.3f Mbps", double(8 * _bytes) / profile.us());
+
+    for (decltype(RX_MODE_LOOPS) i{0}; (i < RX_MODE_LOOPS) && !_error; ++i) {
+        auto* src_buf{_roller.Reading_Start(_error)};
+        if (!_error) {
+            if (RX_FILE_NAME.empty()) {
+                writer_of_packet_words(*src_buf);
             }
             else {
-                load_packet_words(tx_buff.data(), tx_buff.size());
+                writer_of_packet_words(*src_buf, RX_FILE_NAME.c_str());
             }
-
-            if (tx_fifo.SetTxPacketWords(tx_buff.size())) {
-                auto _err   = false;
-                auto _loop  = 2000;
-                auto _bytes = 0UL;
-
-                LOG_FORMAT(debug, "[TX] Packet words %d", tx_fifo.GetTxPacketWords(_err));
-                LOG_FORMAT(debug, "[TX] Unused words %d", tx_fifo.GetTxUnusedWords(_err));
-
-                tx_fifo.Reset();
-                tx_fifo.ClearEvent();
-
-                tx_fifo.EnableReader();
-                tx_fifo.WritePacket(tx_buff.data(), tx_buff.size());
-
-                GProfile profile;
-                profile.Start();
-                // -------------------------------------------------------------------
-                for (decltype(_loop) i{0}; (i < _loop) && !_err; ++i) {
-                    _err = !tx_fifo.WritePacket(tx_buff.data(), tx_buff.size());
-                    if (!_err) {
-                        _err = !tx_fifo.WaitThenClearEvent();
-                        if (!_err) {
-                            _bytes += FIFO_WORD_SIZE * tx_buff.size();
-                        }
-                    }
-                }
-                // -------------------------------------------------------------------
-                profile.Stop();
-                LOG_FORMAT(info, "[TX] Data speed %0.3f Mbps", double(8 * _bytes) / profile.us());
-            }
-
-            tx_fifo.Close();
         }
+        _roller.Reading_Stop(_error);
     }
 
-    if (ENABLE_RX_MODE) {
-        auto rx_fifo = GFIFOdevice(RX_FIFO_DEV_ADDR, RX_FIFO_DEV_SIZE, RX_FIFO_UIO_NUM, RX_FIFO_UIO_MAP);
-        auto rx_buff = GArrayRoller<uint16_t>(SPACE_PACKET_WORDS, 20);
+    _device.Close();
 
-        if (rx_fifo.Open()) {
-            auto _err   = false;
-            auto _loop  = 8;
-            auto _bytes = 0UL;
+    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
+}
 
-            rx_fifo.Reset();
-            rx_fifo.ClearEvent();
+static auto worker_for_tx_mode() {
+    RETURN_IF(!TX_MODE_ENABLED);
 
-            GProfile profile;
-            profile.Start();
-            // -------------------------------------------------------------------
-            for (decltype(_loop) i{0}; (i < _loop) && !_err; ++i) {
-                _err = !rx_fifo.WaitThenClearEvent();
-                if (!_err) {
-                    auto level{rx_fifo.GetRxLengthLevel(_err)};
-                    if (!_err && level > 0) {
-                        auto words{rx_fifo.GetRxPacketWords(_err)};
-                        if (!_err && words > 7) {
-                            auto dst_buf{rx_buff.Writing_Start(_err)};
-                            if (!_err) {
-                                _err = !rx_fifo.ReadPacket(dst_buf->data(), words);
-                                if (!_err) {
-                                    _err = !dst_buf->used(words);
-                                    _bytes += FIFO_WORD_SIZE * words;
-                                }
-                            }
-                            rx_buff.Writing_Stop(_err);
-                        }
-                    }
-                }
-            }
-            // -------------------------------------------------------------------
-            profile.Stop();
-            LOG_FORMAT(info, "[RX] Data speed %0.3f Mbps", double(8 * _bytes) / profile.us());
+    LOG_FORMAT(trace, "Thread STARTED (%s)", __func__);
 
-            for (decltype(_loop) i{0}; (i < _loop) && !_err; ++i) {
-                auto src_buf{rx_buff.Reading_Start(_err)};
-                if (!_err) {
-                    dump_packet_words(src_buf->data(), src_buf->used());
-                }
-                rx_buff.Reading_Stop(_err);
-            }
+    auto _device = GFIFOdevice(TX_FIFO_DEV_ADDR, TX_FIFO_DEV_SIZE, TX_FIFO_UIO_NUM, TX_FIFO_UIO_MAP);
+    auto _array  = GArray<uint16_t>(TX_PACKET_WORDS);
 
-            rx_fifo.Close();
-        }
+    GOTO_IF(!_device.Open(), _exit_jump);
+
+    if (TX_FILE_NAME.empty()) {
+        reader_of_packet_words(_array);
+    }
+    else {
+        reader_of_packet_words(_array, TX_FILE_NAME.c_str());
     }
 
-    LOG_FORMAT(trace, "Process STOPPED (%s)", __func__);
+    if (_device.SetTxPacketWords(_array.size())) {
+        auto _error = false;
+        auto _bytes = 0UL;
+
+        LOG_FORMAT(debug, "[TX] Packet words %d", _device.GetTxPacketWords(_error));
+        LOG_FORMAT(debug, "[TX] Unused words %d", _device.GetTxUnusedWords(_error));
+
+        _device.Reset();
+        _device.ClearEvent();
+
+        // _fifo.EnableReader();
+        // _fifo.WritePacket(tx_buff.data(), tx_buff.size());
+
+        GProfile profile;
+        profile.Start();
+        // -------------------------------------------------------------------
+        for (decltype(TX_MODE_LOOPS) i{0}; (i < TX_MODE_LOOPS) && !_error; ++i) {
+            _error = !_device.WritePacket(_array.data(), _array.size());
+            BREAK_IF(_error);
+
+            _error = !_device.WaitThenClearEvent();
+            BREAK_IF(_error);
+
+            _bytes += FIFO_WORD_SIZE * _array.size();
+        }
+        // -------------------------------------------------------------------
+        profile.Stop();
+        LOG_FORMAT(info, "[TX] Data speed %0.3f Mbps", double(8 * _bytes) / profile.us());
+    }
+
+    _device.Close();
+
+_exit_jump:
+    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
+}
+
+static void load_options(const char* filename) {
+    auto opts = GOptions();
+
+    // clang-format off
+    opts.Insert<bool        >("PL_to_PS.RX_MODE_ENABLED" , RX_MODE_ENABLED );
+    opts.Insert<unsigned int>("PL_to_PS.RX_MODE_LOOPS"   , RX_MODE_LOOPS   );
+    opts.Insert<std::string >("PL_to_PS.RX_FILE_NAME"    , RX_FILE_NAME    );
+    opts.Insert<unsigned int>("PL_to_PS.RX_PACKET_WORDS" , RX_PACKET_WORDS );
+    opts.Insert<unsigned int>("PL_to_PS.RX_FIFO_DEV_ADDR", RX_FIFO_DEV_ADDR);
+    opts.Insert<unsigned int>("PL_to_PS.RX_FIFO_DEV_SIZE", RX_FIFO_DEV_SIZE);
+    opts.Insert<int         >("PL_to_PS.RX_FIFO_UIO_NUM" , RX_FIFO_UIO_NUM );
+    opts.Insert<int         >("PL_to_PS.RX_FIFO_UIO_MAP" , RX_FIFO_UIO_MAP );
+    
+    opts.Insert<bool        >("PS_to_PL.TX_MODE_ENABLED" , TX_MODE_ENABLED );
+    opts.Insert<unsigned int>("PS_to_PL.TX_MODE_LOOPS"   , TX_MODE_LOOPS   );
+    opts.Insert<std::string >("PS_to_PL.TX_FILE_NAME"    , TX_FILE_NAME    );
+    opts.Insert<unsigned int>("PS_to_PL.TX_PACKET_WORDS" , TX_PACKET_WORDS );
+    opts.Insert<unsigned int>("PS_to_PL.TX_FIFO_DEV_ADDR", TX_FIFO_DEV_ADDR);
+    opts.Insert<unsigned int>("PS_to_PL.TX_FIFO_DEV_SIZE", TX_FIFO_DEV_SIZE);
+    opts.Insert<int         >("PS_to_PL.TX_FIFO_UIO_NUM" , TX_FIFO_UIO_NUM );
+    opts.Insert<int         >("PS_to_PL.TX_FIFO_UIO_MAP" , TX_FIFO_UIO_MAP );
+    // clang-format on
+
+    if (opts.Read(filename)) {
+        // clang-format off
+        RX_MODE_ENABLED  = opts.Get<bool        >("PL_to_PS.RX_MODE_ENABLED" ); 
+        RX_MODE_LOOPS    = opts.Get<unsigned int>("PL_to_PS.RX_MODE_LOOPS"   ); 
+        RX_FILE_NAME     = opts.Get<std::string >("PL_to_PS.RX_FILE_NAME"    );
+        RX_PACKET_WORDS  = opts.Get<unsigned int>("PL_to_PS.RX_PACKET_WORDS" ); 
+        RX_FIFO_DEV_ADDR = opts.Get<unsigned int>("PL_to_PS.RX_FIFO_DEV_ADDR"); 
+        RX_FIFO_DEV_SIZE = opts.Get<unsigned int>("PL_to_PS.RX_FIFO_DEV_SIZE"); 
+        RX_FIFO_UIO_NUM  = opts.Get<int         >("PL_to_PS.RX_FIFO_UIO_NUM" ); 
+        RX_FIFO_UIO_MAP  = opts.Get<int         >("PL_to_PS.RX_FIFO_UIO_MAP" ); 
+
+        TX_MODE_ENABLED  = opts.Get<bool        >("PS_to_PL.TX_MODE_ENABLED" ); 
+        TX_MODE_LOOPS    = opts.Get<unsigned int>("PS_to_PL.TX_MODE_LOOPS"   ); 
+        TX_FILE_NAME     = opts.Get<std::string >("PS_to_PL.TX_FILE_NAME"    );
+        TX_PACKET_WORDS  = opts.Get<unsigned int>("PS_to_PL.TX_PACKET_WORDS" ); 
+        TX_FIFO_DEV_ADDR = opts.Get<unsigned int>("PS_to_PL.TX_FIFO_DEV_ADDR"); 
+        TX_FIFO_DEV_SIZE = opts.Get<unsigned int>("PS_to_PL.TX_FIFO_DEV_SIZE"); 
+        TX_FIFO_UIO_NUM  = opts.Get<int         >("PS_to_PL.TX_FIFO_UIO_NUM" ); 
+        TX_FIFO_UIO_MAP  = opts.Get<int         >("PS_to_PL.TX_FIFO_UIO_MAP" );
+        // clang-format on
+    }
+}
+
+#define EXE_NAME "_fifo"
+
+int main(int argc, char* argv[]) {
+    GLogger::Initialize(EXE_NAME ".log");
+    LOG_FORMAT(trace, "Process STARTED (%s)", EXE_NAME);
+
+    load_options(EXE_NAME ".cfg");
+
+    std::thread thread_for_rx_mode(worker_for_rx_mode);
+    std::thread thread_for_tx_mode(worker_for_tx_mode);
+
+    thread_for_rx_mode.join();
+    thread_for_tx_mode.join();
+
+    LOG_FORMAT(trace, "Process STOPPED (%s)", EXE_NAME);
     return 0;
 }

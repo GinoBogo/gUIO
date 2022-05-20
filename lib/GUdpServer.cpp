@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GUdpServer.cpp
 /// \version   0.1
@@ -11,11 +12,11 @@
 #include "GLogger.hpp"
 #include "GUdpClient.hpp"
 
-#include <errno.h>  // errno
+#include <cerrno>   // errno
+#include <cstdio>   // snprintf
+#include <cstdlib>  // atoi
+#include <cstring>  // memset
 #include <netdb.h>  // addrinfo
-#include <stdio.h>  // snprintf
-#include <stdlib.h> // atoi
-#include <string.h> // memset
 #include <unistd.h> // close
 
 GUdpServer::GUdpServer(const char* local_addr, uint16_t local_port, const char* tag_name) {
@@ -26,7 +27,8 @@ GUdpServer::GUdpServer(const char* local_addr, uint16_t local_port, const char* 
         snprintf(m_tag_name, sizeof(m_tag_name), "UDP Server");
     }
 
-    struct addrinfo hints, *res;
+    struct addrinfo  hints;
+    struct addrinfo* res;
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family   = AF_INET;
@@ -39,7 +41,7 @@ GUdpServer::GUdpServer(const char* local_addr, uint16_t local_port, const char* 
     snprintf(s_addr, sizeof(s_addr), "%s", local_addr);
     snprintf(s_port, sizeof(s_port), "%u", local_port);
 
-    if (!strlen(s_addr)) {
+    if (strlen(s_addr) == 0) {
         strcpy(s_addr, "0.0.0.0");
     }
 
@@ -80,8 +82,8 @@ bool GUdpServer::Receive(void* dst_buffer, size_t* dst_bytes) {
         return false;
     }
 
-    auto _addr{(struct sockaddr*)&m_peer_addr};
-    auto bytes{recvfrom(m_socket_fd, dst_buffer, MAX_DATAGRAM_SIZE, 0, _addr, &m_peer_addr_len)};
+    auto* _addr{(struct sockaddr*)&m_peer_addr};
+    auto  bytes{recvfrom(m_socket_fd, dst_buffer, MAX_DATAGRAM_SIZE, 0, _addr, &m_peer_addr_len)};
     if (bytes == -1) {
         return false;
     }
@@ -95,13 +97,9 @@ bool GUdpServer::Send(void* src_buffer, size_t src_bytes) {
         return false;
     }
 
-    auto _addr{(struct sockaddr*)&m_peer_addr};
-    auto bytes{sendto(m_socket_fd, src_buffer, src_bytes, 0, _addr, m_peer_addr_len)};
-    if (bytes == -1) {
-        return false;
-    }
-
-    return true;
+    auto* _addr{(struct sockaddr*)&m_peer_addr};
+    auto  bytes{sendto(m_socket_fd, src_buffer, src_bytes, 0, _addr, m_peer_addr_len)};
+    return !(bytes == -1);
 }
 
 void GUdpServer::Stop() {

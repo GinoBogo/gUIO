@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GArray.hpp
 /// \version   0.1
@@ -19,17 +20,11 @@ template <typename T> class GArray {
 
         m_data = new T[size];
         m_size = size;
-        m_used = 0;
+        Reset();
     }
 
     GArray(const GArray& array) {
-        if (this != &array) {
-            m_data = new T[array.m_size];
-            m_size = array.m_size;
-            m_used = array.m_used;
-
-            for (decltype(m_used) i{0}; i < m_used; ++i) { m_data[i] = array.m_data[i]; }
-        }
+        *this = array;
     }
 
     ~GArray() {
@@ -44,36 +39,46 @@ template <typename T> class GArray {
             m_size = array.m_size;
             m_used = array.m_used;
 
-            for (decltype(m_used) i{0}; i < m_used; ++i) { m_data[i] = array.m_data[i]; }
+            for (decltype(m_used) i{0}; i < m_used; ++i) {
+                m_data[i] = array.m_data[i];
+            }
         }
         return *this;
     }
 
-    auto data() {
+    void Reset() {
+        m_used = 0;
+    }
+
+    [[nodiscard]] auto data() const {
         return m_data;
     }
 
-    auto size() {
+    [[nodiscard]] auto size() const {
         return m_size;
     }
 
-    auto used() {
+    [[nodiscard]] auto used() const {
         return m_used;
     }
 
     auto used(const size_t value) {
         auto _res{value <= m_size};
-        if (_res) { m_used = value; }
+        if (_res) {
+            m_used = value;
+        }
         return _res;
     }
 
-    auto free() {
+    [[nodiscard]] auto free() const {
         return m_size - m_used;
     }
 
     auto free(const size_t value) {
         auto _res{value <= m_size};
-        if (_res) { m_used = m_size - value; }
+        if (_res) {
+            m_used = m_size - value;
+        }
         return _res;
     }
 
@@ -82,6 +87,8 @@ template <typename T> class GArray {
         if (m_data != nullptr) {
             delete[] m_data;
             m_data = nullptr;
+            m_size = 0;
+            Reset();
         }
     }
 

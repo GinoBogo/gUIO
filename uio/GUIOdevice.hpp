@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GUIOdevice.hpp
 /// \version   0.1
@@ -40,44 +41,44 @@ class GUIOdevice {
     bool MapToMemory();
 
     bool IRQ_Wait(int timeout = -1);
-    bool IRQ_Clear();
+    bool IRQ_Clear() const;
 
-    size_t GetMapAttribute(const char* attr_name, bool* error = nullptr, char* dst_buf = nullptr);
-    void   PrintMapAttributes();
+    size_t GetMapAttribute(const char* attr_name, bool* error = nullptr, char* dst_buf = nullptr) const;
+    void   PrintMapAttributes() const;
 
-    auto uio_num() const {
+    [[nodiscard]] auto uio_num() const {
         return m_dev.uio_num;
     }
 
-    auto map_num() const {
+    [[nodiscard]] auto map_num() const {
         return m_dev.map_num;
     }
 
-    auto name() const {
+    [[nodiscard]] auto name() const {
         return (const char*)m_dev.name;
     }
 
-    auto addr() const {
+    [[nodiscard]] auto addr() const {
         return m_dev.addr;
     }
 
-    auto offset() const {
+    [[nodiscard]] auto offset() const {
         return m_dev.offset;
     }
 
-    auto size() const {
+    [[nodiscard]] auto size() const {
         return m_dev.size;
     }
 
-    auto high_addr() const {
+    [[nodiscard]] auto high_addr() const {
         return m_dev.addr + (m_dev.size - 1);
     }
 
-    auto* virt_addr() const {
+    [[nodiscard]] auto* virt_addr() const {
         return (uint8_t*)m_dev.virt_addr;
     }
 
-    auto irq_count() const {
+    [[nodiscard]] auto irq_count() const {
         return m_dev.irq_count;
     }
 

@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GUdpServer.hpp
 /// \version   0.1
@@ -21,11 +22,11 @@ class GUdpServer {
 
     ~GUdpServer();
 
-    auto IsReady() {
+    [[nodiscard]] auto IsReady() const {
         return m_is_ready;
     }
 
-    auto TagName() {
+    [[nodiscard]] auto TagName() const {
         return m_tag_name;
     }
 

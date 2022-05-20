@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GFiFo.hpp
 /// \version   0.1
@@ -29,7 +30,7 @@ class GFiFo {
 
     } fsm_state_t;
 
-    GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_level = -1, const int min_level = -1);
+    GFiFo(uint32_t item_size, uint32_t fifo_depth, int max_level = -1, int min_level = -1);
 
     ~GFiFo();
 
@@ -41,43 +42,43 @@ class GFiFo {
 
     bool Push(const GBuffer* src_buff);
 
-    bool Push(const uint8_t* src_data, const uint32_t src_count);
+    bool Push(const uint8_t* src_data, uint32_t src_count);
 
     bool Pop(GBuffer* dst_buff);
 
-    int32_t Pop(uint8_t* dst_data, const uint32_t dst_size);
+    int32_t Pop(uint8_t* dst_data, uint32_t dst_size);
 
     bool IsStateChanged(fsm_state_t* new_state = nullptr, fsm_state_t* old_state = nullptr);
 
-    inline auto IsEmpty() const {
-        return !m_count;
+    [[nodiscard]] auto IsEmpty() const {
+        return (m_count == 0);
     }
 
-    inline auto IsFull() const {
-        return m_count == m_depth;
+    [[nodiscard]] auto IsFull() const {
+        return (m_count == m_depth);
     }
 
-    inline auto size() const {
+    [[nodiscard]] auto size() const {
         return m_size;
     }
 
-    inline auto depth() const {
+    [[nodiscard]] auto depth() const {
         return m_depth;
     }
 
-    inline auto count() const {
+    [[nodiscard]] auto count() const {
         return m_count;
     }
 
-    inline auto free() const {
+    [[nodiscard]] auto free() const {
         return m_depth - m_count;
     }
 
-    inline auto max_level() const {
+    [[nodiscard]] auto max_level() const {
         return m_max_level;
     }
 
-    inline auto min_level() const {
+    [[nodiscard]] auto min_level() const {
         return m_min_level;
     }
 

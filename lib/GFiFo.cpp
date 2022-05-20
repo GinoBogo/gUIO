@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GFiFo.cpp
 /// \version   0.1
@@ -31,7 +32,7 @@ GFiFo::GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_
         m_fsm_state = MIN_LEVEL_PASSED;
     }
 
-    if (m_size && m_depth) {
+    if ((m_size > 0) && (m_depth > 0)) {
         p_fifo = new GBuffer*[m_depth];
 
         for (decltype(m_depth) i{0}; i < m_depth; ++i) {
@@ -107,7 +108,7 @@ bool GFiFo::Push(const GBuffer* src_buff) {
     std::lock_guard<std::mutex> lock(m_mutex);
 #endif
 
-    if (src_buff) {
+    if (src_buff != nullptr) {
         if (!IsFull()) {
             GBuffer* _item = p_fifo[m_iW];
 
@@ -134,7 +135,7 @@ bool GFiFo::Push(const uint8_t* src_data, const uint32_t src_count) {
     std::lock_guard<std::mutex> lock(m_mutex);
 #endif
 
-    if (src_data && src_count) {
+    if ((src_data != nullptr) && (src_count > 0)) {
         if (!IsFull()) {
             GBuffer* _item = p_fifo[m_iW];
 
@@ -161,7 +162,7 @@ bool GFiFo::Pop(GBuffer* dst_buff) {
     std::lock_guard<std::mutex> lock(m_mutex);
 #endif
 
-    if (dst_buff) {
+    if (dst_buff != nullptr) {
         if (!IsEmpty()) {
             GBuffer* _item = p_fifo[m_iR];
 
@@ -188,7 +189,7 @@ int32_t GFiFo::Pop(uint8_t* dst_data, const uint32_t dst_size) {
     std::lock_guard<std::mutex> lock(m_mutex);
 #endif
 
-    if (dst_data && dst_size) {
+    if ((dst_data != nullptr) && (dst_size > 0)) {
         if (!IsEmpty()) {
             GBuffer* _item = p_fifo[m_iR];
             uint32_t bytes = _item->count();

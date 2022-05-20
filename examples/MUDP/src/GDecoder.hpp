@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GDecoder.hpp
 /// \version   0.1
@@ -21,21 +22,21 @@ class GDecoder {
     GDecoder(WorkerFunc decode_packet, WorkerFunc decode_message, std::any args) {
         m_decode_packet  = decode_packet;
         m_decode_message = decode_message;
-        m_args           = args;
+        m_args           = std::move(args);
     }
 
     bool Process() {
         if (GPacket::IsSingle(&packet)) {
-            if (GPacket::IsShort(&packet)) {
+            if (GPacket::IsShort(&packet)) { //
                 return m_decode_packet(&packet, m_args);
             }
-            else {
-                message.Initialize(&packet);
-                message.Append(&packet);
-                if (message.IsValid()) {
-                    return m_decode_message(&message, m_args);
-                }
+
+            message.Initialize(&packet);
+            message.Append(&packet);
+            if (message.IsValid()) { //
+                return m_decode_message(&message, m_args);
             }
+
             return false;
         }
 
@@ -52,7 +53,7 @@ class GDecoder {
 
         if (GPacket::IsLast(&packet)) {
             message.Append(&packet);
-            if (message.IsValid()) {
+            if (message.IsValid()) { //
                 return m_decode_message(&message, m_args);
             }
         }

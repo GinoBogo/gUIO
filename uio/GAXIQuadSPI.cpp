@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GAXIQuadSPI.cpp
 /// \version   0.1
@@ -77,11 +78,17 @@ void GAXIQuadSPI::Initialize(bool clock_phase, bool clock_polarity, bool loopbac
                     | 0 * BIT_SPI_CR_SPE   //  1 | SPI System Enable (R/W)
                     | 0 * BIT_SPI_CR_LLM;  //  1 | Local Loopback Mode (R/W)
 
-    if (clock_phase) ctrl_reg |= BIT_SPI_CR_CPHA;
+    if (clock_phase) {
+        ctrl_reg |= BIT_SPI_CR_CPHA;
+    }
 
-    if (clock_polarity) ctrl_reg |= BIT_SPI_CR_CPOL;
+    if (clock_polarity) {
+        ctrl_reg |= BIT_SPI_CR_CPOL;
+    }
 
-    if (loopback_mode) ctrl_reg |= BIT_SPI_CR_LLM;
+    if (loopback_mode) {
+        ctrl_reg |= BIT_SPI_CR_LLM;
+    }
 
     QSPI_setControlRegister(m_base_addr, ctrl_reg);
 
@@ -126,7 +133,7 @@ void GAXIQuadSPI::Stop() {
     update_ctrl_reg(__func__);
 }
 
-uint32_t GAXIQuadSPI::WriteThenRead(uint8_t* tx_buf, uint32_t tx_buf_len, uint8_t* rx_buf, uint32_t rx_buf_len) {
+uint32_t GAXIQuadSPI::WriteThenRead(const uint8_t* tx_buf, uint32_t tx_buf_len, uint8_t* rx_buf, uint32_t rx_buf_len) {
     QSPI_setDeviceGlobalInterruptRegister(m_base_addr, disable_global_irq);
     {
         m_ctrl_reg = QSPI_getControlRegister(m_base_addr);
@@ -138,7 +145,9 @@ uint32_t GAXIQuadSPI::WriteThenRead(uint8_t* tx_buf, uint32_t tx_buf_len, uint8_
         for (decltype(tx_buf_len) i{0}; i < tx_buf_len; ++i) {
             volatile auto status_reg = QSPI_getStatusRegister(m_base_addr);
 
-            if (status_reg & transmit_full) break;
+            if ((status_reg & transmit_full) != 0) {
+                break;
+            }
 
             QSPI_setDataTransmitRegister(m_base_addr, tx_buf[i]);
         }
@@ -146,7 +155,9 @@ uint32_t GAXIQuadSPI::WriteThenRead(uint8_t* tx_buf, uint32_t tx_buf_len, uint8_
         for (decltype(rx_buf_len) i{0}; i < rx_buf_len; ++i) {
             volatile auto status_reg = QSPI_getStatusRegister(m_base_addr);
 
-            if (status_reg & transmit_full) break;
+            if ((status_reg & transmit_full) != 0) {
+                break;
+            }
 
             QSPI_setDataTransmitRegister(m_base_addr, 0);
         }
@@ -158,27 +169,37 @@ uint32_t GAXIQuadSPI::WriteThenRead(uint8_t* tx_buf, uint32_t tx_buf_len, uint8_
         while (true) {
             volatile auto status_reg = QSPI_getStatusRegister(m_base_addr);
 
-            if (status_reg & transmit_empty) break;
+            if ((status_reg & transmit_empty) != 0) {
+                break;
+            }
         }
 
         for (decltype(tx_buf_len) i{0}; i < tx_buf_len; ++i) {
             volatile auto status_reg = QSPI_getStatusRegister(m_base_addr);
 
-            if (status_reg & receive_empty) break;
+            if ((status_reg & receive_empty) != 0) {
+                break;
+            }
 
             auto data = QSPI_getDataReceiveRegister(m_base_addr);
 
-            if (rx_buf != nullptr) rx_buf[i] = data;
+            if (rx_buf != nullptr) {
+                rx_buf[i] = data;
+            }
         }
 
         for (decltype(rx_buf_len) i{0}; i < rx_buf_len; ++i) {
             volatile auto status_reg = QSPI_getStatusRegister(m_base_addr);
 
-            if (status_reg & receive_empty) break;
+            if ((status_reg & receive_empty) != 0) {
+                break;
+            }
 
             auto data = QSPI_getDataReceiveRegister(m_base_addr);
 
-            if (rx_buf != nullptr) rx_buf[i] = data;
+            if (rx_buf != nullptr) {
+                rx_buf[i] = data;
+            }
         }
 
         QSPI_setSlaveSelectRegister(m_base_addr, disable_chip_select);

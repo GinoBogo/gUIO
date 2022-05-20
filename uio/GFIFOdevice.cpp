@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GFIFOdevice.cpp
 /// \version   0.1
@@ -21,7 +22,13 @@ GFIFOdevice::GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_
     m_uio_regs = nullptr;
     m_is_ready = false;
 
-    LOG_WRITE(trace, "FIFO device created");
+    LOG_FORMAT(trace, "FIFO device created [0x%08X, 0x%05X, %d, %d]", m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
+}
+
+GFIFOdevice::GFIFOdevice(const GFIFOdevice& fifo_device) {
+    *this = fifo_device;
+
+    LOG_FORMAT(trace, "FIFO device created [0x%08X, 0x%05X, %d, %d]", m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
 }
 
 GFIFOdevice::~GFIFOdevice() {
@@ -32,6 +39,23 @@ GFIFOdevice::~GFIFOdevice() {
     delete m_uio;
 
     LOG_WRITE(trace, "FIFO device destroyed");
+}
+
+GFIFOdevice& GFIFOdevice::operator=(const GFIFOdevice& fifo_device) {
+    if (this != &fifo_device) {
+        this->~GFIFOdevice();
+
+        m_dev_addr = fifo_device.m_dev_addr;
+        m_dev_size = fifo_device.m_dev_size;
+        m_uio_num  = fifo_device.m_uio_num;
+        m_uio_map  = fifo_device.m_uio_map;
+
+        m_dev      = new GMAPdevice(m_dev_addr, m_dev_size);
+        m_uio      = new GUIOdevice(m_uio_num, m_uio_map);
+        m_uio_regs = nullptr;
+        m_is_ready = false;
+    }
+    return *this;
 }
 
 bool GFIFOdevice::Open() {

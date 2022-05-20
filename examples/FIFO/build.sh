@@ -21,4 +21,4 @@ fi
 
 ninja
 
-cp $path/cfg/*.txt $path/build/bin
+cp $path/cfg/*.* $path/build/bin

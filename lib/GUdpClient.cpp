@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GUdpClient.cpp
 /// \version   0.1
@@ -10,11 +11,11 @@
 
 #include "GLogger.hpp"
 
-#include <errno.h>  // errno
+#include <cerrno>   // errno
+#include <cstdio>   // snprintf
+#include <cstdlib>  // atoi
+#include <cstring>  // memset
 #include <netdb.h>  // addrinfo
-#include <stdio.h>  // snprintf
-#include <stdlib.h> // atoi
-#include <string.h> // memset
 #include <unistd.h> // close
 
 GUdpClient::GUdpClient(const char* remote_addr, uint16_t remote_port, const char* tag_name) {
@@ -25,7 +26,8 @@ GUdpClient::GUdpClient(const char* remote_addr, uint16_t remote_port, const char
         snprintf(m_tag_name, sizeof(m_tag_name), "UDP Client");
     }
 
-    struct addrinfo hints, *res;
+    struct addrinfo  hints;
+    struct addrinfo* res;
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family   = AF_INET;
@@ -37,7 +39,7 @@ GUdpClient::GUdpClient(const char* remote_addr, uint16_t remote_port, const char
     snprintf(s_addr, sizeof(s_addr), "%s", remote_addr);
     snprintf(s_port, sizeof(s_port), "%u", remote_port);
 
-    if (!strlen(s_addr)) {
+    if (strlen(s_addr) == 0) {
         strcpy(s_addr, "127.0.0.1");
     }
 
@@ -73,7 +75,7 @@ GUdpClient::~GUdpClient() {
     LOG_FORMAT(debug, "%s destructor", m_tag_name);
 }
 
-bool GUdpClient::Receive(void* dst_buffer, size_t* dst_bytes) {
+bool GUdpClient::Receive(void* dst_buffer, size_t* dst_bytes) const {
     if (!m_is_ready || dst_buffer == nullptr || dst_bytes == nullptr) {
         return false;
     }
@@ -87,17 +89,13 @@ bool GUdpClient::Receive(void* dst_buffer, size_t* dst_bytes) {
     return true;
 }
 
-bool GUdpClient::Send(void* src_buffer, size_t src_bytes) {
+bool GUdpClient::Send(void* src_buffer, size_t src_bytes) const {
     if (!m_is_ready || src_buffer == nullptr) {
         return false;
     }
 
     auto bytes{send(m_socket_fd, src_buffer, src_bytes, 0)};
-    if (bytes == -1) {
-        return false;
-    }
-
-    return true;
+    return !(bytes == -1);
 }
 
 void GUdpClient::Stop() {
