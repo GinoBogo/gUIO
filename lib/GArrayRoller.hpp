@@ -51,8 +51,8 @@ template <typename T> class GArrayRoller {
         if (this != &array_roller) {
             release_resources();
 
-            m_length = array_roller.length;
-            m_number = array_roller.number;
+            m_length = array_roller.m_length;
+            m_number = array_roller.m_number;
 
             if (m_length > 0 && m_number > 0) {
                 m_arrays = new GArray<T>*[m_number];
