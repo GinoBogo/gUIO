@@ -14,11 +14,10 @@
 #include "GLogger.hpp"
 #include "GOptions.hpp"
 #include "GProfile.hpp"
-#include "GString.hpp"
+#include "streams.hpp"
 
-#include <cstring>
-#include <filesystem>
-#include <fstream>
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 
 #define FIFO_WORD_SIZE sizeof(uint16_t)
@@ -26,8 +25,9 @@
 // SECTION: PL_to_PS global variables
 bool         RX_MODE_ENABLED  = true;
 unsigned int RX_MODE_LOOPS    = 20;
-std::string  RX_FILE_NAME     = "rx_data.txt";
+std::string  RX_FILE_NAME     = "rx_words.bin";
 unsigned int RX_PACKET_WORDS  = 1024;
+std::string  RX_FIFO_TAG_NAME = "RX";
 unsigned int RX_FIFO_DEV_ADDR = 0xA0010000;
 unsigned int RX_FIFO_DEV_SIZE = 4096;
 int          RX_FIFO_UIO_NUM  = 1;
@@ -36,118 +36,54 @@ int          RX_FIFO_UIO_MAP  = 1;
 // SECTION: PS_to_PL global variables
 bool         TX_MODE_ENABLED  = true;
 unsigned int TX_MODE_LOOPS    = 20;
-std::string  TX_FILE_NAME     = "tx_data.txt";
+std::string  TX_FILE_NAME     = "tx_words.bin";
 unsigned int TX_PACKET_WORDS  = 1024;
+std::string  TX_FIFO_TAG_NAME = "TX";
 unsigned int TX_FIFO_DEV_ADDR = 0xA0020000;
 unsigned int TX_FIFO_DEV_SIZE = 4096;
 int          TX_FIFO_UIO_NUM  = 2;
 int          TX_FIFO_UIO_MAP  = 2;
 
-static auto reader_of_packet_words(GArray<uint16_t>& array, const std::string& filename) {
-    auto words{array.size()};
+// SECTION: threads race control
+volatile auto           rx_total{0};
+std::mutex              rx_mutex;
+std::condition_variable rx_event;
 
-    if (!filename.empty()) {
-        std::ifstream fs;
-        fs.open(filename);
+volatile auto           tx_total{0};
+std::mutex              tx_mutex;
+std::condition_variable tx_event;
 
-        if (fs.is_open()) {
-            std::string line;
+static auto worker_for_rx_words(bool& quit, GArrayRoller<uint16_t>& roller) {
+    RETURN_IF_ELSE_LOG(!RX_MODE_ENABLED, trace, "Thread STARTED (%s)", __func__);
 
-            for (decltype(words) i{0}; i < words; ++i) {
-                uint16_t word{0x0000};
+    auto _error{false};
 
-                std::getline(fs, line);
-                word |= GString::strtous(line) << 8;
-                std::getline(fs, line);
-                word |= GString::strtous(line) << 0;
+    while (!quit && !_error) {
+        std::unique_lock rx_guard(rx_mutex);
+        rx_event.wait(rx_guard, [] { return rx_total > 0; });
 
-                array.data()[i] = word;
-            }
+        BREAK_IF(quit || _error);
 
-            fs.close();
+        rx_total--;
+        rx_guard.unlock();
 
-            array.free(0);
-            LOG_FORMAT(info, "Words from \"%s\" file (%s)", filename, __func__);
-            return;
+        auto* src_buf{roller.Reading_Start(_error)}; // INFO: read ->
+        if (!_error) {
+            writer_for_rx_words(*src_buf, RX_FILE_NAME);
         }
+        roller.Reading_Stop(_error); // INFO: read <-
     }
 
-    for (decltype(words) i{0}; i < words; ++i) {
-        array.data()[i] = (uint16_t)(1 + i);
-    }
+    LOG_FORMAT(info, "[STATS] RX read/write errors: %d (%s)", roller.errors(), __func__);
 
-    array.free(0);
-    LOG_FORMAT(info, "Words from internal generator (%s)", __func__);
+    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
 }
 
-int p_num{0}; // dump progressive number
-int p_val{0}; // dump previous byte value
-
-static auto writer_of_packet_words(GArray<uint16_t>& array, const std::string& filename) {
-    auto words{array.used()};
-
-    if (!filename.empty()) {
-        auto _path{std::filesystem::path(filename)};
-
-        char _tail[32];
-        snprintf(_tail, sizeof(_tail) - 1, "_%06d.%s", p_num++, _path.extension().c_str());
-
-        auto _filename{_path.replace_extension(_tail)};
-
-        std::ofstream fs;
-        fs.open(_filename);
-
-        if (fs.is_open()) {
-            char h_line[16];
-            char l_line[16];
-
-            for (decltype(words) i{0}; i < words; ++i) {
-                auto word = array.data()[i];
-
-                auto h_val{(0xFF00 & word) >> 8};
-                auto l_val{(0x00FF & word) >> 0};
-
-                sprintf(h_line, "0x%02X\n", h_val);
-                sprintf(l_line, "0x%02X\n", l_val);
-
-                fs.write(h_line, (signed)strlen(h_line));
-                fs.write(l_line, (signed)strlen(l_line));
-            }
-
-            fs.close();
-            return;
-        }
-    }
-
-    for (decltype(words) i{0}; i < words; ++i) {
-        auto word = array.data()[i];
-
-        auto h_val{(0xFF00 & word) >> 8};
-        auto l_val{(0x00FF & word) >> 0};
-
-        auto h_dif{h_val - p_val};
-        auto l_dif{l_val - h_val};
-
-        auto check_1{(h_val == 0) && (l_val == 247)};
-        auto check_2{(p_val == 0) && (h_val == 247)};
-
-        if (check_1 || check_2) {
-            p_num = 0;
-        }
-
-        p_val = l_val;
-
-        LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, h_val, h_dif);
-        LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, l_val, l_dif);
-    }
-}
-
-static auto worker_for_rx_mode() {
+static auto worker_for_rx_board(bool& quit, GArrayRoller<uint16_t>& roller) {
     RETURN_IF_ELSE_LOG(!RX_MODE_ENABLED, trace, "Thread STARTED (%s)", __func__);
 
     GProfile _profile;
-    auto     _device = GFIFOdevice(RX_FIFO_DEV_ADDR, RX_FIFO_DEV_SIZE, RX_FIFO_UIO_NUM, RX_FIFO_UIO_MAP);
-    auto     _roller = GArrayRoller<uint16_t>(RX_PACKET_WORDS, RX_MODE_LOOPS);
+    auto     _device = GFIFOdevice(RX_FIFO_DEV_ADDR, RX_FIFO_DEV_SIZE, RX_FIFO_UIO_NUM, RX_FIFO_UIO_MAP, RX_FIFO_TAG_NAME);
     auto     _error  = false;
     auto     _bytes  = 0UL;
 
@@ -157,7 +93,7 @@ static auto worker_for_rx_mode() {
 
     _profile.Start();
     // -------------------------------------------------------------------
-    for (decltype(RX_MODE_LOOPS) i{0}; (i < RX_MODE_LOOPS) && !_error; ++i) {
+    for (decltype(RX_MODE_LOOPS) i{0}; (i < RX_MODE_LOOPS) && !_error && !quit; ++i) {
         _error = !_device.WaitThenClearEvent();
         BREAK_IF(_error);
 
@@ -167,40 +103,69 @@ static auto worker_for_rx_mode() {
         auto words{_device.GetRxPacketWords(_error)};
         BREAK_IF(_error || (words <= 7));
 
-        auto* dst_buf{_roller.Writing_Start(_error)};
+        auto* dst_buf{roller.Writing_Start(_error)}; // INFO: write ->
+        BREAK_IF(_error);
+
+        _error = !dst_buf->used(words);
         BREAK_IF(_error);
 
         _error = !_device.ReadPacket(dst_buf->data(), words);
         BREAK_IF(_error);
 
-        _error = !dst_buf->used(words);
-        _bytes += FIFO_WORD_SIZE * words;
+        roller.Writing_Stop(_error); // INFO: write <-
+        BREAK_IF(_error);
 
-        _roller.Writing_Stop(_error);
+        std::lock_guard rx_guard(rx_mutex);
+        rx_total++;
+        rx_event.notify_one();
+
+        _bytes += FIFO_WORD_SIZE * words;
     }
     // -------------------------------------------------------------------
     _profile.Stop();
-    LOG_FORMAT(info, "[RX] Data speed %0.3f Mbps", double(8 * _bytes) / _profile.us());
-
-    for (decltype(RX_MODE_LOOPS) i{0}; (i < RX_MODE_LOOPS) && !_error; ++i) {
-        auto* src_buf{_roller.Reading_Start(_error)};
-        if (!_error) {
-            writer_of_packet_words(*src_buf, RX_FILE_NAME);
-        }
-        _roller.Reading_Stop(_error);
-    }
+    LOG_FORMAT(info, "[STATS] RX data speed %0.3f Mbps", double(8 * _bytes) / _profile.us());
 
     _device.Close();
 
 _exit_label:
+    quit     = true;
+    rx_total = 1;
+    rx_event.notify_one();
+
     LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
 }
 
-static auto worker_for_tx_mode() {
+static auto worker_for_tx_words(bool& quit, GArrayRoller<uint16_t>& roller) {
+    RETURN_IF_ELSE_LOG(!TX_MODE_ENABLED, trace, "Thread STARTED (%s)", __func__);
+
+    auto _error{false};
+
+    while (!quit && !_error) {
+        std::unique_lock tx_guard(tx_mutex);
+        tx_event.wait(tx_guard, [] { return tx_total > 0; });
+
+        BREAK_IF(quit || _error);
+
+        tx_total--;
+        tx_guard.unlock();
+
+        auto* dst_buf{roller.Writing_Start(_error)}; // INFO: write ->
+        if (!_error) {
+            reader_for_tx_words(*dst_buf, TX_FILE_NAME);
+        }
+        roller.Writing_Stop(_error); // INFO: write <-
+    }
+
+    LOG_FORMAT(info, "[STATS] TX read/write errors: %d (%s)", roller.errors(), __func__);
+
+    LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
+}
+
+static auto worker_for_tx_board(bool& quit, GArrayRoller<uint16_t>& roller) {
     RETURN_IF_ELSE_LOG(!TX_MODE_ENABLED, trace, "Thread STARTED (%s)", __func__);
 
     GProfile _profile;
-    auto     _device = GFIFOdevice(TX_FIFO_DEV_ADDR, TX_FIFO_DEV_SIZE, TX_FIFO_UIO_NUM, TX_FIFO_UIO_MAP);
+    auto     _device = GFIFOdevice(TX_FIFO_DEV_ADDR, TX_FIFO_DEV_SIZE, TX_FIFO_UIO_NUM, TX_FIFO_UIO_MAP, TX_FIFO_TAG_NAME);
     auto     _array  = GArray<uint16_t>(TX_PACKET_WORDS);
     auto     _error  = false;
     auto     _bytes  = 0UL;
@@ -209,19 +174,18 @@ static auto worker_for_tx_mode() {
     _device.Reset();
     _device.ClearEvent();
 
-    reader_of_packet_words(_array, TX_FILE_NAME);
+    reader_for_tx_words(_array, TX_FILE_NAME);
 
-    _error = !_device.SetTxPacketWords(_array.size());
+    _error = !_device.SetTxPacketWords(TX_PACKET_WORDS);
     if (!_error) {
         LOG_FORMAT(debug, "[TX] Packet words %d", _device.GetTxPacketWords(_error));
         LOG_FORMAT(debug, "[TX] Unused words %d", _device.GetTxUnusedWords(_error));
 
         // _fifo.EnableReader();
-        // _fifo.WritePacket(tx_buff.data(), tx_buff.size());
 
         _profile.Start();
         // -------------------------------------------------------------------
-        for (decltype(TX_MODE_LOOPS) i{0}; (i < TX_MODE_LOOPS) && !_error; ++i) {
+        for (decltype(TX_MODE_LOOPS) i{0}; (i < TX_MODE_LOOPS) && !_error && !quit; ++i) {
             _error = !_device.WritePacket(_array.data(), _array.size());
             BREAK_IF(_error);
 
@@ -232,12 +196,16 @@ static auto worker_for_tx_mode() {
         }
         // -------------------------------------------------------------------
         _profile.Stop();
-        LOG_FORMAT(info, "[TX] Data speed %0.3f Mbps", double(8 * _bytes) / _profile.us());
+        LOG_FORMAT(info, "[STATS] TX data speed %0.3f Mbps", double(8 * _bytes) / _profile.us());
     }
 
     _device.Close();
 
 _exit_label:
+    quit     = true;
+    tx_total = 1;
+    tx_event.notify_one();
+
     LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
 }
 
@@ -249,6 +217,7 @@ static void load_options(const char* filename) {
     opts.Insert<unsigned int>("PL_to_PS.RX_MODE_LOOPS"   , RX_MODE_LOOPS   );
     opts.Insert<std::string >("PL_to_PS.RX_FILE_NAME"    , RX_FILE_NAME    );
     opts.Insert<unsigned int>("PL_to_PS.RX_PACKET_WORDS" , RX_PACKET_WORDS );
+    opts.Insert<std::string >("PL_to_PS.RX_FIFO_TAG_NAME", RX_FIFO_TAG_NAME);
     opts.Insert<unsigned int>("PL_to_PS.RX_FIFO_DEV_ADDR", RX_FIFO_DEV_ADDR);
     opts.Insert<unsigned int>("PL_to_PS.RX_FIFO_DEV_SIZE", RX_FIFO_DEV_SIZE);
     opts.Insert<int         >("PL_to_PS.RX_FIFO_UIO_NUM" , RX_FIFO_UIO_NUM );
@@ -258,6 +227,7 @@ static void load_options(const char* filename) {
     opts.Insert<unsigned int>("PS_to_PL.TX_MODE_LOOPS"   , TX_MODE_LOOPS   );
     opts.Insert<std::string >("PS_to_PL.TX_FILE_NAME"    , TX_FILE_NAME    );
     opts.Insert<unsigned int>("PS_to_PL.TX_PACKET_WORDS" , TX_PACKET_WORDS );
+    opts.Insert<std::string >("PS_to_PL.TX_FIFO_TAG_NAME", TX_FIFO_TAG_NAME);
     opts.Insert<unsigned int>("PS_to_PL.TX_FIFO_DEV_ADDR", TX_FIFO_DEV_ADDR);
     opts.Insert<unsigned int>("PS_to_PL.TX_FIFO_DEV_SIZE", TX_FIFO_DEV_SIZE);
     opts.Insert<int         >("PS_to_PL.TX_FIFO_UIO_NUM" , TX_FIFO_UIO_NUM );
@@ -270,6 +240,7 @@ static void load_options(const char* filename) {
         RX_MODE_LOOPS    = opts.Get<unsigned int>("PL_to_PS.RX_MODE_LOOPS"   ); 
         RX_FILE_NAME     = opts.Get<std::string >("PL_to_PS.RX_FILE_NAME"    );
         RX_PACKET_WORDS  = opts.Get<unsigned int>("PL_to_PS.RX_PACKET_WORDS" ); 
+        RX_FIFO_TAG_NAME = opts.Get<std::string >("PL_to_PS.RX_FIFO_TAG_NAME");
         RX_FIFO_DEV_ADDR = opts.Get<unsigned int>("PL_to_PS.RX_FIFO_DEV_ADDR"); 
         RX_FIFO_DEV_SIZE = opts.Get<unsigned int>("PL_to_PS.RX_FIFO_DEV_SIZE"); 
         RX_FIFO_UIO_NUM  = opts.Get<int         >("PL_to_PS.RX_FIFO_UIO_NUM" ); 
@@ -279,6 +250,7 @@ static void load_options(const char* filename) {
         TX_MODE_LOOPS    = opts.Get<unsigned int>("PS_to_PL.TX_MODE_LOOPS"   ); 
         TX_FILE_NAME     = opts.Get<std::string >("PS_to_PL.TX_FILE_NAME"    );
         TX_PACKET_WORDS  = opts.Get<unsigned int>("PS_to_PL.TX_PACKET_WORDS" ); 
+        TX_FIFO_TAG_NAME = opts.Get<std::string >("PS_to_PL.TX_FIFO_TAG_NAME");
         TX_FIFO_DEV_ADDR = opts.Get<unsigned int>("PS_to_PL.TX_FIFO_DEV_ADDR"); 
         TX_FIFO_DEV_SIZE = opts.Get<unsigned int>("PS_to_PL.TX_FIFO_DEV_SIZE"); 
         TX_FIFO_UIO_NUM  = opts.Get<int         >("PS_to_PL.TX_FIFO_UIO_NUM" ); 
@@ -295,11 +267,20 @@ int main(int argc, char* argv[]) {
 
     load_options(EXE_NAME ".cfg");
 
-    std::thread thread_for_rx_mode(worker_for_rx_mode);
-    std::thread thread_for_tx_mode(worker_for_tx_mode);
+    auto quit{false};
 
-    thread_for_rx_mode.join();
-    thread_for_tx_mode.join();
+    auto rx_roller{GArrayRoller<uint16_t>(RX_PACKET_WORDS, 40)};
+    auto tx_roller{GArrayRoller<uint16_t>(TX_PACKET_WORDS, 40)};
+
+    std::thread thread_for_rx_board(worker_for_rx_board, std::ref(quit), std::ref(rx_roller));
+    std::thread thread_for_rx_words(worker_for_rx_words, std::ref(quit), std::ref(rx_roller));
+    std::thread thread_for_tx_board(worker_for_tx_board, std::ref(quit), std::ref(tx_roller));
+    std::thread thread_for_tx_words(worker_for_tx_words, std::ref(quit), std::ref(tx_roller));
+
+    thread_for_rx_board.join();
+    thread_for_rx_words.join();
+    thread_for_tx_board.join();
+    thread_for_tx_words.join();
 
     LOG_FORMAT(trace, "Process STOPPED (%s)", EXE_NAME);
     return 0;
