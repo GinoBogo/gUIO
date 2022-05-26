@@ -11,24 +11,23 @@
 
 #include "GLogger.hpp"
 
-GFIFOdevice::GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_map) {
+GFIFOdevice::GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_map, const std::string& tag_name) {
     m_dev_addr = dev_addr;
     m_dev_size = dev_size;
     m_uio_num  = uio_num;
     m_uio_map  = uio_map;
+    m_tag_name = tag_name.empty() ? "FIFO device" : "\"" + tag_name + "\" FIFO device";
 
     m_dev      = new GMAPdevice(m_dev_addr, m_dev_size);
     m_uio      = new GUIOdevice(m_uio_num, m_uio_map);
     m_uio_regs = nullptr;
     m_is_ready = false;
 
-    LOG_FORMAT(trace, "FIFO device created [0x%08X, 0x%05X, %d, %d]", m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
+    LOG_FORMAT(trace, "%s constructor [0x%08X, 0x%05X, %d, %d]", m_tag_name.c_str(), m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
 }
 
 GFIFOdevice::GFIFOdevice(const GFIFOdevice& fifo_device) {
     *this = fifo_device;
-
-    LOG_FORMAT(trace, "FIFO device created [0x%08X, 0x%05X, %d, %d]", m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
 }
 
 GFIFOdevice::~GFIFOdevice() {
@@ -38,7 +37,7 @@ GFIFOdevice::~GFIFOdevice() {
     delete m_dev;
     delete m_uio;
 
-    LOG_WRITE(trace, "FIFO device destroyed");
+    LOG_FORMAT(trace, "%s destructor", m_tag_name.c_str());
 }
 
 GFIFOdevice& GFIFOdevice::operator=(const GFIFOdevice& fifo_device) {
@@ -49,11 +48,14 @@ GFIFOdevice& GFIFOdevice::operator=(const GFIFOdevice& fifo_device) {
         m_dev_size = fifo_device.m_dev_size;
         m_uio_num  = fifo_device.m_uio_num;
         m_uio_map  = fifo_device.m_uio_map;
+        m_tag_name = fifo_device.m_tag_name;
 
         m_dev      = new GMAPdevice(m_dev_addr, m_dev_size);
         m_uio      = new GUIOdevice(m_uio_num, m_uio_map);
         m_uio_regs = nullptr;
         m_is_ready = false;
+
+        LOG_FORMAT(trace, "%s constructor [0x%08X, 0x%05X, %d, %d]", m_tag_name.c_str(), m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
     }
     return *this;
 }
@@ -70,14 +72,14 @@ bool GFIFOdevice::Open() {
                     GPIO_setGlobalInterruptEnable(m_uio_regs, __ON(BIT_GPIO_GIER));
 
                     m_is_ready = true;
-                    LOG_WRITE(trace, "FIFO device open success");
+                    LOG_FORMAT(trace, "%s opened", m_tag_name.c_str());
                     goto jmp_exit;
                 }
             }
         }
     }
 
-    LOG_WRITE(error, "FIFO device open failure");
+    LOG_FORMAT(error, "%s open failure", m_tag_name.c_str());
 jmp_exit:
     return m_is_ready;
 }
@@ -92,7 +94,7 @@ void GFIFOdevice::Close() {
     m_dev->Close();
     m_uio->Close();
 
-    LOG_WRITE(trace, "FIFO device close success");
+    LOG_FORMAT(trace, "%s closed", m_tag_name.c_str());
 }
 
 bool GFIFOdevice::Reset() {

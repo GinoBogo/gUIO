@@ -14,9 +14,11 @@
 #include "GRegisters.hpp"
 #include "GUIOdevice.hpp"
 
+#include <string> // std::string
+
 class GFIFOdevice {
     public:
-    enum t_fifo_regs {
+    enum fifo_regs_t {
         IP_CONTROL      = 0,
         TX_PACKET_WORDS = 1,
         TX_UNUSED_WORDS = 2,
@@ -27,7 +29,7 @@ class GFIFOdevice {
         RX_BUFFER_BEGIN = 8,
     };
 
-    GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_map);
+    GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_map, const std::string& tag_name = "");
     GFIFOdevice(const GFIFOdevice& fifo_device);
     ~GFIFOdevice();
 
@@ -99,11 +101,20 @@ class GFIFOdevice {
         return false;
     }
 
+    [[nodiscard]] auto IsReady() const {
+        return m_is_ready;
+    }
+
+    [[nodiscard]] auto& TagName() const {
+        return m_tag_name;
+    }
+
     private:
-    size_t m_dev_addr;
-    size_t m_dev_size;
-    int    m_uio_num;
-    int    m_uio_map;
+    size_t      m_dev_addr;
+    size_t      m_dev_size;
+    int         m_uio_num;
+    int         m_uio_map;
+    std::string m_tag_name;
 
     GMAPdevice* m_dev;
     GUIOdevice* m_uio;
