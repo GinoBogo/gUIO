@@ -35,8 +35,8 @@ template <typename T> class GArrayRoller {
             for (decltype(m_number) i{0}; i < m_number; ++i) {
                 m_arrays[i] = new GArray<T>(m_length);
             }
+            Reset();
         }
-        Reset();
     }
 
     GArrayRoller(const GArrayRoller& array_roller) {
@@ -59,9 +59,11 @@ template <typename T> class GArrayRoller {
                 for (decltype(m_number) i{0}; i < m_number; ++i) {
                     m_arrays[i] = new GArray<T>(*array_roller.m_arrays[i]);
                 }
-                m_count = array_roller.m_count;
-                m_iR    = array_roller.m_iR;
-                m_iW    = array_roller.m_iW;
+                m_status = array_roller.m_status;
+                m_errors = array_roller.m_errors;
+                m_used   = array_roller.m_used;
+                m_iR     = array_roller.m_iR;
+                m_iW     = array_roller.m_iW;
             }
         }
         return *this;
@@ -70,9 +72,13 @@ template <typename T> class GArrayRoller {
     void Reset() {
         std::lock_guard<std::mutex> _lock(m_mutex);
 
+        for (decltype(m_number) i{0}; i < m_number; ++i) {
+            m_arrays[i]->Reset();
+        }
+
         m_status = IS_UNCLAIMED;
         m_errors = 0;
-        m_count  = 0;
+        m_used   = 0;
         m_iR     = 0;
         m_iW     = 0;
     }
@@ -80,7 +86,7 @@ template <typename T> class GArrayRoller {
     auto Reading_Start(bool& error) {
         std::lock_guard<std::mutex> _lock(m_mutex);
 
-        error = (m_count == 0);
+        error = (m_used == 0);
 
         if (!error) {
             switch (m_status) {
@@ -123,7 +129,7 @@ template <typename T> class GArrayRoller {
                 if (++m_iR == m_number) {
                     m_iR = 0;
                 }
-                m_count--;
+                m_used--;
                 m_status = IS_UNCLAIMED;
                 break;
 
@@ -131,7 +137,7 @@ template <typename T> class GArrayRoller {
                 if (++m_iR == m_number) {
                     m_iR = 0;
                 }
-                m_count--;
+                m_used--;
                 m_status = IS_WRITING;
                 break;
 
@@ -146,7 +152,7 @@ template <typename T> class GArrayRoller {
     auto Writing_Start(bool& error) {
         std::lock_guard<std::mutex> _lock(m_mutex);
 
-        error = !(m_count < m_number);
+        error = !(m_used < m_number);
 
         if (!error) {
             switch (m_status) {
@@ -189,7 +195,7 @@ template <typename T> class GArrayRoller {
                 if (++m_iW == m_number) {
                     m_iW = 0;
                 }
-                m_count++;
+                m_used++;
                 m_status = IS_UNCLAIMED;
                 break;
 
@@ -197,7 +203,7 @@ template <typename T> class GArrayRoller {
                 if (++m_iW == m_number) {
                     m_iW = 0;
                 }
-                m_count++;
+                m_used++;
                 m_status = IS_READING;
                 break;
 
@@ -217,12 +223,24 @@ template <typename T> class GArrayRoller {
         return m_number;
     }
 
+    // WARNING: thread unsafe
     [[nodiscard]] auto status() const {
         return m_status;
     }
 
+    // WARNING: thread unsafe
     [[nodiscard]] auto errors() const {
         return m_errors;
+    }
+
+    // WARNING: thread unsafe
+    [[nodiscard]] auto used() const {
+        return m_used;
+    }
+
+    // WARNING: thread unsafe
+    [[nodiscard]] auto free() const {
+        return m_number - m_used;
     }
 
     private:
@@ -244,7 +262,7 @@ template <typename T> class GArrayRoller {
     size_t      m_errors;
 
     GArray<T>** m_arrays{nullptr};
-    size_t      m_count;
+    size_t      m_used;
     size_t      m_iR;
     size_t      m_iW;
 
