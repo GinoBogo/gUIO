@@ -76,5 +76,6 @@ include_directories(
 
 add_executable(_fifo
 "./src/main.cpp"
+"./src/streams.cpp"
 )
 target_link_libraries(_fifo pthread gLIB gUIO)
