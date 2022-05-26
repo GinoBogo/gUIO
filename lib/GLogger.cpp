@@ -66,13 +66,13 @@ namespace GLogger {
         snprintf(dst_buffer, dst_buffer_size, "%04d-%02d-%02d %02d:%02d:%02d.%06d", _Y, _M, _D, _h, _m, _s, _u);
     }
 
-    void Initialize(const char* file_path) {
+    void Initialize(const char* filename) {
         is_open = fout.is_open();
         if (is_open) {
             LOG_WRITE(warning, "File stream already opened");
         }
         else {
-            fout    = std::ofstream(file_path);
+            fout    = std::ofstream(filename);
             is_open = fout.is_open();
         }
     }

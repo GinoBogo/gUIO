@@ -22,7 +22,7 @@ namespace GLogger {
 
     enum type_t { debug, error, fatal, info, trace, warning };
 
-    void Initialize(const char* file_path);
+    void Initialize(const char* filename);
 
     void Write(type_t type, const char* file, size_t line, const char* message);
 
