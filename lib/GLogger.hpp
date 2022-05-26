@@ -20,13 +20,13 @@
 
 namespace GLogger {
 
-    enum Type { debug, error, fatal, info, trace, warning };
+    enum type_t { debug, error, fatal, info, trace, warning };
 
     void Initialize(const char* file_path);
 
-    void Write(Type type, const char* file, size_t line, const char* message);
+    void Write(type_t type, const char* file, size_t line, const char* message);
 
-    template <class... Args> void Format(Type type, const char* file, size_t line, const char* format, Args... args) {
+    template <class... Args> void Format(type_t type, const char* file, size_t line, const char* format, Args... args) {
         char msg[LOG_MSG_MAXLEN];
         snprintf(msg, sizeof(msg), format, args...);
         Write(type, file, line, msg);

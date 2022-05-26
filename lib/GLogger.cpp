@@ -11,7 +11,7 @@
 
 #include <algorithm>  // min
 #include <cstring>    // strncpy, strnlen, memset, memcpy
-#include <ctime>      // localtime, timespec_get
+#include <ctime>      // localtime_r, timespec_get
 #include <filesystem> // path
 #include <fstream>    // ofstream
 #include <iostream>   // cout
@@ -39,27 +39,29 @@ constexpr const char* last_dot(const char* path) {
 
 namespace GLogger {
 
-    enum Alignment { left, center, right };
+    enum alignment_t { LEFT, CENTER, RIGHT };
 
-    static bool is_open{false};
+    bool is_open{false};
 
-    static std::ofstream fout{};
+    std::ofstream fout{};
 
-    static const char* flags[6] = {"DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARNING"};
+    const char* flags[6] = {"DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARNING"};
 
     // WARNING: unsafe function
     void GetDateTime(char* dst_buffer, size_t dst_buffer_size) {
-        timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
+        struct timespec _ts;
+        clock_gettime(CLOCK_REALTIME, &_ts);
 
-        auto* tm{std::localtime(&ts.tv_sec)};
-        auto  _Y{tm->tm_year + 1900};
-        auto  _M{tm->tm_mon + 1};
-        auto  _D{tm->tm_mday};
-        auto  _h{tm->tm_hour};
-        auto  _m{tm->tm_min};
-        auto  _s{tm->tm_sec};
-        auto  _u{static_cast<int>(ts.tv_nsec / 1000)};
+        struct tm _tm;
+        localtime_r(&_ts.tv_sec, &_tm);
+
+        auto _Y{_tm.tm_year + 1900};
+        auto _M{_tm.tm_mon + 1};
+        auto _D{_tm.tm_mday};
+        auto _h{_tm.tm_hour};
+        auto _m{_tm.tm_min};
+        auto _s{_tm.tm_sec};
+        auto _u{static_cast<int>(_ts.tv_nsec / 1000)};
 
         snprintf(dst_buffer, dst_buffer_size, "%04d-%02d-%02d %02d:%02d:%02d.%06d", _Y, _M, _D, _h, _m, _s, _u);
     }
@@ -76,7 +78,7 @@ namespace GLogger {
     }
 
     // WARNING: unsafe function
-    void Write(Type type, const char* file, size_t line, const char* message) {
+    void Write(type_t type, const char* file, size_t line, const char* message) {
         char _text[LOG_MSG_MAXLEN];
 
         GetDateTime(_text, sizeof(_text));
@@ -107,7 +109,7 @@ namespace GLogger {
     }
 
     // WARNING: unsafe function
-    char* align_text(Alignment mode, const char* src, char* dst, size_t span, char filler) {
+    char* align_text(alignment_t mode, const char* src, char* dst, size_t span, char filler) {
         if (src == nullptr || dst == nullptr) {
             return nullptr;
         }
@@ -117,15 +119,15 @@ namespace GLogger {
         size_t src_len   = strnlen(src, span);
 
         switch (mode) {
-            case right: {
+            case RIGHT: {
                 dst_shift = (span - src_len);
             } break;
 
-            case center: {
+            case CENTER: {
                 dst_shift = (span - src_len) / 2;
             } break;
 
-            case left:
+            case LEFT:
             default:
                 break;
         }
@@ -138,14 +140,14 @@ namespace GLogger {
     }
 
     char* AlignToLeft(const char* src, char* dst, size_t span, char filler) {
-        return align_text(left, src, dst, span, filler);
+        return align_text(LEFT, src, dst, span, filler);
     }
 
     char* AlignToCenter(const char* src, char* dst, size_t span, char filler) {
-        return align_text(center, src, dst, span, filler);
+        return align_text(CENTER, src, dst, span, filler);
     }
 
     char* AlignToRight(const char* src, char* dst, size_t span, char filler) {
-        return align_text(right, src, dst, span, filler);
+        return align_text(RIGHT, src, dst, span, filler);
     }
 } // namespace GLogger
