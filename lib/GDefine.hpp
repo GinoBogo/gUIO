@@ -7,6 +7,9 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef GDEFINE_HPP
+#define GDEFINE_HPP
+
 #include "GLogger.hpp"
 
 // SECTION: control flow statements
@@ -92,3 +95,5 @@
 #define UNUSED(_object) \
     if (_object) {      \
     }
+
+#endif // GDEFINE_HPP
