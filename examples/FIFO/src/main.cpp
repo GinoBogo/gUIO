@@ -17,6 +17,7 @@
 #include "streams.hpp"
 
 #include <condition_variable>
+#include <filesystem>
 #include <mutex>
 #include <thread>
 
@@ -259,13 +260,15 @@ static void load_options(const char* filename) {
     }
 }
 
-#define EXE_NAME "_fifo"
-
 int main(int argc, char* argv[]) {
-    GLogger::Initialize(EXE_NAME ".log");
-    LOG_FORMAT(trace, "Process STARTED (%s)", EXE_NAME);
+    auto exec     = std::filesystem::path(argv[0]);
+    auto exec_log = exec.stem().concat(".log");
+    auto exec_cfg = exec.stem().concat(".cfg");
 
-    load_options(EXE_NAME ".cfg");
+    GLogger::Initialize(exec_log.c_str());
+    LOG_FORMAT(trace, "Process STARTED (%s)", exec_log.c_str());
+
+    load_options(exec_cfg.c_str());
 
     auto quit{false};
 
@@ -282,6 +285,6 @@ int main(int argc, char* argv[]) {
     thread_for_tx_board.join();
     thread_for_tx_words.join();
 
-    LOG_FORMAT(trace, "Process STOPPED (%s)", EXE_NAME);
+    LOG_FORMAT(trace, "Process STOPPED (%s)", exec_log.c_str());
     return 0;
 }
