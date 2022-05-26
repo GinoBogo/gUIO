@@ -246,13 +246,13 @@ template <typename T> class GArrayRoller {
     private:
     void release_resources() {
         if (m_arrays != nullptr) {
+            Reset();
             for (decltype(m_number) i{0}; i < m_number; ++i) {
                 delete m_arrays[i];
                 m_arrays[i] = nullptr;
             }
             delete[] m_arrays;
             m_arrays = nullptr;
-            Reset();
         }
     }
 
