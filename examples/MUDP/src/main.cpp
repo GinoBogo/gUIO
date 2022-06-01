@@ -20,6 +20,7 @@
 #include "f_hssl2.hpp"
 
 #include <condition_variable> // condition_variable
+#include <filesystem>         // path
 #include <mutex>              // mutex, lock_guard, unique_lock
 #include <thread>             // thread
 
@@ -163,7 +164,9 @@ static void f_gm_mc_server(bool& quit, GUdpServer& server, GUdpClient& client) {
             _total--;
             _guard.unlock();
 
-            if (_new_data) { decoder.Process(); }
+            if (_new_data) {
+                decoder.Process();
+            }
         }
         server.Stop();
     });
@@ -186,7 +189,9 @@ static void f_gm_mc_server(bool& quit, GUdpServer& server, GUdpClient& client) {
                     _event.notify_one();
                 }
             }
-            else { LOG_FORMAT(error, "Wrong packet format (%s)", __func__); }
+            else {
+                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
+            }
         }
     }
     _total = 1;
@@ -224,7 +229,9 @@ static void f_gm_dh_server(const bool& quit, GUdpServer& server, GUdpClient& cli
             _total--;
             _guard.unlock();
 
-            if (_new_data) { decoder.Process(); }
+            if (_new_data) {
+                decoder.Process();
+            }
         }
     });
 
@@ -246,7 +253,9 @@ static void f_gm_dh_server(const bool& quit, GUdpServer& server, GUdpClient& cli
                     _event.notify_one();
                 }
             }
-            else { LOG_FORMAT(error, "Wrong packet format (%s)", __func__); }
+            else {
+                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
+            }
         }
     }
     _total = 1;
@@ -284,7 +293,9 @@ static void f_hssl1_server(const bool& quit, GUdpServer& server, GUdpClient& cli
             _total--;
             _guard.unlock();
 
-            if (_new_data) { decoder.Process(); }
+            if (_new_data) {
+                decoder.Process();
+            }
         }
     });
 
@@ -306,7 +317,9 @@ static void f_hssl1_server(const bool& quit, GUdpServer& server, GUdpClient& cli
                     _event.notify_one();
                 }
             }
-            else { LOG_FORMAT(error, "Wrong packet format (%s)", __func__); }
+            else {
+                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
+            }
         }
     }
     _total = 1;
@@ -344,7 +357,9 @@ static void f_hssl2_server(const bool& quit, GUdpServer& server, GUdpClient& cli
             _total--;
             _guard.unlock();
 
-            if (_new_data) { decoder.Process(); }
+            if (_new_data) {
+                decoder.Process();
+            }
         }
     });
 
@@ -366,7 +381,9 @@ static void f_hssl2_server(const bool& quit, GUdpServer& server, GUdpClient& cli
                     _event.notify_one();
                 }
             }
-            else { LOG_FORMAT(error, "Wrong packet format (%s)", __func__); }
+            else {
+                LOG_FORMAT(error, "Wrong packet format (%s)", __func__);
+            }
         }
     }
     _total = 1;
@@ -377,11 +394,15 @@ static void f_hssl2_server(const bool& quit, GUdpServer& server, GUdpClient& cli
     LOG_FORMAT(trace, "Thread STOPPED (%s)", __func__);
 }
 
-int main() {
-    GLogger::Initialize("_mudp.log");
-    LOG_WRITE(trace, "Process STARTED (main)");
+int main(int argc, char* argv[]) {
+    auto exec     = std::filesystem::path(argv[0]);
+    auto exec_log = exec.stem().concat(".log");
+    auto exec_cfg = exec.stem().concat(".cfg");
 
-    load_options("_mudp.cfg");
+    GLogger::Initialize(exec_log.c_str());
+    LOG_FORMAT(trace, "Process STARTED (%s)", exec.stem().c_str());
+
+    load_options(exec_cfg.c_str());
 
     auto gm_mc_server = GUdpServer(GM_MC_SERVER_ADDR.c_str(), GM_MC_SERVER_PORT, "GM-MC");
     auto gm_mc_client = GUdpClient(GM_MC_CLIENT_ADDR.c_str(), GM_MC_CLIENT_PORT, "GM-MC");
@@ -409,6 +430,6 @@ int main() {
     t_hssl1_server.join();
     t_hssl2_server.join();
 
-    LOG_WRITE(trace, "Process STOPPED (main)");
+    LOG_FORMAT(trace, "Process STOPPED (%s)", exec.stem().c_str());
     return 0;
 }
