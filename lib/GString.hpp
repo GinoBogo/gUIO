@@ -14,11 +14,12 @@
 #include <cstdlib> // strtoul
 #include <regex>   // regex
 #include <string>  // string
+#include <utility> // pair
 #include <vector>  // vector
 
-namespace GString {
-
-    auto strtouc(std::string& _str) {
+class GString {
+    public:
+    static auto strtouc(std::string& _str) {
         auto _base{10};
         auto _last{_str.back()};
 
@@ -34,7 +35,7 @@ namespace GString {
         return static_cast<uint8_t>(std::strtoul(_str.c_str(), nullptr, _base));
     }
 
-    auto strtous(std::string& _str) {
+    static auto strtous(std::string& _str) {
         auto _base{10};
         auto _last{_str.back()};
 
@@ -50,7 +51,7 @@ namespace GString {
         return static_cast<uint16_t>(std::strtoul(_str.c_str(), nullptr, _base));
     }
 
-    auto strtoui(std::string& _str) {
+    static auto strtoui(std::string& _str) {
         auto _base{10};
         auto _last{_str.back()};
 
@@ -66,7 +67,7 @@ namespace GString {
         return static_cast<uint32_t>(std::strtoul(_str.c_str(), nullptr, _base));
     }
 
-    auto strtoul(std::string& _str) {
+    static auto strtoul(std::string& _str) {
         auto _base{10};
         auto _last{_str.back()};
 
@@ -82,7 +83,7 @@ namespace GString {
         return std::strtoul(_str.c_str(), nullptr, _base);
     }
 
-    auto split(const std::string& _str, const std::string& regex) {
+    static auto split(const std::string& _str, const std::string& regex) {
         std::vector<std::string> tokens;
 
         std::regex                 re{regex};
@@ -102,6 +103,37 @@ namespace GString {
         return tokens;
     }
 
-} // namespace GString
+    template <typename T = double> static std::pair<T, std::string> value_scaler(T value, const std::string& unit) {
+        auto _value{std::abs(value)};
+
+        const auto _G{static_cast<T>(1e+9)};
+        const auto _M{static_cast<T>(1e+6)};
+        const auto _K{static_cast<T>(1e+3)};
+        const auto _m{static_cast<T>(1e-3)};
+        const auto _u{static_cast<T>(1e-6)};
+        const auto _n{static_cast<T>(1e-9)};
+
+        if (_value >= _G) {
+            return std::make_pair(value / _G, "G" + unit);
+        }
+        if (_value >= _M) {
+            return std::make_pair(value / _M, "M" + unit);
+        }
+        if (_value >= _K) {
+            return std::make_pair(value / _K, "K" + unit);
+        }
+        if (_value <= _n) {
+            return std::make_pair(value / _n, "n" + unit);
+        }
+        if (_value <= _u) {
+            return std::make_pair(value / _u, "µ" + unit);
+        }
+        if (_value <= _m) {
+            return std::make_pair(value / _m, "m" + unit);
+        }
+
+        return std::make_pair(value, unit);
+    }
+};
 
 #endif // GSTRING_HPP
