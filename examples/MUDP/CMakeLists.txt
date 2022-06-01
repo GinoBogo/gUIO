@@ -60,7 +60,9 @@ add_library(gLIB OBJECT
 "../../lib/GBuffer.cpp"
 "../../lib/GFiFo.cpp"
 "../../lib/GLogger.cpp"
+"../../lib/GMessage.cpp"
 "../../lib/GOptions.cpp"
+"../../lib/GPacket.cpp"
 "../../lib/GUdpClient.cpp"
 "../../lib/GUdpServer.cpp"
 )
@@ -89,8 +91,6 @@ include_directories(
 )
 
 add_executable(_mudp
-"./src/GMessage.cpp"
-"./src/GPacket.cpp"
 "./src/main.cpp"
 )
 target_link_libraries(_mudp pthread gLIB gSDR gUIO)
