@@ -16,10 +16,8 @@
 #include <cstdlib>    // strtoul
 #include <cstring>    // strncpy
 #include <fcntl.h>    // open, ioctl
-#include <poll.h>     // poll
 #include <strings.h>  // memset
 #include <sys/mman.h> // mmap, munmap
-#include <unistd.h>   // close, read, write
 
 auto uio_device_reset = [](uio_device_t* dev, bool clear_all) {
     auto uio_num = dev->uio_num;
@@ -90,26 +88,6 @@ bool GUIOdevice::MapToMemory() {
 
     m_dev.virt_addr = static_cast<uint8_t*>(m_dev.mmap_addr) + m_dev.offset;
     return true;
-}
-
-bool GUIOdevice::IRQ_Wait(int timeout) {
-    struct pollfd fds;
-    fds.fd     = m_dev.fd;
-    fds.events = POLLIN;
-
-    if (poll(&fds, 1, timeout) > 0) {
-        // INFO: The only valid read() argument is a signed 32-bit integer.
-        auto _ret{read(m_dev.fd, &m_dev.irq_count, sizeof(m_dev.irq_count))};
-        return _ret != -1;
-    }
-    return false;
-}
-
-bool GUIOdevice::IRQ_Clear() const {
-    int32_t _val{0x00000001};
-
-    auto _ret{write(m_dev.fd, &_val, sizeof(_val))};
-    return _ret != -1;
 }
 
 size_t GUIOdevice::GetMapAttribute(const char* attr_name, bool* error, char* dst_buff) const {

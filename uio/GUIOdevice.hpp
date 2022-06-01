@@ -10,8 +10,10 @@
 #ifndef GUIODEVICE_HPP
 #define GUIODEVICE_HPP
 
-#include <cstddef> // size_t
-#include <cstdint> // uint8_t, int32_t
+#include <cstddef>  // size_t
+#include <cstdint>  // uint8_t, int32_t
+#include <poll.h>   // poll
+#include <unistd.h> // close, read, write
 
 const auto uio_device_t_name_maxlen = 64;
 
@@ -40,8 +42,25 @@ class GUIOdevice {
     void Close();
     bool MapToMemory();
 
-    bool IRQ_Wait(int timeout = -1);
-    bool IRQ_Clear() const;
+    bool IRQ_Wait(int timeout = -1) {
+        struct pollfd fds;
+        fds.fd     = m_dev.fd;
+        fds.events = POLLIN;
+
+        if (poll(&fds, 1, timeout) > 0) {
+            // INFO: The only valid read() argument is a signed 32-bit integer.
+            auto _ret{read(m_dev.fd, &m_dev.irq_count, sizeof(m_dev.irq_count))};
+            return _ret != -1;
+        }
+        return false;
+    }
+
+    bool IRQ_Clear() const {
+        int32_t _val{0x00000001};
+
+        auto _ret{write(m_dev.fd, &_val, sizeof(_val))};
+        return _ret != -1;
+    }
 
     size_t GetMapAttribute(const char* attr_name, bool* error = nullptr, char* dst_buf = nullptr) const;
     void   PrintMapAttributes() const;
