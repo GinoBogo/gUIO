@@ -35,8 +35,8 @@ template <typename T> class GArrayRoller {
             for (decltype(m_number) i{0}; i < m_number; ++i) {
                 m_arrays[i] = new GArray<T>(m_length);
             }
-            Reset();
         }
+        Reset();
     }
 
     GArrayRoller(const GArrayRoller& array_roller) {
@@ -72,8 +72,10 @@ template <typename T> class GArrayRoller {
     void Reset() {
         std::lock_guard<std::mutex> _lock(m_mutex);
 
-        for (decltype(m_number) i{0}; i < m_number; ++i) {
-            m_arrays[i]->Reset();
+        if (m_arrays != nullptr) {
+            for (decltype(m_number) i{0}; i < m_number; ++i) {
+                m_arrays[i]->Reset();
+            }
         }
 
         m_status = IS_UNCLAIMED;
