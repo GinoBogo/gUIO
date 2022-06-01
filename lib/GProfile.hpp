@@ -22,6 +22,10 @@ class GProfile {
         m_t1 = std::chrono::system_clock::now();
     }
 
+    auto sec() {
+        return std::chrono::duration_cast<std::chrono::seconds>(m_t1 - m_t0).count();
+    }
+
     auto ms() {
         return std::chrono::duration_cast<std::chrono::milliseconds>(m_t1 - m_t0).count();
     }
