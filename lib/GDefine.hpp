@@ -14,7 +14,8 @@
 
 // SECTION: control flow statements
 
-#define BREAK_IF(_condition) \
+#define BREAK_IF(_condition, ...) \
+    __VA_ARGS__;                  \
     if (_condition) break
 
 #define BREAK_IF_THEN_LOG(_condition, _type, _format, ...) \
@@ -29,7 +30,8 @@
     }                                                      \
     LOG_FORMAT(_type, _format, __VA_ARGS__);
 
-#define CONTINUE_IF(_condition) \
+#define CONTINUE_IF(_condition, ...) \
+    __VA_ARGS__;                     \
     if (_condition) continue
 
 #define CONTINUE_IF_THEN_LOG(_condition, _type, _format, ...) \
@@ -44,7 +46,8 @@
     }                                                         \
     LOG_FORMAT(_type, _format, __VA_ARGS__);
 
-#define EXIT_IF(_condition, _status) \
+#define EXIT_IF(_condition, _status, ...) \
+    __VA_ARGS__;                          \
     if (_condition) exit(_status)
 
 #define EXIT_IF_THEN_LOG(_condition, _status, _type, _format, ...) \
@@ -59,7 +62,8 @@
     }                                                              \
     LOG_FORMAT(_type, _format, __VA_ARGS__);
 
-#define GOTO_IF(_condition, _label) \
+#define GOTO_IF(_condition, _label, ...) \
+    __VA_ARGS__;                         \
     if (_condition) goto _label
 
 #define GOTO_IF_THEN_LOG(_condition, _label, _type, _format, ...) \
@@ -70,12 +74,12 @@
 
 #define GOTO_IF_ELSE_LOG(_condition, _label, _type, _format, ...) \
     if (_condition) {                                             \
-        LOG_FORMAT(_type, _format, __VA_ARGS__);                  \
         goto _label;                                              \
     }                                                             \
     LOG_FORMAT(_type, _format, __VA_ARGS__);
 
-#define RETURN_IF(_condition) \
+#define RETURN_IF(_condition, ...) \
+    __VA_ARGS__;                   \
     if (_condition) return
 
 #define RETURN_IF_THEN_LOG(_condition, _type, _format, ...) \
