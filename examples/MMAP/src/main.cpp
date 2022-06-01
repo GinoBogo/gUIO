@@ -11,11 +11,15 @@
 #include "GMAPdevice.hpp"
 #include "GRegisters.hpp"
 
-#include <cstring> // memset
+#include <cstring>    // memset
+#include <filesystem> // path
 
-int main() {
-    GLogger::Initialize("_mmap.log");
-    LOG_WRITE(trace, "Process STARTED");
+int main(int argc, char* argv[]) {
+    auto exec     = std::filesystem::path(argv[0]);
+    auto exec_log = exec.stem().concat(".log");
+
+    GLogger::Initialize(exec_log.c_str());
+    LOG_FORMAT(trace, "Process STARTED (%s)", exec.stem().c_str());
 
     auto ps2pl_regs{GMAPdevice(0xa0001000, 4096)};
     auto pl2ps_regs{GMAPdevice(0xa0010000, 4096)};
@@ -43,6 +47,6 @@ int main() {
         pl2ps_regs.Close();
     }
 
-    LOG_WRITE(trace, "Process STOPPED");
+    LOG_FORMAT(trace, "Process STOPPED (%s)", exec.stem().c_str());
     return 0;
 }

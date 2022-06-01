@@ -11,6 +11,8 @@
 #include "GRegisters.hpp"
 #include "GUIOdevice.hpp"
 
+#include <filesystem> // path
+
 void GPIO_printRegistersInfo(GUIOdevice* uio_dev) {
     register_info info_list[gpio_registers_number];
 
@@ -32,9 +34,12 @@ void GPIO_printRegistersInfo(GUIOdevice* uio_dev) {
 #define UIO_NUM 0
 #endif
 
-int main() {
-    GLogger::Initialize("_gpio.log");
-    LOG_WRITE(trace, "Process STARTED");
+int main(int argc, char* argv[]) {
+    auto exec     = std::filesystem::path(argv[0]);
+    auto exec_log = exec.stem().concat(".log");
+
+    GLogger::Initialize(exec_log.c_str());
+    LOG_FORMAT(trace, "Process STARTED (%s)", exec.stem().c_str());
 
     auto uio_dev{GUIOdevice(UIO_NUM, 0)};
 
@@ -68,6 +73,6 @@ int main() {
         uio_dev.Close();
     }
 
-    LOG_WRITE(trace, "Process STOPPED");
+    LOG_FORMAT(trace, "Process STOPPED (%s)", exec.stem().c_str());
     return 0;
 }
