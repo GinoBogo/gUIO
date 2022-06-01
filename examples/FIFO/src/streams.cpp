@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      streams.cpp
 /// \version   0.1
@@ -15,7 +16,7 @@
 #include <filesystem> // path
 #include <fstream>    // ifstream, ofstream
 
-void reader_for_tx_words(GArray<uint16_t>& array, const std::string& filename) {
+bool reader_for_tx_words(GArray<uint16_t>& array, const std::string& filename) {
     auto words{array.size()};
 
     if (!filename.empty()) {
@@ -32,26 +33,13 @@ void reader_for_tx_words(GArray<uint16_t>& array, const std::string& filename) {
             auto* __s{reinterpret_cast<char*>(array.data())};
             auto  __n{static_cast<std::streamsize>(words)};
             fs.read(__s, __n);
-
-            // std::string line;
-
-            // for (decltype(words) i{0}; i < words; ++i) {
-            //     uint16_t word{0x0000};
-
-            //     std::getline(fs, line);
-            //     word |= GString::strtous(line) << 8;
-            //     std::getline(fs, line);
-            //     word |= GString::strtous(line) << 0;
-
-            //     array.data()[i] = word;
-            // }
-
             fs.close();
 
             array.used(words);
             LOG_FORMAT(info, "Words from \"%s\" file (%s)", filename.c_str(), __func__);
-            return;
+            return true;
         }
+        return false;
     }
 
     // SECTION: internal-ramp generator
@@ -61,12 +49,13 @@ void reader_for_tx_words(GArray<uint16_t>& array, const std::string& filename) {
 
     array.used(words);
     LOG_FORMAT(info, "Words from internal-ramp generator (%s)", __func__);
+    return true;
 }
 
 int p_num{0}; // progressive number
 int p_val{0}; // previous byte value
 
-void writer_for_rx_words(GArray<uint16_t>& array, const std::string& filename) {
+bool writer_for_rx_words(GArray<uint16_t>& array, const std::string& filename) {
     auto words{array.used()};
 
     if (!filename.empty()) {
@@ -86,26 +75,10 @@ void writer_for_rx_words(GArray<uint16_t>& array, const std::string& filename) {
             auto* __s{reinterpret_cast<char*>(array.data())};
             auto  __n{static_cast<std::streamsize>(words * sizeof(uint16_t))};
             fs.write(__s, __n);
-
-            // char h_line[16];
-            // char l_line[16];
-
-            // for (decltype(words) i{0}; i < words; ++i) {
-            //     auto word = array.data()[i];
-
-            //     auto h_val{(0xFF00 & word) >> 8};
-            //     auto l_val{(0x00FF & word) >> 0};
-
-            //     sprintf(h_line, "0x%02X\n", h_val);
-            //     sprintf(l_line, "0x%02X\n", l_val);
-
-            //     fs.write(h_line, (signed)strlen(h_line));
-            //     fs.write(l_line, (signed)strlen(l_line));
-            // }
-
             fs.close();
-            return;
+            return true;
         }
+        return false;
     }
 
     // SECTION: internal-ramp generator
@@ -130,4 +103,5 @@ void writer_for_rx_words(GArray<uint16_t>& array, const std::string& filename) {
         LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, h_val, h_dif);
         LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, l_val, l_dif);
     }
+    return true;
 }
