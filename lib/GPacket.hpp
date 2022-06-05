@@ -18,7 +18,7 @@ namespace GPacket {
     static const auto MAX_DATA_BYTES = MAX_DATA_WORDS * 4;
 } // namespace GPacket
 
-typedef struct {
+typedef struct packet_head_t {
     uint8_t  packet_type;
     uint8_t  spare_0;
     uint8_t  spare_1;
@@ -29,21 +29,21 @@ typedef struct {
     uint16_t total_segments;
     uint16_t current_segment;
 
-} TPacketHead;
+} packet_head_t;
 
-typedef union {
+typedef union packet_data_t {
     uint8_t  bytes[GPacket::MAX_DATA_BYTES];
     uint32_t words[GPacket::MAX_DATA_WORDS];
 
-} TPacketData;
+} packet_data_t;
 
-typedef struct {
-    TPacketHead head;
-    TPacketData data;
+typedef struct packet_t {
+    packet_head_t head;
+    packet_data_t data;
 
-} TPacket;
+} packet_t;
 
-typedef enum {
+typedef enum packet_type_t {
     wake_up_query      = 0,
     wake_up_reply      = 1,
     signal_stop_flow   = 2,
@@ -58,19 +58,19 @@ typedef enum {
     packet_from_gm_mc  = 20,
     quit_process       = 255
 
-} TPacketType;
+} packet_type_t;
 
 namespace GPacket {
-    const auto PACKET_HEAD_SIZE = sizeof(TPacketHead);
-    const auto PACKET_DATA_SIZE = sizeof(TPacketData);
-    const auto PACKET_FULL_SIZE = sizeof(TPacket);
+    const auto PACKET_HEAD_SIZE = sizeof(packet_head_t);
+    const auto PACKET_DATA_SIZE = sizeof(packet_data_t);
+    const auto PACKET_FULL_SIZE = sizeof(packet_t);
 
-    bool IsValid(uint8_t *buffer, size_t bytes);
-    bool IsSingle(TPacket *packet);
-    bool IsShort(TPacket *packet);
-    bool IsFirst(TPacket *packet);
-    bool IsMiddle(TPacket *packet);
-    bool IsLast(TPacket *packet);
+    bool IsValid(uint8_t* buffer, size_t bytes);
+    bool IsSingle(packet_t* packet);
+    bool IsShort(packet_t* packet);
+    bool IsFirst(packet_t* packet);
+    bool IsMiddle(packet_t* packet);
+    bool IsLast(packet_t* packet);
 } // namespace GPacket
 
 #endif // GPACKET_HPP

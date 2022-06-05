@@ -72,7 +72,9 @@ class GEncoder {
             }
         }
 
-        if (!result) { LOG_WRITE(error, "Unable to encode message"); }
+        if (!result) {
+            LOG_WRITE(error, "Unable to encode message");
+        }
 
         return result;
     }
@@ -92,7 +94,7 @@ class GEncoder {
     private:
     uint32_t m_packet_counter;
     uint32_t m_file_id;
-    TPacket  m_packet;
+    packet_t m_packet;
     GFiFo    m_fifo = GFiFo(GPacket::PACKET_FULL_SIZE, fifo_depth);
 };
 

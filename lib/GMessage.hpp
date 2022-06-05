@@ -20,8 +20,8 @@ class GMessage : public GBuffer {
     GMessage(uint32_t max_size = GMessage::MAX_MESSAGE_SIZE);
 
     void Clear();
-    void Initialize(TPacket *packet);
-    bool Append(TPacket *packet);
+    void Initialize(packet_t* packet);
+    bool Append(packet_t* packet);
 
     [[nodiscard]] auto IsValid() const {
         return m_no_error && (m_message_head.current_segment == m_message_head.total_segments);
@@ -44,12 +44,12 @@ class GMessage : public GBuffer {
     }
 
     private:
-    bool        m_no_error;
-    bool        m_is_valid;
-    uint32_t    m_packet_counter;
-    uint32_t    m_missed_counter;
-    uint32_t    m_errors_counter;
-    TPacketHead m_message_head;
+    bool          m_no_error;
+    bool          m_is_valid;
+    uint32_t      m_packet_counter;
+    uint32_t      m_missed_counter;
+    uint32_t      m_errors_counter;
+    packet_head_t m_message_head;
 };
 
 #endif // GMESSAGE_HPP
