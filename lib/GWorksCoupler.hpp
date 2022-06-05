@@ -19,7 +19,7 @@ class GWorksCoupler {
     public:
     typedef void (*WorkFunc)(bool& quit, std::any& args);
 
-    typedef struct {
+    typedef struct work_funct_t {
         WorkFunc waiter_preamble = nullptr;
         WorkFunc waiter_calculus = nullptr;
         WorkFunc waiter_epilogue = nullptr;
@@ -31,7 +31,9 @@ class GWorksCoupler {
     } work_func_t;
 
     GWorksCoupler(work_func_t& work_func, bool& quit, std::any& args, bool is_enabled = true) {
-        if (!is_enabled) return;
+        if (!is_enabled) {
+            return;
+        }
 
         t_waiter_group = std::thread([&] {
             if (work_func.waiter_preamble != nullptr) {
