@@ -24,15 +24,15 @@ namespace f_gm_dh {
     } WorkerArgs;
 
     bool decode_packet(std::any data, std::any args) {
-        auto* _packet  = std::any_cast<TPacket*>(data);
+        auto* _packet  = std::any_cast<packet_t*>(data);
         auto  _args    = std::any_cast<WorkerArgs>(args);
         auto* _client  = _args.client;
         auto  _type_id = _packet->head.packet_type;
 
         switch (_type_id) {
 
-            case TPacketType::wake_up_query: {
-                _packet->head.packet_type = TPacketType::wake_up_reply;
+            case packet_type_t::wake_up_query: {
+                _packet->head.packet_type = packet_type_t::wake_up_reply;
                 _client->Send(_packet, GPacket::PACKET_HEAD_SIZE);
                 LOG_FORMAT(info, "%s message: WAKE_UP (%s)", _client->TagName(), __func__);
             } break;

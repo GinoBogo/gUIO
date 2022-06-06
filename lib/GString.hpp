@@ -104,7 +104,7 @@ class GString {
     }
 
     template <typename T = double> static std::pair<T, std::string> value_scaler(T value, const std::string& unit) {
-        auto _value{std::abs(value)};
+        auto _modulus{std::abs(value)};
 
         const auto _G{static_cast<T>(1e+9)};
         const auto _M{static_cast<T>(1e+6)};
@@ -113,22 +113,22 @@ class GString {
         const auto _u{static_cast<T>(1e-6)};
         const auto _n{static_cast<T>(1e-9)};
 
-        if (_value >= _G) {
+        if (_modulus >= _G) {
             return std::make_pair(value / _G, "G" + unit);
         }
-        if (_value >= _M) {
+        if (_modulus >= _M) {
             return std::make_pair(value / _M, "M" + unit);
         }
-        if (_value >= _K) {
+        if (_modulus >= _K) {
             return std::make_pair(value / _K, "K" + unit);
         }
-        if (_value <= _n) {
+        if (_modulus <= _n) {
             return std::make_pair(value / _n, "n" + unit);
         }
-        if (_value <= _u) {
+        if (_modulus <= _u) {
             return std::make_pair(value / _u, "µ" + unit);
         }
-        if (_value <= _m) {
+        if (_modulus <= _m) {
             return std::make_pair(value / _m, "m" + unit);
         }
 

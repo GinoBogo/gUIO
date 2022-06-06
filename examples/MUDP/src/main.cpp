@@ -100,8 +100,8 @@ static void send_signal_start_flow(GFiFo* fifo, GUdpClient* client) {
 
     if (fifo->IsStateChanged(&new_state, &old_state)) {
         if (new_state == GFiFo::MIN_LEVEL_PASSED) {
-            TPacketHead packet;
-            packet.packet_type     = TPacketType::signal_start_flow;
+            packet_head_t packet;
+            packet.packet_type     = packet_type_t::signal_start_flow;
             packet.file_id         = 0;
             packet.data_length     = 0;
             packet.current_segment = 1;
@@ -118,8 +118,8 @@ static void send_signal_stop_flow(GFiFo* fifo, GUdpClient* client) {
 
     if (fifo->IsStateChanged(&new_state, &old_state)) {
         if (new_state == GFiFo::MAX_LEVEL_PASSED) {
-            TPacketHead packet;
-            packet.packet_type     = TPacketType::signal_stop_flow;
+            packet_head_t packet;
+            packet.packet_type     = packet_type_t::signal_stop_flow;
             packet.file_id         = 0;
             packet.data_length     = 0;
             packet.current_segment = 1;

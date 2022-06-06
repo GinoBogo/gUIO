@@ -53,8 +53,11 @@ static auto load_registers_values = [](const std::string& filename, GMAPdevice::
 };
 
 int main(int argc, char* argv[]) {
-    GLogger::Initialize("MUST_REGS.log");
-    LOG_WRITE(trace, "Process STARTED");
+    auto exec     = std::filesystem::path(argv[0]);
+    auto exec_log = exec.stem().concat(".log");
+
+    GLogger::Initialize(exec_log.c_str());
+    LOG_FORMAT(trace, "Process STARTED (%s)", exec.stem().c_str());
 
     auto _exit_code{-1};
 
@@ -86,8 +89,10 @@ int main(int argc, char* argv[]) {
             ps2pl_regs.Close();
         }
     }
-    else { LOG_WRITE(error, "Command line argument is empty"); }
+    else {
+        LOG_WRITE(error, "Command line argument is empty");
+    }
 
-    LOG_WRITE(trace, "Process STOPPED");
+    LOG_FORMAT(trace, "Process STOPPED (%s)", exec.stem().c_str());
     return _exit_code;
 }

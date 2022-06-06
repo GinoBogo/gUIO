@@ -14,14 +14,8 @@
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"
 
-#include <string> // std::string
+bool stream_reader_for_tx_words(GArray<uint16_t>& array, GUdpServer& server);
 
-bool reader_for_tx_words(GArray<uint16_t>& array, const std::string& filename);
-
-bool reader_for_tx_words(GArray<uint16_t>& array, GUdpServer& server);
-
-bool writer_for_rx_words(GArray<uint16_t>& array, const std::string& filename);
-
-bool writer_for_rx_words(GArray<uint16_t>& array, GUdpClient& client);
+bool stream_writer_for_rx_words(GArray<uint16_t>& array, GUdpClient& client);
 
 #endif // STREAMS_HPP

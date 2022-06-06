@@ -61,7 +61,7 @@ class GDecoder {
         return false;
     }
 
-    TPacket  packet;
+    packet_t packet;
     GMessage message = GMessage();
 
     inline auto packet_ptr() {

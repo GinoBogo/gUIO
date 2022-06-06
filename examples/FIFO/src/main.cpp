@@ -23,6 +23,8 @@ typedef struct parameters_t {
     unsigned int            current_loop = 0;
     unsigned int            total_loops  = 0;
     unsigned long           total_bytes  = 0;
+    GUdpClient*             client       = nullptr;
+    GUdpServer*             server       = nullptr;
     GFIFOdevice*            device       = nullptr;
     GArrayRoller<uint16_t>* roller       = nullptr;
     GProfile*               profile      = nullptr;
@@ -34,11 +36,12 @@ typedef struct parameters_t {
 // ============================================================================
 
 static void rx_waiter_preamble(bool& _quit, std::any& _args) {
-    LOG_WRITE(trace, "Thread STARTED (PS -> FILE)");
+    LOG_WRITE(trace, "Thread STARTED (PS -> OUT)");
 }
 
 static void rx_waiter_consumer(bool& _quit, std::any& _args) {
     auto* parameters = std::any_cast<parameters_t*>(_args);
+    auto* client     = parameters->client;
     auto* roller     = parameters->roller;
 
     auto _line  = 0;
@@ -47,7 +50,7 @@ static void rx_waiter_consumer(bool& _quit, std::any& _args) {
     auto* src_buf{roller->Reading_Start(_error)};
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
-    _error = !writer_for_rx_words(*src_buf, RX_FILE_NAME);
+    _error = !stream_writer_for_rx_words(*src_buf, *client);
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
     roller->Reading_Stop(_error);
@@ -62,7 +65,7 @@ _exit_label:
 }
 
 static void rx_waiter_epilogue(bool& _quit, std::any& _args) {
-    LOG_WRITE(trace, "Thread STOPPED (PS -> FILE)");
+    LOG_WRITE(trace, "Thread STOPPED (PS -> OUT)");
 }
 
 // ============================================================================
@@ -157,14 +160,14 @@ static void rx_master_epilogue(bool& _quit, std::any& _args) {
 // ============================================================================
 
 static void tx_waiter_preamble(bool& _quit, std::any& _args) {
-    LOG_WRITE(trace, "Thread STARTED (PS <- FILE)");
+    LOG_WRITE(trace, "Thread STARTED (PS <- OUT)");
 }
 
 static void tx_waiter_producer(bool& _quit, std::any& _args) {
 }
 
 static void tx_waiter_epilogue(bool& _quit, std::any& _args) {
-    LOG_WRITE(trace, "Thread STOPPED (PS <- FILE)");
+    LOG_WRITE(trace, "Thread STOPPED (PS <- OUT)");
 }
 
 // ============================================================================
@@ -218,6 +221,9 @@ int main(int argc, char* argv[]) {
 
     auto quit{false};
 
+    auto rx_client{GUdpClient(RX_CLIENT_ADDR.c_str(), RX_CLIENT_PORT, RX_FIFO_TAG_NAME.c_str())};
+    auto tx_server{GUdpServer(TX_SERVER_ADDR.c_str(), TX_SERVER_PORT, TX_FIFO_TAG_NAME.c_str())};
+
     auto rx_device{GFIFOdevice(RX_FIFO_DEV_ADDR, RX_FIFO_DEV_SIZE, RX_FIFO_UIO_NUM, RX_FIFO_UIO_MAP, RX_FIFO_TAG_NAME)};
     auto tx_device{GFIFOdevice(TX_FIFO_DEV_ADDR, TX_FIFO_DEV_SIZE, TX_FIFO_UIO_NUM, TX_FIFO_UIO_MAP, TX_FIFO_TAG_NAME)};
 
@@ -229,12 +235,14 @@ int main(int argc, char* argv[]) {
 
     parameters_t parameters_rx;
     parameters_rx.total_loops = RX_MODE_LOOPS;
+    parameters_rx.client      = &rx_client;
     parameters_rx.device      = &rx_device;
     parameters_rx.roller      = &rx_roller;
     parameters_rx.profile     = &rx_profile;
 
     parameters_t parameters_tx;
     parameters_tx.total_loops = TX_MODE_LOOPS;
+    parameters_tx.server      = &tx_server;
     parameters_tx.device      = &tx_device;
     parameters_tx.roller      = &tx_roller;
     parameters_tx.profile     = &tx_profile;

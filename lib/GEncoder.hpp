@@ -18,9 +18,7 @@
 
 class GEncoder {
     public:
-    static const auto fifo_depth = 20;
-
-    GEncoder(uint32_t file_id) {
+    GEncoder(uint32_t file_id, uint32_t fifo_depth = 20) : m_fifo{GPacket::PACKET_FULL_SIZE, fifo_depth} {
         m_packet_counter = 1;
         m_file_id        = file_id;
     }
@@ -72,7 +70,9 @@ class GEncoder {
             }
         }
 
-        if (!result) { LOG_WRITE(error, "Unable to encode message"); }
+        if (!result) {
+            LOG_WRITE(error, "Unable to encode message");
+        }
 
         return result;
     }
@@ -92,8 +92,8 @@ class GEncoder {
     private:
     uint32_t m_packet_counter;
     uint32_t m_file_id;
-    TPacket  m_packet;
-    GFiFo    m_fifo = GFiFo(GPacket::PACKET_FULL_SIZE, fifo_depth);
+    packet_t m_packet;
+    GFiFo    m_fifo;
 };
 
 #endif // GENCODER_HPP

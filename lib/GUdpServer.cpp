@@ -63,7 +63,7 @@ GUdpServer::GUdpServer(const char* local_addr, uint16_t local_port, const char* 
     }
 
     m_is_ready = true;
-    LOG_FORMAT(debug, "%s constructor (%s:%s)", m_tag_name, s_addr, s_port);
+    LOG_FORMAT(debug, "%s constructor [%s:%s]", m_tag_name, s_addr, s_port);
 
 free_and_exit:
     freeaddrinfo(res);

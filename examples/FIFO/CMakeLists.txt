@@ -57,8 +57,14 @@ if (COMPILE_LANGUAGE:CXX)
 endif()
 
 add_library(gLIB OBJECT
+"../../lib/GBuffer.cpp"
+"../../lib/GFiFo.cpp"
 "../../lib/GLogger.cpp"
+"../../lib/GMessage.cpp"
 "../../lib/GOptions.cpp"
+"../../lib/GPacket.cpp"
+"../../lib/GUdpClient.cpp"
+"../../lib/GUdpServer.cpp"
 )
 
 add_library(gUIO OBJECT
@@ -76,6 +82,7 @@ include_directories(
 
 add_executable(_fifo
 "./src/main.cpp"
+"./src/globals.cpp"
 "./src/streams.cpp"
 )
 target_link_libraries(_fifo pthread gLIB gUIO)

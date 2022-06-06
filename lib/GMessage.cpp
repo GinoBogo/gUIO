@@ -20,7 +20,7 @@ void GMessage::Clear() {
     GBuffer::Clear();
 }
 
-void GMessage::Initialize(TPacket *packet) {
+void GMessage::Initialize(packet_t* packet) {
     m_no_error = true;
     m_is_valid = false;
 
@@ -30,7 +30,7 @@ void GMessage::Initialize(TPacket *packet) {
     GBuffer::Reset();
 }
 
-bool GMessage::Append(TPacket *packet) {
+bool GMessage::Append(packet_t* packet) {
     auto _packet_counter{packet->head.packet_counter};
 
     if (m_packet_counter != _packet_counter) {
@@ -53,7 +53,7 @@ bool GMessage::Append(TPacket *packet) {
         m_no_error = check_1 && check_2 && check_3 && check_4;
 
         if (m_no_error) {
-            auto *src_data  = packet->data.bytes;
+            auto* src_data  = packet->data.bytes;
             auto  src_count = packet->head.data_length;
             return GBuffer::Append(src_data, src_count);
         }

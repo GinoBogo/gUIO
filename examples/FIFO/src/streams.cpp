@@ -9,19 +9,22 @@
 
 #include "streams.hpp"
 
+#include "GEncoder.hpp"
 #include "GLogger.hpp"
 #include "GString.hpp"
+#include "globals.hpp"
 
 #include <cstdint>    // uint16_t
 #include <filesystem> // path
 #include <fstream>    // ifstream, ofstream
 
-bool reader_for_tx_words(GArray<uint16_t>& array, const std::string& filename) {
+bool stream_reader_for_tx_words(GArray<uint16_t>& array, GUdpServer& server) {
+
     auto words{array.size()};
 
-    if (!filename.empty()) {
+    if (!TX_FILE_NAME.empty()) {
         std::ifstream fs;
-        fs.open(filename, std::ios::binary);
+        fs.open(TX_FILE_NAME, std::ios::binary);
 
         if (fs.is_open()) {
             fs.seekg(0, std::ifstream::end);
@@ -36,7 +39,7 @@ bool reader_for_tx_words(GArray<uint16_t>& array, const std::string& filename) {
             fs.close();
 
             array.used(words);
-            LOG_FORMAT(info, "Words from \"%s\" file (%s)", filename.c_str(), __func__);
+            LOG_FORMAT(info, "Words from \"%s\" file (%s)", TX_FILE_NAME.c_str(), __func__);
             return true;
         }
         return false;
@@ -52,56 +55,50 @@ bool reader_for_tx_words(GArray<uint16_t>& array, const std::string& filename) {
     return true;
 }
 
-int p_num{0}; // progressive number
-int p_val{0}; // previous byte value
+bool stream_writer_for_rx_words(GArray<uint16_t>& array, GUdpClient& client) {
+    // SECTION: UDP streaming
 
-bool writer_for_rx_words(GArray<uint16_t>& array, const std::string& filename) {
-    auto words{array.used()};
+    if (RX_FILE_NAME.empty()) {
+        static auto encoder{GEncoder(RX_STREAM_ID)};
 
-    if (!filename.empty()) {
-        auto _path{std::filesystem::path(filename)};
+        if (encoder.Process(RX_STREAM_TYPE, array.data_bytes(), array.used_bytes())) {
+            TPacket packet;
 
-        char _tail[32];
-        snprintf(_tail, sizeof(_tail), "_%06d%s", p_num++, _path.extension().c_str());
+            auto _error{false};
+            while (!encoder.IsEmpty() && !_error) {
+                auto* src_buffer = packet.ptr();
+                auto  src_bytes  = encoder.Pop(src_buffer, sizeof(packet));
 
-        auto _name{_path.parent_path()};
-        _name /= _path.stem();
-        _name += _tail;
-
-        std::ofstream fs;
-        fs.open(_name, std::ios::binary);
-
-        if (fs.is_open()) {
-            auto* __s{reinterpret_cast<char*>(array.data())};
-            auto  __n{static_cast<std::streamsize>(words * sizeof(uint16_t))};
-            fs.write(__s, __n);
-            fs.close();
-            return true;
+                if (src_bytes > 0) {
+                    _error |= !client.Send(src_buffer, (unsigned)src_bytes);
+                }
+            }
+            return !_error;
         }
         return false;
     }
 
-    // SECTION: internal-ramp generator
-    for (decltype(words) i{0}; i < words; ++i) {
-        auto word = array.data()[i];
+    // SECTION: FILE streaming
 
-        auto h_val{(0xFF00 & word) >> 8};
-        auto l_val{(0x00FF & word) >> 0};
+    static auto _index{0U};
+    static auto _path{std::filesystem::path(RX_FILE_NAME)};
 
-        auto h_dif{h_val - p_val};
-        auto l_dif{l_val - h_val};
+    char _tail[32];
+    snprintf(_tail, sizeof(_tail), "_%06u%s", _index++, _path.extension().c_str());
 
-        auto check_1{(h_val == 0) && (l_val == 247)};
-        auto check_2{(p_val == 0) && (h_val == 247)};
+    auto _name{_path.parent_path()};
+    _name /= _path.stem();
+    _name += _tail;
 
-        if (check_1 || check_2) {
-            p_num = 0;
-        }
+    std::ofstream fs;
+    fs.open(_name, std::ios::binary);
 
-        p_val = l_val;
-
-        LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, h_val, h_dif);
-        LOG_FORMAT(debug, " %4d | %3d | %+4d", p_num++, l_val, l_dif);
+    if (fs.is_open()) {
+        auto* __s{reinterpret_cast<char*>(array.data())};
+        auto  __n{static_cast<std::streamsize>(FIFO_WORD_SIZE * array.used())};
+        fs.write(__s, __n);
+        fs.close();
+        return true;
     }
-    return true;
+    return false;
 }
