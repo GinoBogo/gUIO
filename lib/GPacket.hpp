@@ -41,6 +41,13 @@ typedef struct {
     TPacketHead head;
     TPacketData data;
 
+    auto* ptr() {
+        return reinterpret_cast<uint8_t*>(this);
+    }
+    auto len() {
+        return sizeof(head) + head.data_length;
+    }
+
 } TPacket;
 
 typedef enum {
@@ -65,12 +72,12 @@ namespace GPacket {
     const auto PACKET_DATA_SIZE = sizeof(TPacketData);
     const auto PACKET_FULL_SIZE = sizeof(TPacket);
 
-    bool IsValid(uint8_t *buffer, size_t bytes);
-    bool IsSingle(TPacket *packet);
-    bool IsShort(TPacket *packet);
-    bool IsFirst(TPacket *packet);
-    bool IsMiddle(TPacket *packet);
-    bool IsLast(TPacket *packet);
+    bool IsValid(uint8_t* buffer, size_t bytes);
+    bool IsSingle(TPacket* packet);
+    bool IsShort(TPacket* packet);
+    bool IsFirst(TPacket* packet);
+    bool IsMiddle(TPacket* packet);
+    bool IsLast(TPacket* packet);
 } // namespace GPacket
 
 #endif // GPACKET_HPP
