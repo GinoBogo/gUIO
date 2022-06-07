@@ -19,22 +19,31 @@ class GDecoder {
     public:
     typedef bool (*WorkerFunc)(std::any data, std::any args);
 
-    GDecoder(WorkerFunc decode_packet, WorkerFunc decode_message, std::any args) {
-        m_decode_packet  = decode_packet;
-        m_decode_message = decode_message;
-        m_args           = std::move(args);
+    GDecoder(WorkerFunc decode_short_msg, WorkerFunc decode_large_msg, std::any args) {
+        m_decode_short_msg = decode_short_msg;
+        m_decode_large_msg = decode_large_msg;
+        m_args             = std::move(args);
     }
 
-    bool Process() {
+    bool Process(bool* is_ready = nullptr) {
+        auto set_ready = [&](bool value) {
+            if (is_ready != nullptr) {
+                *is_ready = value;
+            }
+        };
+
+        set_ready(false);
         if (GPacket::IsSingle(&packet)) {
-            if (GPacket::IsShort(&packet)) { //
-                return m_decode_packet(&packet, m_args);
+            if (GPacket::IsShort(&packet)) {
+                set_ready(true);
+                return m_decode_short_msg(&packet, m_args);
             }
 
             message.Initialize(&packet);
             message.Append(&packet);
-            if (message.IsValid()) { //
-                return m_decode_message(&message, m_args);
+            if (message.IsValid()) {
+                set_ready(true);
+                return m_decode_large_msg(&message, m_args);
             }
 
             return false;
@@ -53,8 +62,9 @@ class GDecoder {
 
         if (GPacket::IsLast(&packet)) {
             message.Append(&packet);
-            if (message.IsValid()) { //
-                return m_decode_message(&message, m_args);
+            if (message.IsValid()) {
+                set_ready(true);
+                return m_decode_large_msg(&message, m_args);
             }
         }
 
@@ -74,8 +84,8 @@ class GDecoder {
 
     private:
     std::any   m_args;
-    WorkerFunc m_decode_packet;
-    WorkerFunc m_decode_message;
+    WorkerFunc m_decode_short_msg;
+    WorkerFunc m_decode_large_msg;
 };
 
 #endif // GDECODER_HPP
