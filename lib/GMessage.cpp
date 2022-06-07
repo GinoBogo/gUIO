@@ -53,9 +53,9 @@ bool GMessage::Append(packet_t* packet) {
         m_no_error = check_1 && check_2 && check_3 && check_4;
 
         if (m_no_error) {
-            auto* src_data  = packet->data.bytes;
-            auto  src_count = packet->head.data_length;
-            return GBuffer::Append(src_data, src_count);
+            auto* src_data = packet->data.bytes;
+            auto  src_used = packet->head.data_length;
+            return GBuffer::Append(src_data, src_used);
         }
     }
 

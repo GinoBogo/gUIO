@@ -25,28 +25,28 @@ class GBuffer {
 
     bool Wrap(uint8_t* buf_data, uint32_t buf_size);
 
-    bool Append(const uint8_t* src_data, uint32_t src_count);
+    bool Append(const uint8_t* src_data, uint32_t src_used);
 
     void SetCount(uint32_t value);
 
     void Increase(uint32_t delta);
 
     auto Reset() {
-        m_count = 0;
-        p_next  = p_data;
+        m_used = 0;
+        p_next = p_data;
     }
 
     auto Clear() {
         memset(p_data, 0, m_size);
-        m_count = 0;
-        p_next  = p_data;
+        m_used = 0;
+        p_next = p_data;
     }
 
     auto SmartClear() {
-        if (m_count > 0) {
-            memset(p_data, 0, m_count);
-            m_count = 0;
-            p_next  = p_data;
+        if (m_used > 0) {
+            memset(p_data, 0, m_used);
+            m_used = 0;
+            p_next = p_data;
         }
     }
 
@@ -59,23 +59,23 @@ class GBuffer {
     }
 
     [[nodiscard]] auto IsEmpty() const {
-        return (m_count == 0);
+        return (m_used == 0);
     }
 
     [[nodiscard]] auto IsFull() const {
-        return ((m_size - m_count) == 0);
+        return ((m_size - m_used) == 0);
     }
 
     [[nodiscard]] auto size() const {
         return m_size;
     }
 
-    [[nodiscard]] auto count() const {
-        return m_count;
+    [[nodiscard]] auto used() const {
+        return m_used;
     }
 
     [[nodiscard]] auto free() const {
-        return m_size - m_count;
+        return m_size - m_used;
     }
 
     [[nodiscard]] auto data() const {
@@ -98,7 +98,7 @@ class GBuffer {
     bool     m_is_ready{false};
     bool     m_is_wrapper;
     uint32_t m_size;
-    uint32_t m_count;
+    uint32_t m_used;
     uint8_t* p_data;
     uint8_t* p_next;
 };

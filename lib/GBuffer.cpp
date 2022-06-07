@@ -39,7 +39,7 @@ GBuffer& GBuffer::operator=(const GBuffer& buffer) {
             p_data     = new uint8_t[m_size];
             m_is_ready = true;
             Reset();
-            Append(buffer.data(), buffer.count());
+            Append(buffer.data(), buffer.used());
         }
     }
     return *this;
@@ -58,15 +58,15 @@ bool GBuffer::Wrap(uint8_t* buf_data, const uint32_t buf_size) {
     return false;
 }
 
-bool GBuffer::Append(const uint8_t* src_data, const uint32_t src_count) {
-    if (!m_is_ready || (src_data == nullptr) || (src_count == 0) || free() < src_count) {
+bool GBuffer::Append(const uint8_t* src_data, const uint32_t src_used) {
+    if (!m_is_ready || (src_data == nullptr) || (src_used == 0) || free() < src_used) {
         return false;
     }
 
-    memcpy(p_next, src_data, src_count);
+    memcpy(p_next, src_data, src_used);
 
-    m_count += src_count;
-    p_next += src_count;
+    m_used += src_used;
+    p_next += src_used;
 
     return true;
 }
@@ -77,12 +77,12 @@ void GBuffer::SetCount(const uint32_t value) {
     }
 
     if (value >= m_size) {
-        m_count = m_size;
-        p_next  = nullptr;
+        m_used = m_size;
+        p_next = nullptr;
     }
     else {
-        m_count = value;
-        p_next  = p_data + value;
+        m_used = value;
+        p_next = p_data + value;
     }
 }
 
@@ -92,11 +92,11 @@ void GBuffer::Increase(const uint32_t delta) {
     }
 
     if (delta >= free()) {
-        m_count = m_size;
-        p_next  = nullptr;
+        m_used = m_size;
+        p_next = nullptr;
     }
     else {
-        m_count += delta;
+        m_used += delta;
         p_next += delta;
     }
 }

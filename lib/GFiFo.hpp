@@ -51,11 +51,11 @@ class GFiFo {
     bool IsStateChanged(fsm_state_t* new_state = nullptr, fsm_state_t* old_state = nullptr);
 
     [[nodiscard]] auto IsEmpty() const {
-        return (m_count == 0);
+        return (m_used == 0);
     }
 
     [[nodiscard]] auto IsFull() const {
-        return (m_count == m_depth);
+        return (m_used == m_depth);
     }
 
     [[nodiscard]] auto size() const {
@@ -66,12 +66,12 @@ class GFiFo {
         return m_depth;
     }
 
-    [[nodiscard]] auto count() const {
-        return m_count;
+    [[nodiscard]] auto used() const {
+        return m_used;
     }
 
     [[nodiscard]] auto free() const {
-        return m_depth - m_count;
+        return m_depth - m_used;
     }
 
     [[nodiscard]] auto max_level() const {
@@ -85,7 +85,7 @@ class GFiFo {
     private:
     uint32_t    m_size;
     uint32_t    m_depth;
-    uint32_t    m_count;
+    uint32_t    m_used;
     uint32_t    m_iR;
     uint32_t    m_iW;
     GBuffer**   p_fifo;

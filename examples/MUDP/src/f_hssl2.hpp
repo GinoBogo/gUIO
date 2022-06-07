@@ -56,7 +56,7 @@ namespace f_hssl2 {
             case packet_type_t::packet_from_hssl_2: {
                 packet_t _packet;
                 memcpy(&_packet.head, _message->head(), GPacket::PACKET_HEAD_SIZE);
-                memcpy(&_packet.data, _message->data(), _message->count());
+                memcpy(&_packet.data, _message->data(), _message->used());
 
                 _packet.head.packet_type = packet_type_t::packet_to_hssl_2;
 

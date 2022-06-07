@@ -14,7 +14,7 @@
 GFiFo::GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_level, const int min_level) {
     m_size  = item_size;
     m_depth = fifo_depth;
-    m_count = 0;
+    m_used  = 0;
     m_iW    = 0;
     m_iR    = 0;
     p_fifo  = nullptr;
@@ -58,9 +58,9 @@ void GFiFo::Reset() {
         p_fifo[i]->Reset();
     }
 
-    m_count = 0;
-    m_iW    = 0;
-    m_iR    = 0;
+    m_used = 0;
+    m_iW   = 0;
+    m_iR   = 0;
 
     if (m_fsm_state != TRANSITION_OFF) {
         m_fsm_state = MIN_LEVEL_PASSED;
@@ -76,9 +76,9 @@ void GFiFo::Clear() {
         p_fifo[i]->Clear();
     }
 
-    m_count = 0;
-    m_iW    = 0;
-    m_iR    = 0;
+    m_used = 0;
+    m_iW   = 0;
+    m_iR   = 0;
 
     if (m_fsm_state != TRANSITION_OFF) {
         m_fsm_state = MIN_LEVEL_PASSED;
@@ -94,9 +94,9 @@ void GFiFo::SmartClear() {
         p_fifo[i]->SmartClear();
     }
 
-    m_count = 0;
-    m_iW    = 0;
-    m_iR    = 0;
+    m_used = 0;
+    m_iW   = 0;
+    m_iR   = 0;
 
     if (m_fsm_state != TRANSITION_OFF) {
         m_fsm_state = MIN_LEVEL_PASSED;
@@ -114,9 +114,9 @@ bool GFiFo::Push(const GBuffer* src_buff) {
 
             _item->Reset();
 
-            if (_item->Append(src_buff->data(), src_buff->count())) {
+            if (_item->Append(src_buff->data(), src_buff->used())) {
                 ++m_iW;
-                ++m_count;
+                ++m_used;
 
                 if (m_iW == m_depth) {
                     m_iW = 0;
@@ -143,7 +143,7 @@ bool GFiFo::Push(const uint8_t* src_data, const uint32_t src_count) {
 
             if (_item->Append(src_data, src_count)) {
                 ++m_iW;
-                ++m_count;
+                ++m_used;
 
                 if (m_iW == m_depth) {
                     m_iW = 0;
@@ -168,9 +168,9 @@ bool GFiFo::Pop(GBuffer* dst_buff) {
 
             dst_buff->Reset();
 
-            if (dst_buff->Append(_item->data(), _item->count())) {
+            if (dst_buff->Append(_item->data(), _item->used())) {
                 ++m_iR;
-                --m_count;
+                --m_used;
 
                 if (m_iR == m_depth) {
                     m_iR = 0;
@@ -192,13 +192,13 @@ int32_t GFiFo::Pop(uint8_t* dst_data, const uint32_t dst_size) {
     if ((dst_data != nullptr) && (dst_size > 0)) {
         if (!IsEmpty()) {
             GBuffer* _item = p_fifo[m_iR];
-            uint32_t bytes = _item->count();
+            uint32_t bytes = _item->used();
 
             if (dst_size >= bytes) {
                 memcpy((void*)dst_data, (void*)_item->data(), bytes);
 
                 ++m_iR;
-                --m_count;
+                --m_used;
 
                 if (m_iR == m_depth) {
                     m_iR = 0;
@@ -224,7 +224,7 @@ bool GFiFo::IsStateChanged(fsm_state_t* new_state, fsm_state_t* old_state) {
     }
 
     if (m_fsm_state != TRANSITION_OFF) {
-        auto _current_level{static_cast<int>(m_count)};
+        auto _current_level{static_cast<int>(m_used)};
 
         if (m_max_level > 0 && _current_level >= m_max_level) {
             _state_changed = m_fsm_state != MAX_LEVEL_PASSED;
