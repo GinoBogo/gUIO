@@ -11,6 +11,7 @@
 #define GARRAYROLLER_HPP
 
 #include "GArray.hpp"
+#include "GLogger.hpp"
 
 #include <mutex>       // mutex, lock_guard
 #include <type_traits> // is_fundamental_v
@@ -24,11 +25,12 @@ template <typename T> class GArrayRoller {
         IS_READING_AND_WRITING
     } fsm_state_t;
 
-    GArrayRoller(size_t array_length, size_t arrays_number) {
+    GArrayRoller(size_t array_length, size_t arrays_number, const std::string& tag_name = "") {
         static_assert(std::is_fundamental_v<T>, "Type not supported.");
 
-        m_length = array_length;
-        m_number = arrays_number;
+        m_length   = array_length;
+        m_number   = arrays_number;
+        m_tag_name = tag_name.empty() ? "Array Roller" : "\"" + tag_name + "\" Array Roller";
 
         if (m_length > 0 && m_number > 0) {
             m_arrays = new GArray<T>*[m_number];
@@ -37,6 +39,7 @@ template <typename T> class GArrayRoller {
             }
         }
         Reset();
+        LOG_FORMAT(debug, "%s constructor [%lu, %lu]", m_tag_name.c_str(), m_length, m_number);
     }
 
     GArrayRoller(const GArrayRoller& array_roller) {
@@ -45,6 +48,7 @@ template <typename T> class GArrayRoller {
 
     ~GArrayRoller() {
         release_resources();
+        LOG_FORMAT(debug, "%s destructor", m_tag_name.c_str());
     }
 
     GArrayRoller& operator=(const GArrayRoller& array_roller) {
@@ -65,6 +69,7 @@ template <typename T> class GArrayRoller {
                 m_iR     = array_roller.m_iR;
                 m_iW     = array_roller.m_iW;
             }
+            LOG_FORMAT(debug, "%s constructor [%lu, %lu]", m_tag_name.c_str(), m_length, m_number);
         }
         return *this;
     }
@@ -262,6 +267,7 @@ template <typename T> class GArrayRoller {
     size_t      m_number;
     fsm_state_t m_status;
     size_t      m_errors;
+    std::string m_tag_name;
 
     GArray<T>** m_arrays{nullptr};
     size_t      m_used;
