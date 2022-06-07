@@ -16,14 +16,14 @@ GFIFOdevice::GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_
     m_dev_size = dev_size;
     m_uio_num  = uio_num;
     m_uio_map  = uio_map;
-    m_tag_name = tag_name.empty() ? "FIFO device" : "\"" + tag_name + "\" FIFO device";
+    m_tag_name = tag_name.empty() ? "FIFO Device" : "\"" + tag_name + "\" FIFO Device";
 
     m_dev      = new GMAPdevice(m_dev_addr, m_dev_size);
     m_uio      = new GUIOdevice(m_uio_num, m_uio_map);
     m_uio_regs = nullptr;
     m_is_ready = false;
 
-    LOG_FORMAT(trace, "%s constructor [0x%08X, 0x%05X, %d, %d]", m_tag_name.c_str(), m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
+    LOG_FORMAT(debug, "%s constructor [0x%08X, 0x%05X, %d, %d]", m_tag_name.c_str(), m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
 }
 
 GFIFOdevice::GFIFOdevice(const GFIFOdevice& fifo_device) {
@@ -37,7 +37,7 @@ GFIFOdevice::~GFIFOdevice() {
     delete m_dev;
     delete m_uio;
 
-    LOG_FORMAT(trace, "%s destructor", m_tag_name.c_str());
+    LOG_FORMAT(debug, "%s destructor", m_tag_name.c_str());
 }
 
 GFIFOdevice& GFIFOdevice::operator=(const GFIFOdevice& fifo_device) {

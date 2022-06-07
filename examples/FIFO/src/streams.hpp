@@ -14,8 +14,8 @@
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"
 
-bool stream_reader_for_tx_words(GArray<uint16_t>& array, GUdpServer& server);
+bool stream_reader_for_tx_words(GArray<uint16_t>* array, GUdpClient* client, GUdpServer* server);
 
-bool stream_writer_for_rx_words(GArray<uint16_t>& array, GUdpClient& client);
+bool stream_writer_for_rx_words(GArray<uint16_t>* array, GUdpClient* client, GUdpServer* server);
 
 #endif // STREAMS_HPP
