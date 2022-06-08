@@ -95,11 +95,11 @@ static void load_options(const char* filename) {
 }
 
 static void send_signal_start_flow(GFiFo* fifo, GUdpClient* client) {
-    GFiFo::fsm_state_t new_state;
-    GFiFo::fsm_state_t old_state;
+    GFiFo::fsm_levels_t new_level;
+    GFiFo::fsm_levels_t old_level;
 
-    if (fifo->IsStateChanged(&new_state, &old_state)) {
-        if (new_state == GFiFo::MIN_LEVEL_PASSED) {
+    if (fifo->IsLevelChanged(&new_level, &old_level)) {
+        if (new_level == GFiFo::MIN_LEVEL_PASSED) {
             packet_head_t packet;
             packet.packet_type     = packet_type_t::signal_start_flow;
             packet.file_id         = 0;
@@ -113,11 +113,11 @@ static void send_signal_start_flow(GFiFo* fifo, GUdpClient* client) {
 }
 
 static void send_signal_stop_flow(GFiFo* fifo, GUdpClient* client) {
-    GFiFo::fsm_state_t new_state;
-    GFiFo::fsm_state_t old_state;
+    GFiFo::fsm_levels_t new_level;
+    GFiFo::fsm_levels_t old_level;
 
-    if (fifo->IsStateChanged(&new_state, &old_state)) {
-        if (new_state == GFiFo::MAX_LEVEL_PASSED) {
+    if (fifo->IsLevelChanged(&new_level, &old_level)) {
+        if (new_level == GFiFo::MAX_LEVEL_PASSED) {
             packet_head_t packet;
             packet.packet_type     = packet_type_t::signal_stop_flow;
             packet.file_id         = 0;

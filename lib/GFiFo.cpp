@@ -26,10 +26,10 @@ GFiFo::GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_
     auto check_2{m_max_level > 0 && m_max_level < m_min_level};
 
     if (check_1 || check_2) {
-        m_fsm_state = TRANSITION_OFF;
+        m_fsm_level = TRANSITION_OFF;
     }
     else {
-        m_fsm_state = MIN_LEVEL_PASSED;
+        m_fsm_level = MIN_LEVEL_PASSED;
     }
 
     if ((m_size > 0) && (m_depth > 0)) {
@@ -62,8 +62,8 @@ void GFiFo::Reset() {
     m_iW   = 0;
     m_iR   = 0;
 
-    if (m_fsm_state != TRANSITION_OFF) {
-        m_fsm_state = MIN_LEVEL_PASSED;
+    if (m_fsm_level != TRANSITION_OFF) {
+        m_fsm_level = MIN_LEVEL_PASSED;
     }
 }
 
@@ -80,8 +80,8 @@ void GFiFo::Clear() {
     m_iW   = 0;
     m_iR   = 0;
 
-    if (m_fsm_state != TRANSITION_OFF) {
-        m_fsm_state = MIN_LEVEL_PASSED;
+    if (m_fsm_level != TRANSITION_OFF) {
+        m_fsm_level = MIN_LEVEL_PASSED;
     }
 }
 
@@ -98,8 +98,8 @@ void GFiFo::SmartClear() {
     m_iW   = 0;
     m_iR   = 0;
 
-    if (m_fsm_state != TRANSITION_OFF) {
-        m_fsm_state = MIN_LEVEL_PASSED;
+    if (m_fsm_level != TRANSITION_OFF) {
+        m_fsm_level = MIN_LEVEL_PASSED;
     }
 }
 
@@ -212,33 +212,33 @@ int32_t GFiFo::Pop(uint8_t* dst_data, const uint32_t dst_size) {
     return -1;
 }
 
-bool GFiFo::IsStateChanged(fsm_state_t* new_state, fsm_state_t* old_state) {
+bool GFiFo::IsLevelChanged(fsm_levels_t* new_level, fsm_levels_t* old_level) {
 #ifdef GFIFO_THREAD_SAFE
     std::lock_guard<std::mutex> lock(m_mutex);
 #endif
 
     auto _state_changed{false};
 
-    if (old_state != nullptr) {
-        *old_state = m_fsm_state;
+    if (old_level != nullptr) {
+        *old_level = m_fsm_level;
     }
 
-    if (m_fsm_state != TRANSITION_OFF) {
+    if (m_fsm_level != TRANSITION_OFF) {
         auto _current_level{static_cast<int>(m_used)};
 
         if (m_max_level > 0 && _current_level >= m_max_level) {
-            _state_changed = m_fsm_state != MAX_LEVEL_PASSED;
-            m_fsm_state    = MAX_LEVEL_PASSED;
+            _state_changed = m_fsm_level != MAX_LEVEL_PASSED;
+            m_fsm_level    = MAX_LEVEL_PASSED;
         }
 
         if (m_min_level > 0 && _current_level <= m_min_level) {
-            _state_changed = m_fsm_state != MIN_LEVEL_PASSED;
-            m_fsm_state    = MIN_LEVEL_PASSED;
+            _state_changed = m_fsm_level != MIN_LEVEL_PASSED;
+            m_fsm_level    = MIN_LEVEL_PASSED;
         }
     }
 
-    if (new_state != nullptr) {
-        *new_state = m_fsm_state;
+    if (new_level != nullptr) {
+        *new_level = m_fsm_level;
     }
 
     return _state_changed;

@@ -28,7 +28,7 @@ class GFiFo {
         MAX_LEVEL_PASSED,
         MIN_LEVEL_PASSED
 
-    } fsm_state_t;
+    } fsm_levels_t;
 
     GFiFo(uint32_t item_size, uint32_t fifo_depth, int max_level = -1, int min_level = -1);
 
@@ -48,7 +48,7 @@ class GFiFo {
 
     int32_t Pop(uint8_t* dst_data, uint32_t dst_size);
 
-    bool IsStateChanged(fsm_state_t* new_state = nullptr, fsm_state_t* old_state = nullptr);
+    bool IsLevelChanged(fsm_levels_t* new_level = nullptr, fsm_levels_t* old_level = nullptr);
 
     [[nodiscard]] auto IsEmpty() const {
         return (m_used == 0);
@@ -83,15 +83,15 @@ class GFiFo {
     }
 
     private:
-    uint32_t    m_size;
-    uint32_t    m_depth;
-    uint32_t    m_used;
-    uint32_t    m_iR;
-    uint32_t    m_iW;
-    GBuffer**   p_fifo;
-    int         m_max_level;
-    int         m_min_level;
-    fsm_state_t m_fsm_state;
+    uint32_t     m_size;
+    uint32_t     m_depth;
+    uint32_t     m_used;
+    uint32_t     m_iR;
+    uint32_t     m_iW;
+    GBuffer**    p_fifo;
+    int          m_max_level;
+    int          m_min_level;
+    fsm_levels_t m_fsm_level;
 
 #ifdef GFIFO_THREAD_SAFE
     std::mutex m_mutex;
