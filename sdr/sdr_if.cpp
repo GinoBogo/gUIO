@@ -38,6 +38,8 @@
 // *****************************************************************************
 // *****************************************************************************
 
+//#define NEW_PATH_CLOCK_FREQUENCIES
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: File Scope or Global Data
@@ -83,7 +85,25 @@ ad9361_init_parameters_t init_params = {
     (uInt64)400000000, // rx_synthesizer_frequency_hz
     (uInt64)400000000, // tx_synthesizer_frequency_hz
 
-    // rate & BW control
+// rate & BW control
+#ifdef NEW_PATH_CLOCK_FREQUENCIES
+    {
+        (uInt32)800000000, // uint32_t rx_path_clock_frequencies[6]
+        (uInt32)400000000, //
+        (uInt32)200000000, //
+        (uInt32)10000000,  //
+        (uInt32)50000000,  //
+        (uInt32)50000000   //
+    },
+    {
+        (uInt32)800000000, // uint32_t tx_path_clock_frequencies[6]
+        (uInt32)400000000, //
+        (uInt32)200000000, //
+        (uInt32)10000000,  //
+        (uInt32)50000000,  //
+        (uInt32)50000000   //
+    },
+#else
     {
         (uInt32)800000000, // uint32_t rx_path_clock_frequencies[6]
         (uInt32)200000000, //
@@ -100,6 +120,7 @@ ad9361_init_parameters_t init_params = {
         (uInt32)25000000,  //
         (uInt32)25000000   //
     },
+#endif
     (uInt32)18000000, // rf_rx_bandwidth_hz
     (uInt32)18000000, // rf_tx_bandwidth_hz
 
