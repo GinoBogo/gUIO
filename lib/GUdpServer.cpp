@@ -15,7 +15,7 @@
 #include <cerrno>   // errno
 #include <cstdio>   // snprintf
 #include <cstdlib>  // atoi
-#include <cstring>  // memset
+#include <cstring>  // memset, strerror_r
 #include <netdb.h>  // addrinfo
 #include <unistd.h> // close
 
@@ -53,12 +53,16 @@ GUdpServer::GUdpServer(const char* local_addr, uint16_t local_port, const char* 
 
     m_socket_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (m_socket_fd == -1) {
-        LOG_WRITE(error, strerror(errno));
+        char _msg[256];
+        strerror_r(errno, _msg, sizeof(_msg));
+        LOG_WRITE(error, _msg);
         goto free_and_exit;
     }
 
     if (bind(m_socket_fd, res->ai_addr, res->ai_addrlen) == -1) {
-        LOG_WRITE(error, strerror(errno));
+        char _msg[256];
+        strerror_r(errno, _msg, sizeof(_msg));
+        LOG_WRITE(error, _msg);
         goto free_and_exit;
     }
 

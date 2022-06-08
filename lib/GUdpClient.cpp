@@ -51,12 +51,16 @@ GUdpClient::GUdpClient(const char* remote_addr, uint16_t remote_port, const char
 
     m_socket_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (m_socket_fd == -1) {
-        LOG_WRITE(error, strerror(errno));
+        char _msg[256];
+        strerror_r(errno, _msg, sizeof(_msg));
+        LOG_WRITE(error, _msg);
         goto free_and_exit;
     }
 
     if (connect(m_socket_fd, res->ai_addr, res->ai_addrlen) == -1) {
-        LOG_WRITE(error, strerror(errno));
+        char _msg[256];
+        strerror_r(errno, _msg, sizeof(_msg));
+        LOG_WRITE(error, _msg);
         goto free_and_exit;
     }
 
