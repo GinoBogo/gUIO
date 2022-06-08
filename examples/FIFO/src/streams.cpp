@@ -23,10 +23,10 @@
 typedef GArray<uint16_t>* array_ptr_t;
 
 struct decoder_args_t {
-    array_ptr_t array    = nullptr;
-    GUdpClient* client   = nullptr;
-    GUdpServer* server   = nullptr;
-    bool*       is_large = nullptr;
+    array_ptr_t array        = nullptr;
+    GUdpClient* client       = nullptr;
+    GUdpServer* server       = nullptr;
+    bool*       is_large_msg = nullptr;
 };
 
 static bool decode_short_msg(std::any data, std::any args) {
@@ -34,7 +34,7 @@ static bool decode_short_msg(std::any data, std::any args) {
     auto  _args   = std::any_cast<decoder_args_t>(args);
     auto* _client = _args.client;
 
-    *_args.is_large = false;
+    *_args.is_large_msg = false;
 
     const auto _packet_type{_packet->head.packet_type};
 
@@ -42,7 +42,7 @@ static bool decode_short_msg(std::any data, std::any args) {
         case packet_type_t::wake_up_query: {
             _packet->head.packet_type = packet_type_t::wake_up_reply;
             _client->Send(_packet, GPacket::PACKET_HEAD_SIZE);
-            LOG_FORMAT(info, "WAKE_UP message (%s)", __func__);
+            LOG_FORMAT(info, "WAKE_UP message sent (%s)", __func__);
             return true;
         }
 
@@ -69,11 +69,11 @@ static bool decode_large_msg(std::any data, std::any args) {
     auto  _args    = std::any_cast<decoder_args_t>(args);
     auto* _array   = std::any_cast<array_ptr_t>(_args.array);
 
-    *_args.is_large = true;
+    *_args.is_large_msg = true;
 
     const auto _packet_type{_message->head()->packet_type};
 
-    if (_packet_type == RX_STREAM_TYPE) {
+    if (_packet_type == TX_STREAM_TYPE) {
         auto* src_data = _message->data();
         auto  src_used = _message->used();
         memcpy(_array->data_bytes(), src_data, src_used);
@@ -92,20 +92,21 @@ bool stream_reader_for_tx_words(GArray<uint16_t>* array, GUdpClient* client, GUd
     // SECTION: UDP streaming
 
     if (TX_FILE_NAME.empty()) {
-        auto _is_ready = false;
-        auto _is_large = false;
-        auto _error    = false;
-        auto _bytes    = 0UL;
+        static auto decoder{GDecoder(decode_short_msg, decode_large_msg)};
 
-        static auto decoder_args{decoder_args_t{array, client, server, &_is_large}};
-        static auto decoder{GDecoder(decode_short_msg, decode_large_msg, std::any(decoder_args))};
+        auto _is_ready_msg = false;
+        auto _is_large_msg = false;
+        auto _error        = false;
+        auto _bytes        = 0UL;
 
-        while (!_is_ready || !_is_large) {
+        decoder.SetArgs(decoder_args_t{array, client, server, &_is_large_msg});
+
+        while (!_is_ready_msg || !_is_large_msg) {
             BREAK_IF(_error, _error = !server->Receive(decoder.packet_ptr(), &_bytes));
 
             BREAK_IF(_error, _error = _bytes < GPacket::PACKET_HEAD_SIZE);
 
-            BREAK_IF(_error, _error = !decoder.Process(&_is_ready));
+            BREAK_IF(_error, _error = !decoder.Process(&_is_ready_msg));
         }
 
         return !_error;

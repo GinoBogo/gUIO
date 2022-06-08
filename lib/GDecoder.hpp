@@ -19,10 +19,19 @@ class GDecoder {
     public:
     typedef bool (*WorkerFunc)(std::any data, std::any args);
 
+    GDecoder(WorkerFunc decode_short_msg, WorkerFunc decode_large_msg) {
+        m_decode_short_msg = decode_short_msg;
+        m_decode_large_msg = decode_large_msg;
+    }
+
     GDecoder(WorkerFunc decode_short_msg, WorkerFunc decode_large_msg, std::any args) {
         m_decode_short_msg = decode_short_msg;
         m_decode_large_msg = decode_large_msg;
         m_args             = std::move(args);
+    }
+
+    void SetArgs(std::any args) {
+        m_args = std::move(args);
     }
 
     bool Process(bool* is_ready = nullptr) {
