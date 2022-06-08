@@ -12,6 +12,7 @@
 #include "GRegisters.hpp"
 #include "GString.hpp"
 
+#include <filesystem> // path
 #include <fstream>
 
 #define PS2PL_REGS_ADDR 0xA0050000
