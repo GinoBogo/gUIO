@@ -38,6 +38,18 @@ class GProfile {
         return std::chrono::duration_cast<std::chrono::nanoseconds>(m_t1 - m_t0).count();
     }
 
+    auto ms_to_sec() {
+        return ms() / 1e3;
+    }
+
+    auto us_to_sec() {
+        return us() / 1e6;
+    }
+
+    auto ns_to_sec() {
+        return ns() / 1e9;
+    }
+
     private:
     std::chrono::time_point<std::chrono::system_clock> m_t0;
     std::chrono::time_point<std::chrono::system_clock> m_t1;

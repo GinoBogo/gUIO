@@ -159,11 +159,10 @@ static void rx_master_epilogue(bool& _quit, std::any& _args) {
     device->ClearEvent(); // WARNING: a not served interrupt may happen
     device->Close();
 
-    auto delta_time{profile->us() / 1e6};
-    auto data_speed{GString::value_scaler((8 * total_bytes) / delta_time, "bps")};
+    auto _speed{GString::value_scaler((8 * total_bytes) / profile->us_to_sec(), "bps")};
 
     LOG_FORMAT(info, "[STATS] RX roller errors: %lu", roller->errors());
-    LOG_FORMAT(info, "[STATS] RX average speed: %0.3f %s", data_speed.first, data_speed.second.c_str());
+    LOG_FORMAT(info, "[STATS] RX average speed: %0.3f %s", _speed.first, _speed.second.c_str());
 
     LOG_WRITE(trace, "Thread STOPPED (PL -> PS)");
 }
@@ -241,11 +240,10 @@ static void tx_waiter_epilogue(bool& _quit, std::any& _args) {
     device->ClearEvent(); // WARNING: a not served interrupt may happen
     device->Close();
 
-    auto delta_time{profile->us() / 1e6};
-    auto data_speed{GString::value_scaler((8 * total_bytes) / delta_time, "bps")};
+    auto _speed{GString::value_scaler((8 * total_bytes) / profile->us_to_sec(), "bps")};
 
     LOG_FORMAT(info, "[STATS] TX roller errors: %lu", roller->errors());
-    LOG_FORMAT(info, "[STATS] TX average speed: %0.3f %s", data_speed.first, data_speed.second.c_str());
+    LOG_FORMAT(info, "[STATS] TX average speed: %0.3f %s", _speed.first, _speed.second.c_str());
 
     LOG_WRITE(trace, "Thread STOPPED (PL <- PS)");
 }
