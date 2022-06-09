@@ -10,6 +10,8 @@
 #ifndef GOPTIONS_HPP
 #define GOPTIONS_HPP
 
+#include "GDefine.hpp" // UNUSED
+
 #include <any>
 #include <list>
 #include <map>
@@ -154,12 +156,6 @@ class GOptions : public std::map<std::string, std::any> {
         return type;
     }
 #else
-    // clang-format off
-#ifndef UNUSED
-#define UNUSED_GOPTIONS
-#define UNUSED(x) if (x) {}
-#endif
-    // clang-format on
 
     template <typename A, typename B> using accept_if_string = std::enable_if_t<std::is_same_v<A, std::string>, B>;
 
@@ -298,10 +294,6 @@ class GOptions : public std::map<std::string, std::any> {
 
         return type;
     }
-
-#ifdef UNUSED_GOPTIONS
-#undef UNUSED
-#endif
 
 #endif // ENABLE_SFINAE
 

@@ -96,8 +96,10 @@
 
 // SECTION: general purpose
 
-#define UNUSED(_object) \
-    if (_object) {      \
-    }
+// clang-format off
+#ifndef UNUSED
+#define UNUSED(x) if (x) {}
+#endif
+// clang-format on
 
 #endif // GDEFINE_HPP
