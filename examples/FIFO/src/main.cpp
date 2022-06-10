@@ -10,7 +10,6 @@
 #include "GArrayRoller.hpp"
 #include "GDefine.hpp"
 #include "GFIFOdevice.hpp"
-#include "GLogger.hpp"
 #include "GProfile.hpp"
 #include "GString.hpp"
 #include "GWorksCoupler.hpp"
@@ -20,14 +19,14 @@
 #include <filesystem> // path
 
 typedef struct parameters_t {
-    unsigned int            current_loop = 0;
-    unsigned int            total_loops  = 0;
-    unsigned long           total_bytes  = 0;
-    GUdpClient*             client       = nullptr;
-    GUdpServer*             server       = nullptr;
-    GFIFOdevice*            device       = nullptr;
-    GArrayRoller<uint16_t>* roller       = nullptr;
-    GProfile*               profile      = nullptr;
+    unsigned int      current_loop = 0;
+    unsigned int      total_loops  = 0;
+    unsigned long     total_bytes  = 0;
+    GUdpClient*       client       = nullptr;
+    GUdpServer*       server       = nullptr;
+    GFIFOdevice*      device       = nullptr;
+    g_array_roller_t* roller       = nullptr;
+    GProfile*         profile      = nullptr;
 
 } parameters_t;
 
@@ -337,8 +336,8 @@ int main(int argc, char* argv[]) {
     auto rx_device{GFIFOdevice(RX_FIFO_DEV_ADDR, RX_FIFO_DEV_SIZE, RX_FIFO_UIO_NUM, RX_FIFO_UIO_MAP, RX_FIFO_TAG_NAME)};
     auto tx_device{GFIFOdevice(TX_FIFO_DEV_ADDR, TX_FIFO_DEV_SIZE, TX_FIFO_UIO_NUM, TX_FIFO_UIO_MAP, TX_FIFO_TAG_NAME)};
 
-    auto rx_roller{GArrayRoller<uint16_t>(RX_PACKET_WORDS, 40, RX_FIFO_TAG_NAME)};
-    auto tx_roller{GArrayRoller<uint16_t>(TX_PACKET_WORDS, 40, TX_FIFO_TAG_NAME)};
+    auto rx_roller{g_array_roller_t(RX_PACKET_WORDS, RX_ROLLER_NUMBER, RX_FIFO_TAG_NAME, RX_ROLLER_MAX_LEVEL, RX_ROLLER_MIM_LEVEL)};
+    auto tx_roller{g_array_roller_t(TX_PACKET_WORDS, TX_ROLLER_NUMBER, TX_FIFO_TAG_NAME, TX_ROLLER_MAX_LEVEL, TX_ROLLER_MIM_LEVEL)};
 
     GProfile rx_profile;
     GProfile tx_profile;

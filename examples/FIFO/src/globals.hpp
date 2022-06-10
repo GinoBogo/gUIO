@@ -30,6 +30,9 @@ extern unsigned int   RX_FIFO_DEV_ADDR;
 extern unsigned int   RX_FIFO_DEV_SIZE;
 extern int            RX_FIFO_UIO_NUM;
 extern int            RX_FIFO_UIO_MAP;
+extern unsigned int   RX_ROLLER_NUMBER;
+extern int            RX_ROLLER_MAX_LEVEL;
+extern int            RX_ROLLER_MIM_LEVEL;
 
 // SECTION: PS_to_PL global variables
 extern bool           TX_MODE_ENABLED;
@@ -45,6 +48,9 @@ extern unsigned int   TX_FIFO_DEV_ADDR;
 extern unsigned int   TX_FIFO_DEV_SIZE;
 extern int            TX_FIFO_UIO_NUM;
 extern int            TX_FIFO_UIO_MAP;
+extern unsigned int   TX_ROLLER_NUMBER;
+extern int            TX_ROLLER_MAX_LEVEL;
+extern int            TX_ROLLER_MIM_LEVEL;
 
 // ============================================================================
 
