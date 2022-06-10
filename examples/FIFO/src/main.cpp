@@ -47,6 +47,7 @@ static void rx_waiter_consumer(bool& _quit, std::any& _args) {
     auto _line  = 0;
     auto _error = false;
 
+    // #region [critical]
     auto* src_buf{roller->Reading_Start(_error)};
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
@@ -55,6 +56,7 @@ static void rx_waiter_consumer(bool& _quit, std::any& _args) {
 
     roller->Reading_Stop(_error);
     GOTO_IF(_error, _exit_label, _line = __LINE__);
+    // #endregion
     return;
 
 _exit_label:
@@ -123,6 +125,7 @@ static void rx_master_producer(bool& _quit, std::any& _args) {
         _words = device->GetRxPacketWords(_error);
         GOTO_IF(_error || (_words <= 7), _exit_label, _line = __LINE__);
 
+        // #region [critical]
         auto* dst_buf{roller->Writing_Start(_error)};
         GOTO_IF(_error, _exit_label, _line = __LINE__);
 
@@ -134,6 +137,7 @@ static void rx_master_producer(bool& _quit, std::any& _args) {
 
         roller->Writing_Stop(_error);
         GOTO_IF(_error, _exit_label, _line = __LINE__);
+        // #endregion
 
         parameters->current_loop++;
         parameters->total_bytes += FIFO_WORD_SIZE * _words;
@@ -211,6 +215,7 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     auto _line  = 0;
     auto _error = false;
 
+    // #region [critical]
     auto* src_buf{roller->Reading_Start(_error)};
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
@@ -219,6 +224,7 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
 
     roller->Reading_Stop(_error);
     GOTO_IF(_error, _exit_label, _line = __LINE__);
+    // #endregion
 
     evaluate_stream_reader_start(roller, client);
     return;
@@ -271,6 +277,7 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
     auto _bytes = 0UL;
 
     if (!_quit && (current_loop < total_loops)) {
+        // #region [critical]
         auto* dst_buf{roller->Writing_Start(_error)};
         GOTO_IF(_error, _exit_label, _line = __LINE__);
 
@@ -279,6 +286,7 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
 
         roller->Writing_Stop(_error);
         GOTO_IF(_error, _exit_label, _line = __LINE__);
+        // #endregion
 
         evaluate_stream_reader_stop(roller, client);
 
