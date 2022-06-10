@@ -10,12 +10,19 @@
 #ifndef STREAMS_HPP
 #define STREAMS_HPP
 
-#include "GArray.hpp"
+#include "GArrayRoller.hpp"
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"
 
-bool stream_reader_for_tx_words(GArray<uint16_t>* array, GUdpClient* client, GUdpServer* server);
+typedef GArray<uint16_t>       g_array_t;
+typedef GArrayRoller<uint16_t> g_array_roller_t;
 
-bool stream_writer_for_rx_words(GArray<uint16_t>* array, GUdpClient* client, GUdpServer* server);
+bool stream_reader_for_tx_words(g_array_t* array, GUdpClient* client, GUdpServer* server);
+
+bool stream_writer_for_rx_words(g_array_t* array, GUdpClient* client, GUdpServer* server);
+
+void stream_reader_start_flow(g_array_roller_t* roller, GUdpClient* client);
+
+void stream_reader_stop_flow(g_array_roller_t* roller, GUdpClient* client);
 
 #endif // STREAMS_HPP

@@ -12,18 +12,14 @@
 #include "GDecoder.hpp"
 #include "GDefine.hpp"
 #include "GEncoder.hpp"
-#include "GLogger.hpp"
 #include "GString.hpp"
 #include "globals.hpp"
 
-#include <cstdint>    // uint16_t
 #include <filesystem> // path
 #include <fstream>    // ifstream, ofstream
 
-typedef GArray<uint16_t>* array_ptr_t;
-
 struct decoder_args_t {
-    array_ptr_t array        = nullptr;
+    g_array_t*  array        = nullptr;
     GUdpClient* client       = nullptr;
     GUdpServer* server       = nullptr;
     bool*       is_large_msg = nullptr;
@@ -67,7 +63,7 @@ static bool decode_short_msg(std::any data, std::any args) {
 static bool decode_large_msg(std::any data, std::any args) {
     auto* _message = std::any_cast<GMessage*>(data);
     auto  _args    = std::any_cast<decoder_args_t>(args);
-    auto* _array   = std::any_cast<array_ptr_t>(_args.array);
+    auto* _array   = std::any_cast<g_array_t*>(_args.array);
 
     *_args.is_large_msg = true;
 
@@ -88,7 +84,7 @@ static bool decode_large_msg(std::any data, std::any args) {
     return false;
 }
 
-bool stream_reader_for_tx_words(GArray<uint16_t>* array, GUdpClient* client, GUdpServer* server) {
+bool stream_reader_for_tx_words(g_array_t* array, GUdpClient* client, GUdpServer* server) {
     // SECTION: UDP streaming
 
     if (TX_FILE_NAME.empty()) {
@@ -114,13 +110,13 @@ bool stream_reader_for_tx_words(GArray<uint16_t>* array, GUdpClient* client, GUd
 
     // SECTION: FILE streaming
 
-    std::ifstream fs;
-    fs.open(TX_FILE_NAME, std::ios::binary);
+    std::ifstream ifs;
+    ifs.open(TX_FILE_NAME, std::ios::binary);
 
-    if (fs.is_open()) {
-        fs.seekg(0, std::ifstream::end);
-        auto bytes{fs.tellg()};
-        fs.seekg(0, std::ifstream::beg);
+    if (ifs.is_open()) {
+        ifs.seekg(0, std::ifstream::end);
+        auto bytes{ifs.tellg()};
+        ifs.seekg(0, std::ifstream::beg);
 
         auto words{array->size()};
         words = bytes > 0 ? std::min(words, (size_t)bytes / FIFO_WORD_SIZE) : 0;
@@ -128,14 +124,14 @@ bool stream_reader_for_tx_words(GArray<uint16_t>* array, GUdpClient* client, GUd
 
         auto* __s{array->data_bytes()};
         auto  __n{array->used_bytes()};
-        fs.read((char*)__s, (std::streamsize)__n);
-        fs.close();
+        ifs.read((char*)__s, (std::streamsize)__n);
+        ifs.close();
         return true;
     }
     return false;
 }
 
-bool stream_writer_for_rx_words(GArray<uint16_t>* array, GUdpClient* client, GUdpServer* server) {
+bool stream_writer_for_rx_words(g_array_t* array, GUdpClient* client, GUdpServer* server) {
     // SECTION: UDP streaming
 
     if (RX_FILE_NAME.empty()) {
@@ -170,15 +166,51 @@ bool stream_writer_for_rx_words(GArray<uint16_t>* array, GUdpClient* client, GUd
     _name /= _path.stem();
     _name += _tail;
 
-    std::ofstream fs;
-    fs.open(_name, std::ios::binary);
+    std::ofstream ofs;
+    ofs.open(_name, std::ios::binary);
 
-    if (fs.is_open()) {
+    if (ofs.is_open()) {
         auto* __s{array->data_bytes()};
         auto  __n{array->used_bytes()};
-        fs.write((char*)__s, (std::streamsize)__n);
-        fs.close();
+        ofs.write((char*)__s, (std::streamsize)__n);
+        ofs.close();
         return true;
     }
     return false;
+}
+
+void stream_reader_start_flow(g_array_roller_t* roller, GUdpClient* client) {
+    g_array_roller_t::fsm_levels_t new_level;
+
+    if (roller->IsLevelChanged(&new_level)) {
+        if (new_level == g_array_roller_t::MIN_LEVEL_PASSED) {
+            packet_head_t packet;
+            packet.packet_type     = packet_type_t::signal_start_flow;
+            packet.file_id         = 0;
+            packet.data_length     = 0;
+            packet.current_segment = 1;
+            packet.total_segments  = 1;
+
+            client->Send(&packet, GPacket::PACKET_HEAD_SIZE);
+            LOG_FORMAT(info, "START_FLOW message sent (%s)", __func__);
+        }
+    }
+}
+
+void stream_reader_stop_flow(g_array_roller_t* roller, GUdpClient* client) {
+    g_array_roller_t::fsm_levels_t new_level;
+
+    if (roller->IsLevelChanged(&new_level)) {
+        if (new_level == g_array_roller_t::MAX_LEVEL_PASSED) {
+            packet_head_t packet;
+            packet.packet_type     = packet_type_t::signal_start_flow;
+            packet.file_id         = 0;
+            packet.data_length     = 0;
+            packet.current_segment = 1;
+            packet.total_segments  = 1;
+
+            client->Send(&packet, GPacket::PACKET_HEAD_SIZE);
+            LOG_FORMAT(info, "STOP_FLOW message sent (%s)", __func__);
+        }
+    }
 }
