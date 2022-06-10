@@ -203,6 +203,7 @@ _exit_label:
 
 static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     auto* parameters = std::any_cast<parameters_t*>(_args);
+    auto* client     = parameters->client;
     auto* server     = parameters->server;
     auto* device     = parameters->device;
     auto* roller     = parameters->roller;
@@ -218,6 +219,8 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
 
     roller->Reading_Stop(_error);
     GOTO_IF(_error, _exit_label, _line = __LINE__);
+
+    evaluate_stream_reader_start(roller, client);
     return;
 
 _exit_label:
@@ -276,6 +279,8 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
 
         roller->Writing_Stop(_error);
         GOTO_IF(_error, _exit_label, _line = __LINE__);
+
+        evaluate_stream_reader_stop(roller, client);
 
         parameters->current_loop++;
         parameters->total_bytes += _bytes;

@@ -179,7 +179,7 @@ bool stream_writer_for_rx_words(g_array_t* array, GUdpClient* client, GUdpServer
     return false;
 }
 
-void stream_reader_start_flow(g_array_roller_t* roller, GUdpClient* client) {
+void evaluate_stream_reader_start(g_array_roller_t* roller, GUdpClient* client) {
     g_array_roller_t::fsm_levels_t new_level;
 
     if (roller->IsLevelChanged(&new_level)) {
@@ -197,7 +197,7 @@ void stream_reader_start_flow(g_array_roller_t* roller, GUdpClient* client) {
     }
 }
 
-void stream_reader_stop_flow(g_array_roller_t* roller, GUdpClient* client) {
+void evaluate_stream_reader_stop(g_array_roller_t* roller, GUdpClient* client) {
     g_array_roller_t::fsm_levels_t new_level;
 
     if (roller->IsLevelChanged(&new_level)) {
