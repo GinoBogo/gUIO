@@ -13,9 +13,8 @@
 #include "GArray.hpp"
 #include "GLogger.hpp"
 
-#include <algorithm>   // std::min
-#include <mutex>       // mutex, lock_guard
-#include <type_traits> // is_fundamental_v
+#include <algorithm> // std::min
+#include <mutex>     // mutex, lock_guard
 
 template <typename T> class GArrayRoller {
     public:

@@ -14,8 +14,6 @@
 #include "GLogger.hpp"
 #include "GMessage.hpp"
 
-#include <cstring> // memcpy, memset
-
 class GEncoder {
     public:
     GEncoder(uint32_t file_id, uint32_t fifo_depth = 20) : m_fifo{GPacket::PACKET_FULL_SIZE, fifo_depth} {

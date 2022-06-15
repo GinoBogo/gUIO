@@ -12,8 +12,6 @@
 
 #include "GMAPdevice.hpp"
 
-#include <cstdint> // uint8_t, uint32_t
-
 class GAXIQuadSPI : public GMAPdevice {
     public:
     GAXIQuadSPI(size_t addr, size_t size);
