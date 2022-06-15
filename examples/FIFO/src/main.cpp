@@ -7,28 +7,11 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "GArrayRoller.hpp"
-#include "GDefine.hpp"
-#include "GFIFOdevice.hpp"
-#include "GProfile.hpp"
 #include "GString.hpp"
 #include "GWorksCoupler.hpp"
-#include "globals.hpp"
 #include "streams.hpp"
 
 #include <filesystem> // path
-
-typedef struct parameters_t {
-    unsigned int      current_loop = 0;
-    unsigned int      total_loops  = 0;
-    unsigned long     total_bytes  = 0;
-    GUdpClient*       client       = nullptr;
-    GUdpServer*       server       = nullptr;
-    GFIFOdevice*      device       = nullptr;
-    g_array_roller_t* roller       = nullptr;
-    GProfile*         profile      = nullptr;
-
-} parameters_t;
 
 // ============================================================================
 // RX WAITER functions
@@ -39,10 +22,10 @@ static void rx_waiter_preamble(bool& _quit, std::any& _args) {
 }
 
 static void rx_waiter_consumer(bool& _quit, std::any& _args) {
-    auto* parameters = std::any_cast<parameters_t*>(_args);
-    auto* client     = parameters->client;
-    auto* server     = parameters->server;
-    auto* roller     = parameters->roller;
+    auto* worker_args = std::any_cast<worker_args_t*>(_args);
+    auto* client      = worker_args->client;
+    auto* server      = worker_args->server;
+    auto* roller      = worker_args->roller;
 
     auto _line  = 0;
     auto _error = false;
@@ -60,9 +43,7 @@ static void rx_waiter_consumer(bool& _quit, std::any& _args) {
     return;
 
 _exit_label:
-    if (_line != 0) {
-        LOG_FORMAT(error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
-    }
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
     _quit = true;
 }
 
@@ -77,9 +58,9 @@ static void rx_waiter_epilogue(bool& _quit, std::any& _args) {
 static void rx_master_preamble(bool& _quit, std::any& _args) {
     LOG_WRITE(trace, "Thread STARTED (PL -> PS)");
 
-    auto* parameters = std::any_cast<parameters_t*>(_args);
-    auto* device     = parameters->device;
-    auto* profile    = parameters->profile;
+    auto* worker_args = std::any_cast<worker_args_t*>(_args);
+    auto* device      = worker_args->device;
+    auto* profile     = worker_args->profile;
 
     auto _line  = 0;
     auto _error = false;
@@ -97,18 +78,16 @@ static void rx_master_preamble(bool& _quit, std::any& _args) {
     return;
 
 _exit_label:
-    if (_line != 0) {
-        LOG_FORMAT(error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
-    }
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
     _quit = true;
 }
 
 static void rx_master_producer(bool& _quit, std::any& _args) {
-    auto* parameters   = std::any_cast<parameters_t*>(_args);
-    auto  current_loop = parameters->current_loop;
-    auto  total_loops  = parameters->total_loops;
-    auto* device       = parameters->device;
-    auto* roller       = parameters->roller;
+    auto* worker_args  = std::any_cast<worker_args_t*>(_args);
+    auto  current_loop = worker_args->current_loop;
+    auto  total_loops  = worker_args->total_loops;
+    auto* device       = worker_args->device;
+    auto* roller       = worker_args->roller;
 
     auto     _line  = 0;
     auto     _error = false;
@@ -139,24 +118,22 @@ static void rx_master_producer(bool& _quit, std::any& _args) {
         GOTO_IF(_error, _exit_label, _line = __LINE__);
         // #endregion
 
-        parameters->current_loop++;
-        parameters->total_bytes += FIFO_WORD_SIZE * _words;
+        worker_args->current_loop++;
+        worker_args->total_bytes += FIFO_WORD_SIZE * _words;
         return;
     }
 
 _exit_label:
-    if (_line != 0) {
-        LOG_FORMAT(error, "FAILURE @ LINE %d -> error: %d, level: %u, words: %u (%s)", _line, _error, _level, _words, __func__);
-    }
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d, level: %u, words: %u (%s)", _line, _error, _level, _words, __func__);
     _quit = true;
 }
 
 static void rx_master_epilogue(bool& _quit, std::any& _args) {
-    auto* parameters  = std::any_cast<parameters_t*>(_args);
-    auto* device      = parameters->device;
-    auto* roller      = parameters->roller;
-    auto* profile     = parameters->profile;
-    auto  total_bytes = parameters->total_bytes;
+    auto* worker_args = std::any_cast<worker_args_t*>(_args);
+    auto* device      = worker_args->device;
+    auto* roller      = worker_args->roller;
+    auto* profile     = worker_args->profile;
+    auto  total_bytes = worker_args->total_bytes;
 
     profile->Stop();
     device->ClearEvent(); // WARNING: a not served interrupt may happen
@@ -177,10 +154,10 @@ static void rx_master_epilogue(bool& _quit, std::any& _args) {
 static void tx_waiter_preamble(bool& _quit, std::any& _args) {
     LOG_WRITE(trace, "Thread STARTED (PL <- PS)");
 
-    auto* parameters = std::any_cast<parameters_t*>(_args);
-    auto* server     = parameters->server;
-    auto* device     = parameters->device;
-    auto* profile    = parameters->profile;
+    auto* worker_args = std::any_cast<worker_args_t*>(_args);
+    auto* server      = worker_args->server;
+    auto* device      = worker_args->device;
+    auto* profile     = worker_args->profile;
 
     auto _line  = 0;
     auto _error = false;
@@ -198,19 +175,17 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
     return;
 
 _exit_label:
-    if (_line != 0) {
-        LOG_FORMAT(error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
-    }
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
     _quit = true;
     server->Stop();
 }
 
 static void tx_waiter_consumer(bool& _quit, std::any& _args) {
-    auto* parameters = std::any_cast<parameters_t*>(_args);
-    auto* client     = parameters->client;
-    auto* server     = parameters->server;
-    auto* device     = parameters->device;
-    auto* roller     = parameters->roller;
+    auto* worker_args = std::any_cast<worker_args_t*>(_args);
+    auto* client      = worker_args->client;
+    auto* server      = worker_args->server;
+    auto* device      = worker_args->device;
+    auto* roller      = worker_args->roller;
 
     auto _line  = 0;
     auto _error = false;
@@ -230,19 +205,17 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     return;
 
 _exit_label:
-    if (_line != 0) {
-        LOG_FORMAT(error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
-    }
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
     _quit = true;
     server->Stop();
 }
 
 static void tx_waiter_epilogue(bool& _quit, std::any& _args) {
-    auto* parameters  = std::any_cast<parameters_t*>(_args);
-    auto* device      = parameters->device;
-    auto* roller      = parameters->roller;
-    auto* profile     = parameters->profile;
-    auto  total_bytes = parameters->total_bytes;
+    auto* worker_args = std::any_cast<worker_args_t*>(_args);
+    auto* device      = worker_args->device;
+    auto* roller      = worker_args->roller;
+    auto* profile     = worker_args->profile;
+    auto  total_bytes = worker_args->total_bytes;
 
     profile->Stop();
     device->ClearEvent(); // WARNING: a not served interrupt may happen
@@ -265,12 +238,12 @@ static void tx_master_preamble(bool& _quit, std::any& _args) {
 }
 
 static void tx_master_producer(bool& _quit, std::any& _args) {
-    auto* parameters   = std::any_cast<parameters_t*>(_args);
-    auto  current_loop = parameters->current_loop;
-    auto  total_loops  = parameters->total_loops;
-    auto* client       = parameters->client;
-    auto* server       = parameters->server;
-    auto* roller       = parameters->roller;
+    auto* worker_args  = std::any_cast<worker_args_t*>(_args);
+    auto  current_loop = worker_args->current_loop;
+    auto  total_loops  = worker_args->total_loops;
+    auto* client       = worker_args->client;
+    auto* server       = worker_args->server;
+    auto* roller       = worker_args->roller;
 
     auto _line  = 0;
     auto _error = false;
@@ -290,15 +263,13 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
 
         evaluate_stream_reader_stop(roller, client);
 
-        parameters->current_loop++;
-        parameters->total_bytes += _bytes;
+        worker_args->current_loop++;
+        worker_args->total_bytes += _bytes;
         return;
     }
 
 _exit_label:
-    if (_line != 0) {
-        LOG_FORMAT(error, "FAILURE @ LINE %d -> error: %d, bytes: %lu (%s)", _line, _error, _bytes, __func__);
-    }
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d, bytes: %lu (%s)", _line, _error, _bytes, __func__);
     _quit = true;
     server->Stop();
 }
@@ -319,7 +290,7 @@ int main(int argc, char* argv[]) {
     GLogger::Initialize(exec_log.c_str());
     LOG_FORMAT(trace, "Process STARTED (%s)", exec.stem().c_str());
 
-    load_options(exec_cfg.c_str());
+    Global::load_options(exec_cfg.c_str());
 
     // SECTION: functions handles
 
@@ -339,40 +310,48 @@ int main(int argc, char* argv[]) {
     work_func_tx.master_calculus = tx_master_producer;
     work_func_tx.master_epilogue = tx_master_epilogue;
 
-    // SECTION: shared parameters
+    // SECTION: worker parameters
 
-    auto quit{false};
+    auto rx_client{g_udp_client_t(RX_CLIENT_ADDR.c_str(), RX_CLIENT_PORT, RX_FIFO_TAG_NAME.c_str())};
+    auto tx_server{g_udp_server_t(TX_SERVER_ADDR.c_str(), TX_SERVER_PORT, TX_FIFO_TAG_NAME.c_str())};
 
-    auto rx_client{GUdpClient(RX_CLIENT_ADDR.c_str(), RX_CLIENT_PORT, RX_FIFO_TAG_NAME.c_str())};
-    auto tx_server{GUdpServer(TX_SERVER_ADDR.c_str(), TX_SERVER_PORT, TX_FIFO_TAG_NAME.c_str())};
-
-    auto rx_device{GFIFOdevice(RX_FIFO_DEV_ADDR, RX_FIFO_DEV_SIZE, RX_FIFO_UIO_NUM, RX_FIFO_UIO_MAP, RX_FIFO_TAG_NAME)};
-    auto tx_device{GFIFOdevice(TX_FIFO_DEV_ADDR, TX_FIFO_DEV_SIZE, TX_FIFO_UIO_NUM, TX_FIFO_UIO_MAP, TX_FIFO_TAG_NAME)};
+    auto rx_device{g_fifo_device_t(RX_FIFO_DEV_ADDR, RX_FIFO_DEV_SIZE, RX_FIFO_UIO_NUM, RX_FIFO_UIO_MAP, RX_FIFO_TAG_NAME)};
+    auto tx_device{g_fifo_device_t(TX_FIFO_DEV_ADDR, TX_FIFO_DEV_SIZE, TX_FIFO_UIO_NUM, TX_FIFO_UIO_MAP, TX_FIFO_TAG_NAME)};
 
     auto rx_roller{g_array_roller_t(RX_PACKET_WORDS, RX_ROLLER_NUMBER, RX_FIFO_TAG_NAME, RX_ROLLER_MAX_LEVEL, RX_ROLLER_MIM_LEVEL)};
     auto tx_roller{g_array_roller_t(TX_PACKET_WORDS, TX_ROLLER_NUMBER, TX_FIFO_TAG_NAME, TX_ROLLER_MAX_LEVEL, TX_ROLLER_MIM_LEVEL)};
 
-    GProfile rx_profile;
-    GProfile tx_profile;
+    g_profile_t rx_profile;
+    g_profile_t tx_profile;
 
-    parameters_t parameters_rx;
-    parameters_rx.total_loops = RX_MODE_LOOPS;
-    parameters_rx.client      = &rx_client;
-    parameters_rx.server      = &tx_server; // NOTE: inter-link
-    parameters_rx.device      = &rx_device;
-    parameters_rx.roller      = &rx_roller;
-    parameters_rx.profile     = &rx_profile;
+    worker_args_t worker_args_rx;
+    worker_args_rx.total_loops = RX_MODE_LOOPS;
+    worker_args_rx.client      = &rx_client;
+    worker_args_rx.server      = &tx_server; // NOTE: inter-link
+    worker_args_rx.device      = &rx_device;
+    worker_args_rx.roller      = &rx_roller;
+    worker_args_rx.profile     = &rx_profile;
 
-    parameters_t parameters_tx;
-    parameters_tx.total_loops = TX_MODE_LOOPS;
-    parameters_tx.client      = &rx_client; // NOTE: inter-link
-    parameters_tx.server      = &tx_server;
-    parameters_tx.device      = &tx_device;
-    parameters_tx.roller      = &tx_roller;
-    parameters_tx.profile     = &tx_profile;
+    worker_args_t worker_args_tx;
+    worker_args_tx.total_loops = TX_MODE_LOOPS;
+    worker_args_tx.client      = &rx_client; // NOTE: inter-link
+    worker_args_tx.server      = &tx_server;
+    worker_args_tx.device      = &tx_device;
+    worker_args_tx.roller      = &tx_roller;
+    worker_args_tx.profile     = &tx_profile;
 
-    auto args_rx = std::any(&parameters_rx);
-    auto args_tx = std::any(&parameters_tx);
+    auto args_rx = std::any(&worker_args_rx);
+    auto args_tx = std::any(&worker_args_tx);
+
+    // SECTION: global parameters
+
+    auto quit{false};
+
+    Global::args.quit      = &quit;
+    Global::args.rx_device = &rx_device;
+    Global::args.tx_device = &tx_device;
+    Global::args.rx_roller = &rx_roller;
+    Global::args.tx_roller = &tx_roller;
 
     // SECTION: works couplers
 
