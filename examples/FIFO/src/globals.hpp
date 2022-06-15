@@ -10,9 +10,12 @@
 #ifndef GLOBALS_HPP
 #define GLOBALS_HPP
 
+#include "GArrayRoller.hpp"
+#include "GFIFOdevice.hpp"
 #include "GOptions.hpp"
-
-#include <string> // string
+#include "GProfile.hpp"
+#include "GUdpClient.hpp"
+#include "GUdpServer.hpp"
 
 #define FIFO_WORD_SIZE sizeof(uint16_t)
 
@@ -54,6 +57,44 @@ extern int            TX_ROLLER_MIM_LEVEL;
 
 // ============================================================================
 
-void load_options(const char* filename);
+using g_array_t        = GArray<uint16_t>;
+using g_array_roller_t = GArrayRoller<uint16_t>;
+using g_fifo_device_t  = GFIFOdevice;
+using g_profile_t      = GProfile;
+using g_udp_client_t   = GUdpClient;
+using g_udp_server_t   = GUdpServer;
+
+typedef struct worker_args_t {
+    unsigned int      current_loop = 0;
+    unsigned int      total_loops  = 0;
+    unsigned long     total_bytes  = 0;
+    g_udp_client_t*   client       = nullptr;
+    g_udp_server_t*   server       = nullptr;
+    g_fifo_device_t*  device       = nullptr;
+    g_array_roller_t* roller       = nullptr;
+    g_profile_t*      profile      = nullptr;
+
+} worker_args_t;
+
+typedef struct global_args_t {
+    bool*             quit      = nullptr;
+    g_fifo_device_t*  rx_device = nullptr;
+    g_fifo_device_t*  tx_device = nullptr;
+    g_array_roller_t* rx_roller = nullptr;
+    g_array_roller_t* tx_roller = nullptr;
+
+} global_args_t;
+
+// ============================================================================
+
+namespace Global {
+    extern global_args_t args;
+
+    void load_options(const char* filename);
+
+    void reset_all();
+
+    void quit_process();
+} // namespace Global
 
 #endif // GLOBALS_HPP
