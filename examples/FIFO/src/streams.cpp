@@ -10,19 +10,17 @@
 #include "streams.hpp"
 
 #include "GDecoder.hpp"
-#include "GDefine.hpp"
 #include "GEncoder.hpp"
 #include "GString.hpp"
-#include "globals.hpp"
 
 #include <filesystem> // path
 #include <fstream>    // ifstream, ofstream
 
 struct decoder_args_t {
-    g_array_t*  array        = nullptr;
-    GUdpClient* client       = nullptr;
-    GUdpServer* server       = nullptr;
-    bool*       is_large_msg = nullptr;
+    g_array_t*      array        = nullptr;
+    g_udp_client_t* client       = nullptr;
+    g_udp_server_t* server       = nullptr;
+    bool*           is_large_msg = nullptr;
 };
 
 static bool decode_short_msg(std::any data, std::any args) {
@@ -49,6 +47,18 @@ static bool decode_short_msg(std::any data, std::any args) {
 
         case packet_type_t::signal_stop_flow: {
             LOG_FORMAT(warning, "STOP_FLOW message ignored (%s)", __func__);
+            return true;
+        }
+
+        case packet_type_t::signal_reset_all: {
+            Global::reset_all();
+            LOG_FORMAT(info, "RESET_ALL message received (%s)", __func__);
+            return true;
+        }
+
+        case packet_type_t::signal_quit_process: {
+            Global::quit_process();
+            LOG_FORMAT(info, "QUIT_PROCESS message received (%s)", __func__);
             return true;
         }
 
@@ -84,7 +94,7 @@ static bool decode_large_msg(std::any data, std::any args) {
     return false;
 }
 
-bool stream_reader_for_tx_words(g_array_t* array, GUdpClient* client, GUdpServer* server) {
+bool stream_reader_for_tx_words(g_array_t* array, g_udp_client_t* client, g_udp_server_t* server) {
     // SECTION: UDP streaming
 
     if (TX_FILE_NAME.empty()) {
@@ -131,7 +141,7 @@ bool stream_reader_for_tx_words(g_array_t* array, GUdpClient* client, GUdpServer
     return false;
 }
 
-bool stream_writer_for_rx_words(g_array_t* array, GUdpClient* client, GUdpServer* server) {
+bool stream_writer_for_rx_words(g_array_t* array, g_udp_client_t* client, g_udp_server_t* server) {
     // SECTION: UDP streaming
 
     if (RX_FILE_NAME.empty()) {
@@ -179,7 +189,7 @@ bool stream_writer_for_rx_words(g_array_t* array, GUdpClient* client, GUdpServer
     return false;
 }
 
-void evaluate_stream_reader_start(g_array_roller_t* roller, GUdpClient* client) {
+void evaluate_stream_reader_start(g_array_roller_t* roller, g_udp_client_t* client) {
     g_array_roller_t::fsm_levels_t new_level;
 
     if (roller->IsLevelChanged(&new_level)) {
@@ -197,7 +207,7 @@ void evaluate_stream_reader_start(g_array_roller_t* roller, GUdpClient* client) 
     }
 }
 
-void evaluate_stream_reader_stop(g_array_roller_t* roller, GUdpClient* client) {
+void evaluate_stream_reader_stop(g_array_roller_t* roller, g_udp_client_t* client) {
     g_array_roller_t::fsm_levels_t new_level;
 
     if (roller->IsLevelChanged(&new_level)) {
