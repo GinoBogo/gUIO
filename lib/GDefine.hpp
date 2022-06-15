@@ -14,6 +14,11 @@
 
 // SECTION: control flow statements
 
+#define LOG_IF(_condition, _type, _format, ...)  \
+    if (_condition) {                            \
+        LOG_FORMAT(_type, _format, __VA_ARGS__); \
+    }
+
 #define BREAK_IF(_condition, ...) \
     __VA_ARGS__;                  \
     if (_condition) break
