@@ -139,5 +139,10 @@ namespace Global {
     }
 
     void quit_process() {
+        *args.quit = true;
+        args.tx_server->Stop();
+
+        args.rx_device->Close();
+        args.tx_device->Close();
     }
 } // namespace Global
