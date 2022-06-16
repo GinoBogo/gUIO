@@ -30,6 +30,14 @@ class GUdpServer {
         return m_tag_name;
     }
 
+    [[nodiscard]] auto address() const {
+        return s_addr;
+    }
+
+    [[nodiscard]] auto port() const {
+        return s_port;
+    }
+
     bool Receive(void* dst_buffer, size_t* dst_bytes);
 
     bool Send(void* src_buffer, size_t src_bytes);
