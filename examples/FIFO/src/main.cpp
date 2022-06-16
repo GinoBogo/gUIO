@@ -8,7 +8,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "GString.hpp"
-#include "GWorksCoupler.hpp"
 #include "streams.hpp"
 
 #include <filesystem> // path
@@ -348,6 +347,8 @@ int main(int argc, char* argv[]) {
     auto quit{false};
 
     Global::args.quit      = &quit;
+    Global::args.rx_client = &rx_client;
+    Global::args.tx_server = &tx_server;
     Global::args.rx_device = &rx_device;
     Global::args.tx_device = &tx_device;
     Global::args.rx_roller = &rx_roller;
@@ -355,11 +356,11 @@ int main(int argc, char* argv[]) {
 
     // SECTION: works couplers
 
-    auto works_coupler_rx{GWorksCoupler(work_func_rx, quit, args_rx, RX_MODE_ENABLED)};
-    auto works_coupler_tx{GWorksCoupler(work_func_tx, quit, args_tx, TX_MODE_ENABLED)};
+    auto rx_coupler{g_works_coupler_t(work_func_rx, quit, args_rx, RX_MODE_ENABLED)};
+    auto tx_coupler{g_works_coupler_t(work_func_tx, quit, args_tx, TX_MODE_ENABLED)};
 
-    works_coupler_rx.Wait();
-    works_coupler_tx.Wait();
+    rx_coupler.Wait();
+    tx_coupler.Wait();
 
     LOG_FORMAT(trace, "Process STOPPED (%s)", exec.stem().c_str());
     return 0;

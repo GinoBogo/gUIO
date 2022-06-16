@@ -16,6 +16,7 @@
 #include "GProfile.hpp"
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"
+#include "GWorksCoupler.hpp"
 
 #define FIFO_WORD_SIZE sizeof(uint16_t)
 
@@ -57,12 +58,13 @@ extern int            TX_ROLLER_MIM_LEVEL;
 
 // ============================================================================
 
-using g_array_t        = GArray<uint16_t>;
-using g_array_roller_t = GArrayRoller<uint16_t>;
-using g_fifo_device_t  = GFIFOdevice;
-using g_profile_t      = GProfile;
-using g_udp_client_t   = GUdpClient;
-using g_udp_server_t   = GUdpServer;
+using g_array_roller_t  = GArrayRoller<uint16_t>;
+using g_array_t         = GArray<uint16_t>;
+using g_fifo_device_t   = GFIFOdevice;
+using g_profile_t       = GProfile;
+using g_udp_client_t    = GUdpClient;
+using g_udp_server_t    = GUdpServer;
+using g_works_coupler_t = GWorksCoupler;
 
 typedef struct worker_args_t {
     unsigned int      current_loop = 0;
@@ -78,6 +80,8 @@ typedef struct worker_args_t {
 
 typedef struct global_args_t {
     bool*             quit      = nullptr;
+    g_udp_client_t*   rx_client = nullptr;
+    g_udp_server_t*   tx_server = nullptr;
     g_fifo_device_t*  rx_device = nullptr;
     g_fifo_device_t*  tx_device = nullptr;
     g_array_roller_t* rx_roller = nullptr;
