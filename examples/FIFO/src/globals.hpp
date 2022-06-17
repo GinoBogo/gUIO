@@ -67,14 +67,14 @@ using g_udp_server_t    = GUdpServer;
 using g_works_coupler_t = GWorksCoupler;
 
 typedef struct worker_args_t {
-    unsigned int      current_loop = 0;
-    unsigned int      total_loops  = 0;
-    unsigned long     total_bytes  = 0;
-    g_udp_client_t*   client       = nullptr;
-    g_udp_server_t*   server       = nullptr;
-    g_fifo_device_t*  device       = nullptr;
-    g_array_roller_t* roller       = nullptr;
-    g_profile_t*      profile      = nullptr;
+    unsigned int      loops_counter = 0;
+    unsigned int      total_loops   = 0;
+    unsigned long     total_bytes   = 0;
+    g_udp_client_t*   client        = nullptr;
+    g_udp_server_t*   server        = nullptr;
+    g_fifo_device_t*  device        = nullptr;
+    g_array_roller_t* roller        = nullptr;
+    g_profile_t*      profile       = nullptr;
 
 } worker_args_t;
 
