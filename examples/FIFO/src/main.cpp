@@ -43,7 +43,7 @@ static void rx_waiter_consumer(bool& _quit, std::any& _args) {
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
-    _quit = true;
+    Global::quit_process();
 }
 
 static void rx_waiter_epilogue(bool& _quit, std::any& _args) {
@@ -78,28 +78,34 @@ static void rx_master_preamble(bool& _quit, std::any& _args) {
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
-    _quit = true;
+    Global::quit_process();
 }
 
 static void rx_master_producer(bool& _quit, std::any& _args) {
-    auto* worker_args  = std::any_cast<worker_args_t*>(_args);
-    auto  current_loop = worker_args->current_loop;
-    auto  total_loops  = worker_args->total_loops;
-    auto* device       = worker_args->device;
-    auto* roller       = worker_args->roller;
+    auto* worker_args   = std::any_cast<worker_args_t*>(_args);
+    auto  loops_counter = worker_args->loops_counter;
+    auto  total_loops   = worker_args->total_loops;
+    auto* device        = worker_args->device;
+    auto* roller        = worker_args->roller;
 
     auto     _line  = 0;
     auto     _error = false;
     uint32_t _level = 0;
     uint32_t _words = 0;
 
-    if (!_quit && (current_loop < total_loops)) {
+    if (!_quit && (loops_counter < total_loops)) {
+        _level = device->GetRxLengthLevel(_error);
+        GOTO_IF(_error, _exit_label, _line = __LINE__);
+
+        GOTO_IF(_level > 0, _read_label, );
+
         _error = !device->WaitThenClearEvent();
         GOTO_IF(_error, _exit_label, _line = __LINE__);
 
         _level = device->GetRxLengthLevel(_error);
         GOTO_IF(_error || (_level == 0), _exit_label, _line = __LINE__);
 
+_read_label:
         _words = device->GetRxPacketWords(_error);
         GOTO_IF(_error || (_words <= 7), _exit_label, _line = __LINE__);
 
@@ -117,22 +123,23 @@ static void rx_master_producer(bool& _quit, std::any& _args) {
         GOTO_IF(_error, _exit_label, _line = __LINE__);
         // #endregion
 
-        worker_args->current_loop++;
+        worker_args->loops_counter++;
         worker_args->total_bytes += FIFO_WORD_SIZE * _words;
         return;
     }
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d, level: %u, words: %u (%s)", _line, _error, _level, _words, __func__);
-    _quit = true;
+    Global::quit_process();
 }
 
 static void rx_master_epilogue(bool& _quit, std::any& _args) {
-    auto* worker_args = std::any_cast<worker_args_t*>(_args);
-    auto* device      = worker_args->device;
-    auto* roller      = worker_args->roller;
-    auto* profile     = worker_args->profile;
-    auto  total_bytes = worker_args->total_bytes;
+    auto* worker_args   = std::any_cast<worker_args_t*>(_args);
+    auto* device        = worker_args->device;
+    auto* roller        = worker_args->roller;
+    auto* profile       = worker_args->profile;
+    auto  loops_counter = worker_args->loops_counter;
+    auto  total_bytes   = worker_args->total_bytes;
 
     profile->Stop();
     device->ClearEvent(); // WARNING: a not served interrupt may happen
@@ -141,6 +148,7 @@ static void rx_master_epilogue(bool& _quit, std::any& _args) {
     auto _speed{GString::value_scaler((8 * total_bytes) / profile->us_to_sec(), "bps")};
 
     LOG_FORMAT(info, "[STATS] RX roller errors: %lu", roller->errors());
+    LOG_FORMAT(info, "[STATS] RX loops counter: %lu", loops_counter);
     LOG_FORMAT(info, "[STATS] RX average speed: %0.3f %s", _speed.first, _speed.second.c_str());
 
     LOG_WRITE(trace, "Thread STOPPED (PL -> PS)");
@@ -154,7 +162,6 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
     LOG_WRITE(trace, "Thread STARTED (PL <- PS)");
 
     auto* worker_args = std::any_cast<worker_args_t*>(_args);
-    auto* server      = worker_args->server;
     auto* device      = worker_args->device;
     auto* profile     = worker_args->profile;
 
@@ -175,14 +182,12 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
-    _quit = true;
-    server->Stop();
+    Global::quit_process();
 }
 
 static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     auto* worker_args = std::any_cast<worker_args_t*>(_args);
     auto* client      = worker_args->client;
-    auto* server      = worker_args->server;
     auto* device      = worker_args->device;
     auto* roller      = worker_args->roller;
 
@@ -205,16 +210,16 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
-    _quit = true;
-    server->Stop();
+    Global::quit_process();
 }
 
 static void tx_waiter_epilogue(bool& _quit, std::any& _args) {
-    auto* worker_args = std::any_cast<worker_args_t*>(_args);
-    auto* device      = worker_args->device;
-    auto* roller      = worker_args->roller;
-    auto* profile     = worker_args->profile;
-    auto  total_bytes = worker_args->total_bytes;
+    auto* worker_args   = std::any_cast<worker_args_t*>(_args);
+    auto* device        = worker_args->device;
+    auto* roller        = worker_args->roller;
+    auto* profile       = worker_args->profile;
+    auto  loops_counter = worker_args->loops_counter;
+    auto  total_bytes   = worker_args->total_bytes;
 
     profile->Stop();
     device->ClearEvent(); // WARNING: a not served interrupt may happen
@@ -223,6 +228,7 @@ static void tx_waiter_epilogue(bool& _quit, std::any& _args) {
     auto _speed{GString::value_scaler((8 * total_bytes) / profile->us_to_sec(), "bps")};
 
     LOG_FORMAT(info, "[STATS] TX roller errors: %lu", roller->errors());
+    LOG_FORMAT(info, "[STATS] TX loops counter: %lu", loops_counter);
     LOG_FORMAT(info, "[STATS] TX average speed: %0.3f %s", _speed.first, _speed.second.c_str());
 
     LOG_WRITE(trace, "Thread STOPPED (PL <- PS)");
@@ -237,18 +243,18 @@ static void tx_master_preamble(bool& _quit, std::any& _args) {
 }
 
 static void tx_master_producer(bool& _quit, std::any& _args) {
-    auto* worker_args  = std::any_cast<worker_args_t*>(_args);
-    auto  current_loop = worker_args->current_loop;
-    auto  total_loops  = worker_args->total_loops;
-    auto* client       = worker_args->client;
-    auto* server       = worker_args->server;
-    auto* roller       = worker_args->roller;
+    auto* worker_args   = std::any_cast<worker_args_t*>(_args);
+    auto  loops_counter = worker_args->loops_counter;
+    auto  total_loops   = worker_args->total_loops;
+    auto* client        = worker_args->client;
+    auto* server        = worker_args->server;
+    auto* roller        = worker_args->roller;
 
     auto _line  = 0;
     auto _error = false;
     auto _bytes = 0UL;
 
-    if (!_quit && (current_loop < total_loops)) {
+    if (!_quit && (loops_counter < total_loops)) {
         // #region [critical]
         auto* dst_buf{roller->Writing_Start(_error)};
         GOTO_IF(_error, _exit_label, _line = __LINE__);
@@ -262,15 +268,14 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
 
         evaluate_stream_reader_stop(roller, client);
 
-        worker_args->current_loop++;
+        worker_args->loops_counter++;
         worker_args->total_bytes += _bytes;
         return;
     }
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d, bytes: %lu (%s)", _line, _error, _bytes, __func__);
-    _quit = true;
-    server->Stop();
+    Global::quit_process();
 }
 
 static void tx_master_epilogue(bool& _quit, std::any& _args) {
