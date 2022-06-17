@@ -147,20 +147,25 @@ bool stream_writer_for_rx_words(g_array_t* array, g_udp_client_t* client, g_udp_
     if (RX_FILE_NAME.empty()) {
         static auto encoder{GEncoder(RX_STREAM_ID)};
 
+        auto _line  = 0;
+        auto _error = false;
+
         if (encoder.Process(RX_STREAM_TYPE, array->data_bytes(), array->used_bytes())) {
             packet_t packet;
 
-            auto _error{false};
             while (!encoder.IsEmpty() && !_error) {
                 auto* src_buffer = packet.ptr();
                 auto  src_bytes  = encoder.Pop(src_buffer, sizeof(packet));
 
-                BREAK_IF(_error, _error = src_bytes < 0);
+                _error = src_bytes < 0;
+                GOTO_IF(_error, _exit_label, _line = __LINE__);
 
-                _error = !client->Send(src_buffer, (unsigned)src_bytes);
+                client->Send(src_buffer, (unsigned)src_bytes);
             }
             return !_error;
         }
+_exit_label:
+        LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
         return false;
     }
 
