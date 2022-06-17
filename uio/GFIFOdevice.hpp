@@ -88,9 +88,9 @@ class GFIFOdevice {
         return false;
     }
 
-    bool WaitThenClearEvent(int timeout = -1) {
+    bool WaitThenClearEvent(int timeout = -1, bool* is_timeout_expired = nullptr) {
         if (m_is_ready) {
-            if (m_uio->IRQ_Wait(timeout)) {
+            if (m_uio->IRQ_Wait(timeout, is_timeout_expired)) {
                 auto _val{GPIO_getIpInterruptStatus(m_uio_regs)};
                 if ((_val & BIT_GPIO_IP_ISR_1) != 0) {
                     GPIO_setIpInterruptStatus(m_uio_regs, BIT_GPIO_IP_ISR_1);

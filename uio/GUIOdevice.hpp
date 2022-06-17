@@ -42,12 +42,20 @@ class GUIOdevice {
     void Close();
     bool MapToMemory();
 
-    bool IRQ_Wait(int timeout = -1) {
+    bool IRQ_Wait(int timeout = -1, bool* is_timeout_expired = nullptr) {
         struct pollfd fds;
         fds.fd     = m_dev.fd;
         fds.events = POLLIN;
 
-        if (poll(&fds, 1, timeout) > 0) {
+        auto _res{poll(&fds, 1, timeout)};
+        if (_res == 0) {
+            if (is_timeout_expired != nullptr) {
+                *is_timeout_expired = true;
+            }
+            return false;
+        }
+
+        if (_res > 0) {
             // INFO: The only valid read() argument is a signed 32-bit integer.
             auto _ret{read(m_dev.fd, &m_dev.irq_count, sizeof(m_dev.irq_count))};
             return _ret != -1;
