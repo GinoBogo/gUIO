@@ -71,6 +71,12 @@
     __VA_ARGS__;                         \
     if (_condition) goto _label
 
+#define GOTO_IF_THEN(_condition, _label, ...) \
+    if (_condition) {                         \
+        __VA_ARGS__;                          \
+        goto _label;                          \
+    }
+
 #define GOTO_IF_THEN_LOG(_condition, _label, _type, _format, ...) \
     if (_condition) {                                             \
         LOG_FORMAT(_type, _format, __VA_ARGS__);                  \
