@@ -161,8 +161,8 @@ class GOptions : public std::map<std::string, std::any> {
 
     template <typename A, typename B> using accept_if_number = std::enable_if_t<!std::is_same_v<A, std::string>, B>;
 
-    template <typename T> void Insert(const std::string& label, const std::any& value, accept_if_string<T, bool> _ = 0) {
-        UNUSED(_)
+    template <typename T> void Insert(const std::string& label, const std::any& value, accept_if_string<T, bool> ___ = 0) {
+        UNUSED(___)
         if (value.type() == typeid(T)) {
             this->insert_or_assign(label, std::any_cast<T>(value));
         }
@@ -171,8 +171,8 @@ class GOptions : public std::map<std::string, std::any> {
         }
     }
 
-    template <typename T> void Insert(const std::string& label, const std::any& value, accept_if_number<T, long> _ = 0) {
-        UNUSED(_)
+    template <typename T> void Insert(const std::string& label, const std::any& value, accept_if_number<T, long> ___ = 0) {
+        UNUSED(___)
         if (value.type() == typeid(T)) {
             this->insert_or_assign(label, std::any_cast<T>(value));
         }
@@ -220,8 +220,8 @@ class GOptions : public std::map<std::string, std::any> {
         }
     }
 
-    template <typename T> T Get(const std::string& label, accept_if_string<T, bool> _ = 0) {
-        UNUSED(_)
+    template <typename T> T Get(const std::string& label, accept_if_string<T, bool> ___ = 0) {
+        UNUSED(___)
         T type{};
 
         auto found = this->find(label);
@@ -238,8 +238,8 @@ class GOptions : public std::map<std::string, std::any> {
         return type;
     }
 
-    template <typename T> T Get(const std::string& label, accept_if_number<T, long> _ = 0) {
-        UNUSED(_)
+    template <typename T> T Get(const std::string& label, accept_if_number<T, long> ___ = 0) {
+        UNUSED(___)
         T type{};
 
         auto found = this->find(label);

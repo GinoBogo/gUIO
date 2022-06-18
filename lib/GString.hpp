@@ -86,8 +86,8 @@ class GString {
     static auto split(const std::string& _str, const std::string& regex) {
         std::vector<std::string> tokens;
 
-        std::regex                 re{regex};
-        std::sregex_token_iterator next{_str.begin(), _str.end(), re, -1};
+        std::regex                 _rgx{regex};
+        std::sregex_token_iterator next{_str.begin(), _str.end(), _rgx, -1};
         std::sregex_token_iterator last;
 
         while (next != last) {
@@ -95,8 +95,8 @@ class GString {
             ++next;
         }
 
-        auto filter = [](const std::string& s) {
-            return s.empty();
+        auto filter = [](const std::string& _str) {
+            return _str.empty();
         };
         auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
         tokens.erase(junks, tokens.end());
@@ -106,30 +106,30 @@ class GString {
     template <typename T = double> static std::pair<T, std::string> value_scaler(T value, const std::string& unit) {
         auto _modulus{std::abs(value)};
 
-        const auto _G{static_cast<T>(1e+9)};
-        const auto _M{static_cast<T>(1e+6)};
-        const auto _K{static_cast<T>(1e+3)};
-        const auto _m{static_cast<T>(1e-3)};
-        const auto _u{static_cast<T>(1e-6)};
-        const auto _n{static_cast<T>(1e-9)};
+        const auto __G{static_cast<T>(1e+9)};
+        const auto __M{static_cast<T>(1e+6)};
+        const auto __K{static_cast<T>(1e+3)};
+        const auto __m{static_cast<T>(1e-3)};
+        const auto __u{static_cast<T>(1e-6)};
+        const auto __n{static_cast<T>(1e-9)};
 
-        if (_modulus >= _G) {
-            return std::make_pair(value / _G, "G" + unit);
+        if (_modulus >= __G) {
+            return std::make_pair(value / __G, "G" + unit);
         }
-        if (_modulus >= _M) {
-            return std::make_pair(value / _M, "M" + unit);
+        if (_modulus >= __M) {
+            return std::make_pair(value / __M, "M" + unit);
         }
-        if (_modulus >= _K) {
-            return std::make_pair(value / _K, "K" + unit);
+        if (_modulus >= __K) {
+            return std::make_pair(value / __K, "K" + unit);
         }
-        if (_modulus <= _n) {
-            return std::make_pair(value / _n, "n" + unit);
+        if (_modulus <= __n) {
+            return std::make_pair(value / __n, "n" + unit);
         }
-        if (_modulus <= _u) {
-            return std::make_pair(value / _u, "µ" + unit);
+        if (_modulus <= __u) {
+            return std::make_pair(value / __u, "µ" + unit);
         }
-        if (_modulus <= _m) {
-            return std::make_pair(value / _m, "m" + unit);
+        if (_modulus <= __m) {
+            return std::make_pair(value / __m, "m" + unit);
         }
 
         return std::make_pair(value, unit);
