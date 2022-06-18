@@ -16,9 +16,9 @@
 
 auto sanitize = [](std::string& line) {
     auto remark = false;
-    auto filter = [&remark](char c) {
-        remark |= (c == '#') || (c == ';');
-        return remark || (bool)std::isspace(c);
+    auto filter = [&remark](char __c) {
+        remark |= (__c == '#') || (__c == ';');
+        return remark || (bool)std::isspace(__c);
     };
 
     line.erase(std::remove_if(line.begin(), line.end(), filter), line.end());
@@ -27,8 +27,8 @@ auto sanitize = [](std::string& line) {
 auto split = [](const std::string& data, const std::string& regex) {
     std::vector<std::string> tokens;
 
-    std::regex                 re{regex};
-    std::sregex_token_iterator next{data.begin(), data.end(), re, -1};
+    std::regex                 _rgx{regex};
+    std::sregex_token_iterator next{data.begin(), data.end(), _rgx, -1};
     std::sregex_token_iterator last;
 
     while (next != last) {
@@ -36,8 +36,8 @@ auto split = [](const std::string& data, const std::string& regex) {
         ++next;
     }
 
-    auto filter = [](const std::string& s) {
-        return s.empty();
+    auto filter = [](const std::string& _str) {
+        return _str.empty();
     };
     auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
     tokens.erase(junks, tokens.end());
@@ -59,20 +59,20 @@ auto join = [](const std::vector<std::string>& data, const std::string& delimite
 
 template <typename T, int B> auto expand_and_check(const std::string& value, T& type) {
     if (std::is_signed_v<T>) {
-        auto n1{std::strtoll(value.c_str(), nullptr, B)};
-        auto n2{static_cast<T>(n1)};
-        auto n3{static_cast<long long>(n2)};
-        if (n1 == n3 && errno != ERANGE) {
-            type = n2;
+        auto _n1{std::strtoll(value.c_str(), nullptr, B)};
+        auto _n2{static_cast<T>(_n1)};
+        auto _n3{static_cast<long long>(_n2)};
+        if (_n1 == _n3 && errno != ERANGE) {
+            type = _n2;
             return true;
         }
     }
     else {
-        auto n1{std::strtoull(value.c_str(), nullptr, B)};
-        auto n2{static_cast<T>(n1)};
-        auto n3{static_cast<unsigned long long>(n2)};
-        if (n1 == n3 && errno != ERANGE) {
-            type = n2;
+        auto _n1{std::strtoull(value.c_str(), nullptr, B)};
+        auto _n2{static_cast<T>(_n1)};
+        auto _n3{static_cast<unsigned long long>(_n2)};
+        if (_n1 == _n3 && errno != ERANGE) {
+            type = _n2;
             return true;
         }
     }
@@ -365,9 +365,9 @@ static auto decode_type_then_push_pair(GOptions::Pairs& pairs, const std::string
 GOptions::Pairs GOptions::ToPairs() {
     Pairs pairs{};
 
-    for (const auto& it : *this) {
-        const auto& label{it.first};
-        const auto& value{it.second};
+    for (const auto& _it : *this) {
+        const auto& label{_it.first};
+        const auto& value{_it.second};
 
         decode_type_then_push_pair(pairs, label, value);
     }
@@ -391,8 +391,8 @@ GOptions::Sections GOptions::ToSections() {
             const auto label = join(lower, ".");
             const auto _pair = Pair(label, pair.value);
 
-            auto filter = [title](const Section& s) {
-                return (s.title == title);
+            auto filter = [title](const Section& _sec) {
+                return (_sec.title == title);
             };
             auto found = std::find_if(sections.begin(), sections.end(), filter);
             if (found == sections.end()) {
@@ -422,8 +422,8 @@ static auto populate_sections(const std::string& filename, GOptions::Sections& s
             auto tokens = split(line, "[\\[\\]]");
             auto title  = tokens[0];
 
-            auto filter = [title](const GOptions::Section& s) {
-                return (s.title == title);
+            auto filter = [title](const GOptions::Section& _sec) {
+                return (_sec.title == title);
             };
             auto found = std::find_if(sections.begin(), sections.end(), filter);
             if (found == sections.end()) {
