@@ -198,6 +198,9 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     auto* src_buf{roller->Reading_Start(_error)};
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
+    _error = !device->WaitThenClearEvent();
+    GOTO_IF(_error, _exit_label, _line = __LINE__);
+
     _error = !device->WritePacket(src_buf->data(), src_buf->used());
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
@@ -205,6 +208,7 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     GOTO_IF(_error, _exit_label, _line = __LINE__);
     // #endregion
 
+    worker_args->total_bytes += src_buf->used_bytes();
     evaluate_stream_reader_start(roller, client);
     return;
 
@@ -266,15 +270,13 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
         GOTO_IF(_error, _exit_label, _line = __LINE__);
         // #endregion
 
-        evaluate_stream_reader_stop(roller, client);
-
         worker_args->loops_counter++;
-        worker_args->total_bytes += _bytes;
+        evaluate_stream_reader_stop(roller, client);
         return;
     }
 
 _exit_label:
-    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d, bytes: %lu (%s)", _line, _error, _bytes, __func__);
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
     Global::quit_process();
 }
 
