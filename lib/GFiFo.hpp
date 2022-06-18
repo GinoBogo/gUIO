@@ -66,14 +66,6 @@ class GFiFo {
         return m_depth;
     }
 
-    [[nodiscard]] auto used() const {
-        return m_used;
-    }
-
-    [[nodiscard]] auto free() const {
-        return m_depth - m_used;
-    }
-
     [[nodiscard]] auto max_level() const {
         return m_max_level;
     }
@@ -82,15 +74,24 @@ class GFiFo {
         return m_min_level;
     }
 
+    [[nodiscard]] auto used() const {
+        return m_used;
+    }
+
+    [[nodiscard]] auto free() const {
+        return m_depth - m_used;
+    }
+
     private:
-    uint32_t     m_size;
-    uint32_t     m_depth;
-    uint32_t     m_used;
-    uint32_t     m_iR;
-    uint32_t     m_iW;
-    GBuffer**    p_fifo;
-    int          m_max_level;
-    int          m_min_level;
+    uint32_t  m_size;
+    uint32_t  m_depth;
+    int       m_max_level;
+    int       m_min_level;
+    uint32_t  m_used;
+    uint32_t  m_iR;
+    uint32_t  m_iW;
+    GBuffer** p_fifo{nullptr};
+
     fsm_levels_t m_fsm_level;
 
 #ifdef GFIFO_THREAD_SAFE
