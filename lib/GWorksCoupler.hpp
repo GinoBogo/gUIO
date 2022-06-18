@@ -10,6 +10,8 @@
 #ifndef GWORKSCOUPLER_HPP
 #define GWORKSCOUPLER_HPP
 
+#include "GDefine.hpp"
+
 #include <any>
 #include <condition_variable>
 #include <mutex>
@@ -31,9 +33,7 @@ class GWorksCoupler {
     } work_func_t;
 
     GWorksCoupler(work_func_t& work_func, bool& quit, std::any& args, bool is_enabled = true) {
-        if (!is_enabled) {
-            return;
-        }
+        RETURN_IF(!is_enabled, );
 
         t_waiter_group = std::thread([&] {
             if (work_func.waiter_preamble != nullptr) {
@@ -43,11 +43,17 @@ class GWorksCoupler {
             while (!quit && !m_close) {
                 std::unique_lock _gate(m_mutex);
                 m_event.wait(_gate, [&] { return m_total > 0; });
-
                 m_total--;
                 _gate.unlock();
 
+_work_label:
                 work_func.waiter_calculus(quit, args);
+
+                _gate.lock();
+                DO(auto _loop = IF(m_total > 0, m_total--));
+                _gate.unlock();
+
+                GOTO_IF(_loop, _work_label, );
             }
 
             if (work_func.waiter_epilogue != nullptr) {
