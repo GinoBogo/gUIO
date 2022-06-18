@@ -218,7 +218,7 @@ void evaluate_stream_reader_stop(g_array_roller_t* roller, g_udp_client_t* clien
     if (roller->IsLevelChanged(&new_level)) {
         if (new_level == g_array_roller_t::MAX_LEVEL_PASSED) {
             packet_head_t packet;
-            packet.packet_type     = packet_type_t::signal_start_flow;
+            packet.packet_type     = packet_type_t::signal_stop_flow;
             packet.file_id         = 0;
             packet.data_length     = 0;
             packet.current_segment = 1;
