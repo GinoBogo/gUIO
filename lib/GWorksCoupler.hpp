@@ -49,9 +49,7 @@ class GWorksCoupler {
 _work_label:
                 work_func.waiter_calculus(quit, args);
 
-                _gate.lock();
-                DO(auto _loop = IF(m_total > 0, m_total--));
-                _gate.unlock();
+                DO_LOCK(_gate, auto _loop = IF(m_total > 0, m_total--));
 
                 GOTO_IF(_loop, _work_label, );
             }

@@ -25,6 +25,7 @@
 #define CONTINUE_IF_OR_LOG(_condition, _type, _format, ...)       /**/ if (_condition) continue; LOG_FORMAT(_type, _format, __VA_ARGS__)
 #define CONTINUE_IF_OR(_condition, ...)                           /**/ if (_condition) continue; __VA_ARGS__
 #define CONTINUE_IF(_condition, ...)                              /**/ __VA_ARGS__; if (_condition) continue
+#define DO_LOCK(_unique_lock, ...)                                /**/ _unique_lock.lock(); __VA_ARGS__; _unique_lock.unlock()
 #define DO(...)                                                   /**/ __VA_ARGS__
 #define EXIT_IF_AND_LOG(_condition, _status, _type, _format, ...) /**/ if (_condition) { LOG_FORMAT(_type, _format, __VA_ARGS__); exit(_status); }
 #define EXIT_IF_AND(_condition, _status, ...)                     /**/ if (_condition) { __VA_ARGS__; exit(_status); }
