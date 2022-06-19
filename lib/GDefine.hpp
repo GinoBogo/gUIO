@@ -20,6 +20,7 @@
 #define BREAK_IF_OR_LOG(_condition, _type, _format, ...)          /**/ if (_condition) break; LOG_FORMAT(_type, _format, __VA_ARGS__)
 #define BREAK_IF_OR(_condition, ...)                              /**/ if (_condition) break; __VA_ARGS__
 #define BREAK_IF(_condition, ...)                                 /**/ __VA_ARGS__; if (_condition) break
+#define CALL(_func_ptr, ...)                                      /**/ if (_func_ptr != nullptr) _func_ptr(__VA_ARGS__)
 #define CONTINUE_IF_AND_LOG(_condition, _type, _format, ...)      /**/ if (_condition) { LOG_FORMAT(_type, _format, __VA_ARGS__); continue; }
 #define CONTINUE_IF_AND(_condition, ...)                          /**/ if (_condition) { __VA_ARGS__; continue; }
 #define CONTINUE_IF_OR_LOG(_condition, _type, _format, ...)       /**/ if (_condition) continue; LOG_FORMAT(_type, _format, __VA_ARGS__)
