@@ -95,8 +95,8 @@ class GString {
             ++next;
         }
 
-        auto filter = [](const std::string& _str) {
-            return _str.empty();
+        auto filter = [](const std::string& __s) {
+            return __s.empty();
         };
         auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
         tokens.erase(junks, tokens.end());
