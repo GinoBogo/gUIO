@@ -63,7 +63,7 @@ class GUIOdevice {
         return false;
     }
 
-    [[nodiscard]] bool IRQ_Clear() const {
+    bool IRQ_Clear() const {
         int32_t _val{0x00000001};
 
         auto _ret{write(m_dev.fd, &_val, sizeof(_val))};
