@@ -105,10 +105,10 @@ template <typename T> class GArrayRoller {
         m_iW        = 0;
 
         if (m_max_level >= 1 && m_min_level >= 0 && m_max_level > m_min_level) {
-            m_fsm_level = TRANSITION_OFF;
+            m_fsm_level = MIN_LEVEL_PASSED;
         }
         else {
-            m_fsm_level = MIN_LEVEL_PASSED;
+            m_fsm_level = TRANSITION_OFF;
         }
     }
 
