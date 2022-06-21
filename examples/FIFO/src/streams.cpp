@@ -194,17 +194,22 @@ _exit_label:
     return false;
 }
 
+// packet_type
+// spare_0
+// spare_1
+// spare_2
+// packet_counter
+// data_length
+// file_id
+// total_segments
+// current_segment
+
 void evaluate_stream_reader_start(g_array_roller_t* roller, g_udp_client_t* client) {
     g_array_roller_t::fsm_levels_t new_level;
 
     if (roller->IsLevelChanged(&new_level)) {
         if (new_level == g_array_roller_t::MIN_LEVEL_PASSED) {
-            packet_head_t packet;
-            packet.packet_type     = packet_type_t::signal_start_flow;
-            packet.file_id         = 0;
-            packet.data_length     = 0;
-            packet.current_segment = 1;
-            packet.total_segments  = 1;
+            static packet_head_t packet{packet_type_t::signal_start_flow, 0, 0, 0, 0, 0, 0, 1, 1};
 
             client->Send(&packet, GPacket::PACKET_HEAD_SIZE);
             LOG_FORMAT(info, "START_FLOW message sent (%s)", __func__);
@@ -217,12 +222,7 @@ void evaluate_stream_reader_stop(g_array_roller_t* roller, g_udp_client_t* clien
 
     if (roller->IsLevelChanged(&new_level)) {
         if (new_level == g_array_roller_t::MAX_LEVEL_PASSED) {
-            packet_head_t packet;
-            packet.packet_type     = packet_type_t::signal_stop_flow;
-            packet.file_id         = 0;
-            packet.data_length     = 0;
-            packet.current_segment = 1;
-            packet.total_segments  = 1;
+            static packet_head_t packet{packet_type_t::signal_stop_flow, 0, 0, 0, 0, 0, 0, 1, 1};
 
             client->Send(&packet, GPacket::PACKET_HEAD_SIZE);
             LOG_FORMAT(info, "STOP_FLOW message sent (%s)", __func__);
