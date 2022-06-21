@@ -40,7 +40,7 @@ class GWorksCoupler {
 
             std::unique_lock _gate(m_mutex, std::defer_lock);
             while (!quit && !m_close) {
-                DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_total > 0; }), m_total--);
+                DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_total > 0; }); m_total--);
 
 _calculus_label:
                 work_func.waiter_calculus(quit, args);
