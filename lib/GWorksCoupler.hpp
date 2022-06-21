@@ -38,16 +38,14 @@ class GWorksCoupler {
         t_waiter_group = std::thread([&] {
             CALL(work_func.waiter_preamble, quit, args);
 
+            std::unique_lock _gate(m_mutex, std::defer_lock);
             while (!quit && !m_close) {
-                std::unique_lock _gate(m_mutex);
-                m_event.wait(_gate, [&] { return m_total > 0; });
-                m_total--;
-                _gate.unlock();
+                DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_total > 0; }), m_total--);
 
 _calculus_label:
                 work_func.waiter_calculus(quit, args);
 
-                DO_LOCK(_gate, auto _loop = IF(m_total > 0, m_total--));
+                DO_GUARD(_gate, auto _loop = IF(m_total > 0, m_total--));
 
                 GOTO_IF(_loop, _calculus_label, );
             }
@@ -58,19 +56,16 @@ _calculus_label:
         t_master_group = std::thread([&] {
             CALL(work_func.master_preamble, quit, args);
 
+            std::unique_lock _gate(m_mutex, std::defer_lock);
             while (!quit && !m_close) {
                 work_func.master_calculus(quit, args);
 
-                std::lock_guard _gate(m_mutex);
-                m_total++;
-                m_event.notify_one();
+                DO_GUARD(_gate, m_total++; m_event.notify_one());
             }
 
             CALL(work_func.master_epilogue, quit, args);
 
-            if (!m_close) {
-                Close();
-            }
+            DO_IF(!m_close, Close());
         });
     }
 
