@@ -27,6 +27,7 @@
 #define CONTINUE_IF_OR(_condition, ...)                           /**/ if (_condition) continue; __VA_ARGS__
 #define CONTINUE_IF(_condition, ...)                              /**/ __VA_ARGS__; if (_condition) continue
 #define DO_GUARD(_unique_lock, ...)                               /**/ _unique_lock.lock(); __VA_ARGS__; _unique_lock.unlock()
+#define DO_IF(_condition, ...)                                    /**/ if (_condition) __VA_ARGS__
 #define DO_LOCK(_unique_lock, ...)                                /**/ _unique_lock.lock(); __VA_ARGS__
 #define DO_UNLOCK(_unique_lock, ...)                              /**/ __VA_ARGS__; _unique_lock.unlock()
 #define DO(...)                                                   /**/ __VA_ARGS__
