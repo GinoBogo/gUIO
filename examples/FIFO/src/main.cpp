@@ -256,7 +256,6 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
 
     auto _line  = 0;
     auto _error = false;
-    auto _bytes = 0UL;
 
     if (!_quit && (loops_counter < total_loops)) {
         // #region [critical]
