@@ -51,6 +51,8 @@ namespace f_gm_dh {
         auto* _client  = _args.client;
         auto  _type_id = _message->head()->packet_type;
 
+        UNUSED(_client);
+
         switch (_type_id) {
             default: {
                 LOG_FORMAT(warning, "Invalid message type [%d] (%s)", _type_id, __func__);
