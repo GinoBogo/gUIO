@@ -31,13 +31,13 @@ static void rx_waiter_consumer(bool& _quit, std::any& _args) {
 
     // #region [critical]
     auto* src_buf{roller->Reading_Start(_error)};
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !stream_writer_for_rx_words(src_buf, client, server);
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     roller->Reading_Stop(_error);
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
     // #endregion
     return;
 
@@ -65,13 +65,13 @@ static void rx_master_preamble(bool& _quit, std::any& _args) {
     auto _error = false;
 
     _error = !device->Open();
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->Reset();
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->ClearEvent();
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     profile->Start();
     return;
@@ -95,32 +95,32 @@ static void rx_master_producer(bool& _quit, std::any& _args) {
 
     if (!_quit && (loops_counter < total_loops)) {
         _level = device->GetRxLengthLevel(_error);
-        GOTO_IF(_error, _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
-        GOTO_IF(_level > 0, _read_label, );
+        GOTO_IF_BUT(_level > 0, _read_label, );
 
         _error = !device->WaitThenClearEvent();
-        GOTO_IF(_error, _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
         _level = device->GetRxLengthLevel(_error);
-        GOTO_IF(_error || (_level == 0), _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error || (_level == 0), _exit_label, _line = __LINE__);
 
 _read_label:
         _words = device->GetRxPacketWords(_error);
-        GOTO_IF(_error || (_words <= 7), _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error || (_words <= 7), _exit_label, _line = __LINE__);
 
         // #region [critical]
         auto* dst_buf{roller->Writing_Start(_error)};
-        GOTO_IF(_error, _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
         _error = !dst_buf->used(_words);
-        GOTO_IF(_error, _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
         _error = !device->ReadPacket(dst_buf->data(), _words);
-        GOTO_IF(_error, _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
         roller->Writing_Stop(_error);
-        GOTO_IF(_error, _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
         // #endregion
 
         worker_args->loops_counter++;
@@ -169,19 +169,19 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
     auto _error = false;
 
     _error = !device->Open();
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->Reset();
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->SetTxPacketWords(TX_PACKET_WORDS);
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->EnableReader(true);
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->ClearEvent();
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     profile->Start();
     return;
@@ -202,16 +202,16 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
 
     // #region [critical]
     auto* src_buf{roller->Reading_Start(_error)};
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->WritePacket(src_buf->data(), src_buf->used());
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->WaitThenClearEvent();
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     roller->Reading_Stop(_error);
-    GOTO_IF(_error, _exit_label, _line = __LINE__);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
     // #endregion
 
     worker_args->total_bytes += src_buf->used_bytes();
@@ -266,13 +266,13 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
     if (!_quit && (loops_counter < total_loops)) {
         // #region [critical]
         auto* dst_buf{roller->Writing_Start(_error)};
-        GOTO_IF(_error, _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
         _error = !stream_reader_for_tx_words(dst_buf, client, server);
-        GOTO_IF(_error, _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
         roller->Writing_Stop(_error);
-        GOTO_IF(_error, _exit_label, _line = __LINE__);
+        GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
         // #endregion
 
         // std::this_thread::sleep_for(std::chrono::nanoseconds(2));
