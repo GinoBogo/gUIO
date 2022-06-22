@@ -9,6 +9,8 @@
 
 #include "globals.hpp"
 
+#include "GDefine.hpp"
+
 // SECTION: PL_to_PS global variables
 bool           RX_MODE_ENABLED     = true;
 unsigned int   RX_MODE_LOOPS       = 20;
@@ -143,7 +145,7 @@ namespace Global {
     }
 
     void quit_process() {
-        *args.quit = true;
+        RETURN_IF_OR(*args.quit, *args.quit = true);
 
         if (RX_MODE_ENABLED) {
             args.rx_device->Close();
