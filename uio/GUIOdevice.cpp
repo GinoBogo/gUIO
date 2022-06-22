@@ -12,7 +12,6 @@
 #include "GLogger.hpp"
 
 #include <cerrno>     // errno
-#include <cstdio>     // snprintf
 #include <cstdlib>    // strtoul
 #include <cstring>    // strncpy
 #include <fcntl.h>    // open, ioctl

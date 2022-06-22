@@ -12,7 +12,6 @@
 #include "GLogger.hpp"
 
 #include <cerrno>   // errno
-#include <cstdio>   // snprintf
 #include <cstdlib>  // atoi
 #include <cstring>  // memset, strerror_r
 #include <netdb.h>  // addrinfo

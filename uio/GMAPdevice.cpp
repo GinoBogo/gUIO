@@ -12,7 +12,6 @@
 #include "GLogger.hpp"
 
 #include <cerrno>     // errno
-#include <cstdio>     // snprintf
 #include <cstring>    // memset
 #include <fcntl.h>    // open
 #include <sys/mman.h> // mmap, munmap

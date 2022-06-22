@@ -9,8 +9,6 @@
 
 #include "globals.hpp"
 
-#include "GDefine.hpp"
-
 // SECTION: PL_to_PS global variables
 bool           RX_MODE_ENABLED     = true;
 unsigned int   RX_MODE_LOOPS       = 20;

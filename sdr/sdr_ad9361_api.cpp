@@ -28,9 +28,8 @@
 
 // project libraries
 #include "GLogger.hpp"
-#include "sdr_ad9361.hpp" // SDR AD9361 driver
-#include "sdr_if.hpp"     // SDR control (SPI interface)
-#include "spi_if.hpp"     // SPI interface API
+#include "sdr_if.hpp" // SDR control (SPI interface)
+#include "spi_if.hpp" // SPI interface API
 
 // *****************************************************************************
 // *****************************************************************************
