@@ -42,7 +42,7 @@ static void rx_waiter_consumer(bool& _quit, std::any& _args) {
     return;
 
 _exit_label:
-    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d (%s)", _line, __func__);
     Global::quit_process();
 }
 
@@ -77,7 +77,7 @@ static void rx_master_preamble(bool& _quit, std::any& _args) {
     return;
 
 _exit_label:
-    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d (%s)", _line, __func__);
     Global::quit_process();
 }
 
@@ -129,7 +129,7 @@ _read_label:
     }
 
 _exit_label:
-    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d, level: %u, words: %u (%s)", _line, _error, _level, _words, __func__);
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> level: %u, words: %u (%s)", _line, _level, _words, __func__);
     Global::quit_process();
 }
 
@@ -174,6 +174,12 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
     _error = !device->Reset();
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
+    _error = !device->SetTxPacketWords(TX_PACKET_WORDS);
+    GOTO_IF(_error, _exit_label, _line = __LINE__);
+
+    _error = !device->EnableReader(true);
+    GOTO_IF(_error, _exit_label, _line = __LINE__);
+
     _error = !device->ClearEvent();
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
@@ -181,7 +187,7 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
     return;
 
 _exit_label:
-    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d (%s)", _line, __func__);
     Global::quit_process();
 }
 
@@ -198,10 +204,10 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     auto* src_buf{roller->Reading_Start(_error)};
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
-    _error = !device->WaitThenClearEvent();
+    _error = !device->WritePacket(src_buf->data(), src_buf->used());
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
-    _error = !device->WritePacket(src_buf->data(), src_buf->used());
+    _error = !device->WaitThenClearEvent();
     GOTO_IF(_error, _exit_label, _line = __LINE__);
 
     roller->Reading_Stop(_error);
@@ -213,7 +219,7 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     return;
 
 _exit_label:
-    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> roller used: %lu (%s)", _line, roller->used(), __func__);
     Global::quit_process();
 }
 
@@ -269,13 +275,15 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
         GOTO_IF(_error, _exit_label, _line = __LINE__);
         // #endregion
 
+        // std::this_thread::sleep_for(std::chrono::nanoseconds(2));
+
         worker_args->loops_counter++;
         evaluate_stream_reader_stop(roller, client);
         return;
     }
 
 _exit_label:
-    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> error: %d (%s)", _line, _error, __func__);
+    LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> roller free: %lu (%s)", _line, roller->free(), __func__);
     Global::quit_process();
 }
 
