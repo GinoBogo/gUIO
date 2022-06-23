@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 
 set(COMPILER "gcc")
 
-if (COMPILER STREQUAL "clang")
-    if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+if(COMPILER STREQUAL "clang")
+    if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
         set(CMAKE_C_COMPILER "clang.exe")
         set(CMAKE_CXX_COMPILER "clang++.exe")
     else()
@@ -11,11 +11,11 @@ if (COMPILER STREQUAL "clang")
         set(CMAKE_CXX_COMPILER "clang++")
     endif()
 
-    if (${CMAKE_BUILD_TYPE} STREQUAL "debug")
+    if(${CMAKE_BUILD_TYPE} STREQUAL "debug")
         add_compile_options(-fstandalone-debug)
     endif()
 else()
-    if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+    if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
         set(CMAKE_C_COMPILER "gcc.exe")
         set(CMAKE_CXX_COMPILER "g++.exe")
     else()
@@ -24,8 +24,10 @@ else()
     endif()
 endif()
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_EXTENSIONS FALSE)
+set(CMAKE_CXX_EXTENSIONS FALSE)
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 message("================================================================================")
 message("   OS: " ${CMAKE_HOST_SYSTEM_NAME})
@@ -41,7 +43,8 @@ add_compile_options(
     -fno-omit-frame-pointer
     -pedantic
     -Wall
-   #-Wcast-align
+
+    # -Wcast-align
     -Wextra
     -Wfloat-equal
     -Wno-unused-parameter
@@ -52,26 +55,26 @@ add_compile_options(
     -Wswitch-default
 )
 
-if (COMPILE_LANGUAGE:CXX)
+if(COMPILE_LANGUAGE:CXX)
     add_compile_options(-Wold-style-cast)
 endif()
 
 add_library(gLIB OBJECT
-"../../lib/GLogger.cpp"
+    "../../lib/GLogger.cpp"
 )
 
 add_library(gUIO OBJECT
-"../../uio/GMAPdevice.cpp"
-"../../uio/GRegisters.cpp"
+    "../../uio/GMAPdevice.cpp"
+    "../../uio/GRegisters.cpp"
 )
 
 include_directories(
-"../../lib"
-"../../uio"
-"./src"
+    "../../lib"
+    "../../uio"
+    "./src"
 )
 
 add_executable(_regs
-"./src/main.cpp"
+    "./src/main.cpp"
 )
 target_link_libraries(_regs pthread gLIB gUIO)

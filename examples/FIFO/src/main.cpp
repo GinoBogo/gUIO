@@ -97,7 +97,7 @@ static void rx_master_producer(bool& _quit, std::any& _args) {
         _level = device->GetRxLengthLevel(_error);
         GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
-        GOTO_IF_BUT(_level > 0, _read_label, );
+        GOTO_IF_BUT(_level > 0, _read_label);
 
         _error = !device->WaitThenClearEvent();
         GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);

@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 
 set(COMPILER "gcc")
 
-if (COMPILER STREQUAL "clang")
-    if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+if(COMPILER STREQUAL "clang")
+    if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
         set(CMAKE_C_COMPILER "clang.exe")
         set(CMAKE_CXX_COMPILER "clang++.exe")
     else()
@@ -11,11 +11,11 @@ if (COMPILER STREQUAL "clang")
         set(CMAKE_CXX_COMPILER "clang++")
     endif()
 
-    if (${CMAKE_BUILD_TYPE} STREQUAL "debug")
+    if(${CMAKE_BUILD_TYPE} STREQUAL "debug")
         add_compile_options(-fstandalone-debug)
     endif()
 else()
-    if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+    if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
         set(CMAKE_C_COMPILER "gcc.exe")
         set(CMAKE_CXX_COMPILER "g++.exe")
     else()
@@ -24,8 +24,10 @@ else()
     endif()
 endif()
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_EXTENSIONS FALSE)
+set(CMAKE_CXX_EXTENSIONS FALSE)
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 message("================================================================================")
 message("   OS: " ${CMAKE_HOST_SYSTEM_NAME})
@@ -41,9 +43,7 @@ add_compile_options(
     -fno-omit-frame-pointer
     -pedantic
     -Wall
-   #-Wcast-align
     -Wextra
-   #-Wfloat-equal
     -Wno-unused-parameter
     -Wno-unused-result
     -Wno-unused-variable
@@ -52,37 +52,37 @@ add_compile_options(
     -Wswitch-default
 )
 
-if (COMPILE_LANGUAGE:CXX)
+if(COMPILE_LANGUAGE:CXX)
     add_compile_options(-Wold-style-cast)
 endif()
 
 add_library(gLIB OBJECT
-"../../lib/GBuffer.cpp"
-"../../lib/GFiFo.cpp"
-"../../lib/GLogger.cpp"
-"../../lib/GMessage.cpp"
-"../../lib/GOptions.cpp"
-"../../lib/GPacket.cpp"
-"../../lib/GUdpClient.cpp"
-"../../lib/GUdpServer.cpp"
+    "../../lib/GBuffer.cpp"
+    "../../lib/GFiFo.cpp"
+    "../../lib/GLogger.cpp"
+    "../../lib/GMessage.cpp"
+    "../../lib/GOptions.cpp"
+    "../../lib/GPacket.cpp"
+    "../../lib/GUdpClient.cpp"
+    "../../lib/GUdpServer.cpp"
 )
 
 add_library(gUIO OBJECT
-"../../uio/GFIFOdevice.cpp"
-"../../uio/GMAPdevice.cpp"
-"../../uio/GRegisters.cpp"
-"../../uio/GUIOdevice.cpp"
+    "../../uio/GFIFOdevice.cpp"
+    "../../uio/GMAPdevice.cpp"
+    "../../uio/GRegisters.cpp"
+    "../../uio/GUIOdevice.cpp"
 )
 
 include_directories(
-"../../lib"
-"../../uio"
-"./src"
+    "../../lib"
+    "../../uio"
+    "./src"
 )
 
 add_executable(_fifo
-"./src/main.cpp"
-"./src/globals.cpp"
-"./src/streams.cpp"
+    "./src/main.cpp"
+    "./src/globals.cpp"
+    "./src/streams.cpp"
 )
 target_link_libraries(_fifo pthread gLIB gUIO)

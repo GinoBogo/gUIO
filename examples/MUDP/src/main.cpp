@@ -141,7 +141,7 @@ static void f_gm_mc_server(bool& quit, GUdpServer& server, GUdpClient& client) {
 
     auto fifo{GFiFo(GPacket::PACKET_FULL_SIZE, LINK_FIFO_DEPTH, LINK_FIFO_MAX_LEVEL, LINK_FIFO_MIN_LEVEL)};
 
-    volatile auto           _total{0};
+    auto                    _total{0};
     std::mutex              _mutex;
     std::condition_variable _event;
 
@@ -207,7 +207,7 @@ static void f_gm_dh_server(const bool& quit, GUdpServer& server, GUdpClient& cli
 
     auto fifo{GFiFo(GPacket::PACKET_FULL_SIZE, LINK_FIFO_DEPTH, LINK_FIFO_MAX_LEVEL, LINK_FIFO_MIN_LEVEL)};
 
-    volatile auto           _total{0};
+    auto                    _total{0};
     std::mutex              _mutex;
     std::condition_variable _event;
 
@@ -271,7 +271,7 @@ static void f_hssl1_server(const bool& quit, GUdpServer& server, GUdpClient& cli
 
     auto fifo{GFiFo(GPacket::PACKET_FULL_SIZE, LINK_FIFO_DEPTH, LINK_FIFO_MAX_LEVEL, LINK_FIFO_MIN_LEVEL)};
 
-    volatile auto           _total{0};
+    auto                    _total{0};
     std::mutex              _mutex;
     std::condition_variable _event;
 
@@ -335,7 +335,7 @@ static void f_hssl2_server(const bool& quit, GUdpServer& server, GUdpClient& cli
 
     auto fifo{GFiFo(GPacket::PACKET_FULL_SIZE, LINK_FIFO_DEPTH, LINK_FIFO_MAX_LEVEL, LINK_FIFO_MIN_LEVEL)};
 
-    volatile auto           _total{0};
+    auto                    _total{0};
     std::mutex              _mutex;
     std::condition_variable _event;
 
