@@ -24,28 +24,16 @@ template <typename T> class GArray {
         Reset();
     }
 
-    GArray(const GArray& array) {
-        *this = array;
-    }
+    GArray(const GArray& array) = delete;
 
     ~GArray() {
-        release_resources();
-    }
-
-    GArray& operator=(const GArray& array) {
-        if (this != &array) {
-            release_resources();
-
-            m_data = new T[array.m_size];
-            m_size = array.m_size;
-            m_used = array.m_used;
-
-            for (decltype(m_used) i{0}; i < m_used; ++i) {
-                m_data[i] = array.m_data[i];
-            }
+        if (m_data != nullptr) {
+            delete[] m_data;
+            m_data = nullptr;
         }
-        return *this;
     }
+
+    GArray& operator=(const GArray& array) = delete;
 
     void Reset() {
         m_used = 0;
@@ -100,15 +88,6 @@ template <typename T> class GArray {
     }
 
     private:
-    auto release_resources() {
-        if (m_data != nullptr) {
-            delete[] m_data;
-            m_data = nullptr;
-            m_size = 0;
-            Reset();
-        }
-    }
-
     T*     m_data{nullptr};
     size_t m_size{0};
     size_t m_used{0};

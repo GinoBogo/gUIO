@@ -30,10 +30,12 @@ class GFIFOdevice {
     };
 
     GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_map, const std::string& tag_name = "");
-    GFIFOdevice(const GFIFOdevice& fifo_device);
+
+    GFIFOdevice(const GFIFOdevice& fifo_device) = delete;
+
     ~GFIFOdevice();
 
-    GFIFOdevice& operator=(const GFIFOdevice& fifo_device);
+    GFIFOdevice& operator=(const GFIFOdevice& fifo_device) = delete;
 
     bool Open();
     void Close();

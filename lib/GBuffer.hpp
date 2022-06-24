@@ -17,11 +17,11 @@ class GBuffer {
     public:
     GBuffer(uint32_t size = 0);
 
-    GBuffer(const GBuffer& buffer);
+    GBuffer(const GBuffer& buffer) = delete;
 
     ~GBuffer();
 
-    GBuffer& operator=(const GBuffer& buffer);
+    GBuffer& operator=(const GBuffer& buffer) = delete;
 
     bool Wrap(uint8_t* buf_data, uint32_t buf_size);
 
@@ -87,14 +87,6 @@ class GBuffer {
     }
 
     private:
-    void release_resources() {
-        if (!m_is_wrapper && m_is_ready) {
-            delete[] p_data;
-            p_data = nullptr;
-        }
-        m_is_ready = false;
-    }
-
     bool     m_is_ready{false};
     bool     m_is_wrapper;
     uint32_t m_size;

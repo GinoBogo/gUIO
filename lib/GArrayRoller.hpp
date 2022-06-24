@@ -53,41 +53,22 @@ template <typename T> class GArrayRoller {
         LOG_FORMAT(debug, "%s constructor [%lu, %lu, %d, %d]", m_tag_name.c_str(), m_length, m_number, m_max_level, m_min_level);
     }
 
-    GArrayRoller(const GArrayRoller& array_roller) {
-        *this = array_roller;
-    }
+    GArrayRoller(const GArrayRoller& array_roller) = delete;
 
     ~GArrayRoller() {
-        release_resources();
+        if (m_arrays != nullptr) {
+            Reset();
+            for (decltype(m_number) i{0}; i < m_number; ++i) {
+                delete m_arrays[i];
+                m_arrays[i] = nullptr;
+            }
+            delete[] m_arrays;
+            m_arrays = nullptr;
+        }
         LOG_FORMAT(debug, "%s destructor", m_tag_name.c_str());
     }
 
-    GArrayRoller& operator=(const GArrayRoller& array_roller) {
-        if (this != &array_roller) {
-            release_resources();
-
-            m_length    = array_roller.m_length;
-            m_number    = array_roller.m_number;
-            m_tag_name  = array_roller.m_tag_name;
-            m_max_level = array_roller.m_max_level;
-            m_min_level = array_roller.m_min_level;
-
-            if (m_length > 0 && m_number > 0) {
-                m_arrays = new GArray<T>*[m_number];
-                for (decltype(m_number) i{0}; i < m_number; ++i) {
-                    m_arrays[i] = new GArray<T>(*array_roller.m_arrays[i]);
-                }
-                m_fsm_state = array_roller.m_fsm_state;
-                m_fsm_level = array_roller.m_fsm_level;
-                m_errors    = array_roller.m_errors;
-                m_used      = array_roller.m_used;
-                m_iR        = array_roller.m_iR;
-                m_iW        = array_roller.m_iW;
-            }
-            LOG_FORMAT(debug, "%s constructor [%lu, %lu, %d, %d]", m_tag_name.c_str(), m_length, m_number, m_max_level, m_min_level);
-        }
-        return *this;
-    }
+    GArrayRoller& operator=(const GArrayRoller& array_roller) = delete;
 
     void Reset() {
         std::lock_guard<std::mutex> _lock(m_mutex);
@@ -316,18 +297,6 @@ template <typename T> class GArrayRoller {
     }
 
     private:
-    void release_resources() {
-        if (m_arrays != nullptr) {
-            Reset();
-            for (decltype(m_number) i{0}; i < m_number; ++i) {
-                delete m_arrays[i];
-                m_arrays[i] = nullptr;
-            }
-            delete[] m_arrays;
-            m_arrays = nullptr;
-        }
-    }
-
     size_t      m_length;
     size_t      m_number;
     std::string m_tag_name;

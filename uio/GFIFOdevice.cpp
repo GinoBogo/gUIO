@@ -9,6 +9,7 @@
 
 #include "GFIFOdevice.hpp"
 
+#include "GDefine.hpp"
 #include "GLogger.hpp"
 
 GFIFOdevice::GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_map, const std::string& tag_name) {
@@ -26,38 +27,13 @@ GFIFOdevice::GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_
     LOG_FORMAT(debug, "%s constructor [0x%08X, 0x%05X, %d, %d]", m_tag_name.c_str(), m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
 }
 
-GFIFOdevice::GFIFOdevice(const GFIFOdevice& fifo_device) {
-    *this = fifo_device;
-}
-
 GFIFOdevice::~GFIFOdevice() {
-    if (m_is_ready) {
-        Close();
-    }
+    DO_IF(m_is_ready, Close());
+
     delete m_dev;
     delete m_uio;
 
     LOG_FORMAT(debug, "%s destructor", m_tag_name.c_str());
-}
-
-GFIFOdevice& GFIFOdevice::operator=(const GFIFOdevice& fifo_device) {
-    if (this != &fifo_device) {
-        this->~GFIFOdevice();
-
-        m_dev_addr = fifo_device.m_dev_addr;
-        m_dev_size = fifo_device.m_dev_size;
-        m_uio_num  = fifo_device.m_uio_num;
-        m_uio_map  = fifo_device.m_uio_map;
-        m_tag_name = fifo_device.m_tag_name;
-
-        m_dev      = new GMAPdevice(m_dev_addr, m_dev_size);
-        m_uio      = new GUIOdevice(m_uio_num, m_uio_map);
-        m_uio_regs = nullptr;
-        m_is_ready = false;
-
-        LOG_FORMAT(trace, "%s constructor [0x%08X, 0x%05X, %d, %d]", m_tag_name.c_str(), m_dev_addr, m_dev_size, m_uio_num, m_uio_map);
-    }
-    return *this;
 }
 
 bool GFIFOdevice::Open() {
@@ -85,12 +61,9 @@ jmp_exit:
 }
 
 void GFIFOdevice::Close() {
-    if (m_is_ready) {
-        m_is_ready = false;
-        GPIO_setIpInterruptEnable(m_uio_regs, __OFF(BIT_GPIO_IP_IER_1));
-        GPIO_setGlobalInterruptEnable(m_uio_regs, __OFF(BIT_GPIO_GIER));
-    }
+    RETURN_IF_OR(!m_is_ready, m_is_ready = false);
 
+    GPIO_setIpInterruptEnable(m_uio_regs, __OFF(BIT_GPIO_IP_IER_1));
     m_dev->Close();
     m_uio->Close();
 
