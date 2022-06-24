@@ -19,6 +19,10 @@
 
 #define ENABLE_SFINAE
 
+#define GOPTIONS_PUT(__o, __s, __v) __o.Insert<decltype(__v)>(__s "." #__v, __v)
+
+#define GOPTIONS_GET(__o, __s, __v) __v = __o.Get<decltype(__v)>(__s "." #__v)
+
 class GOptions : public std::map<std::string, std::any> {
     public:
     struct Pair {
