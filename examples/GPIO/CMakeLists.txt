@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.20)
 
 set(COMPILER "gcc")
 
@@ -24,15 +24,22 @@ else()
     endif()
 endif()
 
-set(CMAKE_C_EXTENSIONS FALSE)
-set(CMAKE_CXX_EXTENSIONS FALSE)
-set(CMAKE_C_STANDARD 17)
+# set(CMAKE_C_EXTENSIONS FALSE)
+# set(CMAKE_CXX_EXTENSIONS FALSE)
+if(${CMAKE_VERSION} VERSION_LESS_EQUAL "3.20")
+    set(CMAKE_C_STANDARD 11)
+else()
+    set(CMAKE_C_STANDARD 17)
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 
 message("================================================================================")
-message("   OS: " ${CMAKE_HOST_SYSTEM_NAME})
-message("  DIR: " ${CMAKE_SOURCE_DIR})
-message(" TYPE: " ${CMAKE_BUILD_TYPE})
+message("    OS: " ${CMAKE_HOST_SYSTEM_NAME})
+message("   DIR: " ${CMAKE_SOURCE_DIR})
+message("  TYPE: " ${CMAKE_BUILD_TYPE})
+message(" CMAKE: " ${CMAKE_VERSION})
+message(" C/C++: " ${CMAKE_C_STANDARD}/${CMAKE_CXX_STANDARD})
 message("================================================================================")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
