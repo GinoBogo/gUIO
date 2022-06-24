@@ -33,25 +33,28 @@ class GWorksCoupler {
     } work_func_t;
 
     GWorksCoupler(work_func_t& work_func, bool& quit, std::any& args, bool is_enabled = true) {
-        RETURN_IF(!is_enabled, );
+        RETURN_IF(!is_enabled);
 
         t_waiter_group = std::thread([&] {
             CALL(work_func.waiter_preamble, quit, args);
 
             std::unique_lock _gate(m_mutex, std::defer_lock);
             while (!quit && !m_close) {
-                DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_total > 0; }); m_total--);
+                DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_total != 0U; }); --m_total);
+_work_label:
+                GOTO_IF(quit || m_close, _exit_label);
 
-_calculus_label:
                 work_func.waiter_calculus(quit, args);
 
-                DO_GUARD(_gate, auto _loop = IF(m_total > 0, m_total--));
+                DO_GUARD(_gate, auto _loop = IF(m_total != 0U, --m_total));
 
-                GOTO_IF(_loop, _calculus_label, );
+                GOTO_IF(_loop, _work_label);
             }
-
+_exit_label:
             CALL(work_func.waiter_epilogue, quit, args);
         });
+
+        std::this_thread::sleep_for(std::chrono::microseconds(200));
 
         t_master_group = std::thread([&] {
             CALL(work_func.master_preamble, quit, args);
@@ -60,7 +63,7 @@ _calculus_label:
             while (!quit && !m_close) {
                 work_func.master_calculus(quit, args);
 
-                DO_GUARD(_gate, m_total++; m_event.notify_one());
+                DO(DO_GUARD(_gate, ++m_total); m_event.notify_one());
             }
 
             CALL(work_func.master_epilogue, quit, args);
@@ -71,21 +74,16 @@ _calculus_label:
 
     ~GWorksCoupler() {
         Close();
+        std::this_thread::sleep_for(std::chrono::microseconds(200));
     }
 
     void Close() {
-        m_close = true;
-        m_total = 1;
-        m_event.notify_one();
+        DO_IF(!m_close, m_close = true, m_total = 1U, m_event.notify_one());
     }
 
     void Wait() {
-        if (t_waiter_group.joinable()) {
-            t_waiter_group.join();
-        }
-        if (t_master_group.joinable()) {
-            t_master_group.join();
-        }
+        DO_IF(t_waiter_group.joinable(), t_waiter_group.join());
+        DO_IF(t_master_group.joinable(), t_master_group.join());
     }
 
     private:
@@ -93,7 +91,7 @@ _calculus_label:
     std::thread t_master_group;
 
     bool                    m_close{false};
-    volatile unsigned       m_total{0};
+    unsigned                m_total{0};
     std::mutex              m_mutex;
     std::condition_variable m_event;
 };

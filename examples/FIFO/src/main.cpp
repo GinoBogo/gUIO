@@ -214,6 +214,8 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
     // #endregion
 
+    // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
     worker_args->total_bytes += src_buf->used_bytes();
     evaluate_stream_reader_start(roller, client);
     return;

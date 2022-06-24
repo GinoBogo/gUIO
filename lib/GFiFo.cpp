@@ -37,9 +37,11 @@ GFiFo::GFiFo(const uint32_t item_size, const uint32_t fifo_depth, const int max_
 GFiFo::~GFiFo() {
     for (decltype(m_depth) i{0}; i < m_depth; ++i) {
         delete p_fifo[i];
+        p_fifo[i] = nullptr;
     }
 
     delete[] p_fifo;
+    p_fifo = nullptr;
 }
 
 void GFiFo::Reset() {
