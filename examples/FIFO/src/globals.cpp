@@ -54,39 +54,39 @@ namespace Global {
         auto opts = GOptions();
 
         // clang-format off
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_MODE_ENABLED    );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_MODE_LOOPS      );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_FILE_NAME       );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_STREAM_ID       );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_STREAM_TYPE     );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_CLIENT_ADDR     );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_CLIENT_PORT     );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_PACKET_WORDS    );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_FIFO_TAG_NAME   );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_FIFO_DEV_ADDR   );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_FIFO_DEV_SIZE   );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_FIFO_UIO_NUM    );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_FIFO_UIO_MAP    );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_ROLLER_NUMBER   );
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_ROLLER_MAX_LEVEL);
-        GOPTIONS_PUT(opts, "PL_to_PS", RX_ROLLER_MIM_LEVEL);
-
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_MODE_ENABLED    );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_MODE_LOOPS      );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_FILE_NAME       );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_STREAM_ID       );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_STREAM_TYPE     );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_SERVER_ADDR     );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_SERVER_PORT     );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_PACKET_WORDS    );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_FIFO_TAG_NAME   );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_FIFO_DEV_ADDR   );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_FIFO_DEV_SIZE   );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_FIFO_UIO_NUM    );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_FIFO_UIO_MAP    );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_ROLLER_NUMBER   );
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_ROLLER_MAX_LEVEL);
-        GOPTIONS_PUT(opts, "PS_to_PL", TX_ROLLER_MIM_LEVEL);
+        GOPTIONS_SET(opts, "PL_to_PS", RX_MODE_ENABLED    );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_MODE_LOOPS      );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_FILE_NAME       );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_STREAM_ID       );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_STREAM_TYPE     );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_CLIENT_ADDR     );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_CLIENT_PORT     );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_PACKET_WORDS    );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_FIFO_TAG_NAME   );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_FIFO_DEV_ADDR   );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_FIFO_DEV_SIZE   );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_FIFO_UIO_NUM    );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_FIFO_UIO_MAP    );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_ROLLER_NUMBER   );
+        GOPTIONS_SET(opts, "PL_to_PS", RX_ROLLER_MAX_LEVEL);
+        GOPTIONS_SET(opts, "PL_to_PS", RX_ROLLER_MIM_LEVEL);
+        
+        GOPTIONS_SET(opts, "PS_to_PL", TX_MODE_ENABLED    );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_MODE_LOOPS      );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_FILE_NAME       );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_STREAM_ID       );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_STREAM_TYPE     );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_SERVER_ADDR     );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_SERVER_PORT     );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_PACKET_WORDS    );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_FIFO_TAG_NAME   );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_FIFO_DEV_ADDR   );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_FIFO_DEV_SIZE   );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_FIFO_UIO_NUM    );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_FIFO_UIO_MAP    );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_ROLLER_NUMBER   );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_ROLLER_MAX_LEVEL);
+        GOPTIONS_SET(opts, "PS_to_PL", TX_ROLLER_MIM_LEVEL);
 
         RETURN_IF(!opts.Read(filename));
 
@@ -106,7 +106,7 @@ namespace Global {
         GOPTIONS_GET(opts, "PL_to_PS", RX_ROLLER_NUMBER   );
         GOPTIONS_GET(opts, "PL_to_PS", RX_ROLLER_MAX_LEVEL);
         GOPTIONS_GET(opts, "PL_to_PS", RX_ROLLER_MIM_LEVEL);
-
+        
         GOPTIONS_GET(opts, "PS_to_PL", TX_MODE_ENABLED    );
         GOPTIONS_GET(opts, "PS_to_PL", TX_MODE_LOOPS      );
         GOPTIONS_GET(opts, "PS_to_PL", TX_FILE_NAME       );

@@ -19,7 +19,7 @@
 
 #define ENABLE_SFINAE
 
-#define GOPTIONS_PUT(__o, __s, __v) __o.Insert<decltype(__v)>(__s "." #__v, __v)
+#define GOPTIONS_SET(__o, __s, __v) __o.Insert<decltype(__v)>(__s "." #__v, __v)
 
 #define GOPTIONS_GET(__o, __s, __v) __v = __o.Get<decltype(__v)>(__s "." #__v)
 
