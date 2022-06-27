@@ -64,7 +64,7 @@ class GFIFOdevice {
         return false;
     }
 
-    bool EnableReader(bool enable = true) {
+    bool SetTxAutoReader(bool enable = true) {
         if (m_is_ready) {
             uint32_t _val{enable ? SET_BIT(31) : 0};
             return m_dev->Write(IP_CONTROL, &_val);
