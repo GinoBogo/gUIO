@@ -147,6 +147,7 @@ static void rx_master_epilogue(bool& _quit, std::any& _args) {
 
     auto _speed{GString::value_scaler((8 * total_bytes) / profile->us_to_sec(), "bps")};
 
+    LOG_FORMAT(info, "[STATS] RX maximum level: %lu", roller->max_used());
     LOG_FORMAT(info, "[STATS] RX roller errors: %lu", roller->errors());
     LOG_FORMAT(info, "[STATS] RX loops counter: %lu", loops_counter);
     LOG_FORMAT(info, "[STATS] RX average speed: %0.3f %s", _speed.first, _speed.second.c_str());
@@ -177,7 +178,7 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
     _error = !device->SetTxPacketWords(TX_PACKET_WORDS);
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
-    _error = !device->EnableReader(true);
+    _error = !device->SetTxAutoReader(true);
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->ClearEvent();
@@ -214,7 +215,7 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
     // #endregion
 
-    // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    // std::this_thread::sleep_for(std::chrono::microseconds(888));
 
     worker_args->total_bytes += src_buf->used_bytes();
     evaluate_stream_reader_start(roller, client);
@@ -239,6 +240,7 @@ static void tx_waiter_epilogue(bool& _quit, std::any& _args) {
 
     auto _speed{GString::value_scaler((8 * total_bytes) / profile->us_to_sec(), "bps")};
 
+    LOG_FORMAT(info, "[STATS] TX maximum level: %lu", roller->max_used());
     LOG_FORMAT(info, "[STATS] TX roller errors: %lu", roller->errors());
     LOG_FORMAT(info, "[STATS] TX loops counter: %lu", loops_counter);
     LOG_FORMAT(info, "[STATS] TX average speed: %0.3f %s", _speed.first, _speed.second.c_str());

@@ -11,6 +11,7 @@
 #define GARRAYROLLER_HPP
 
 #include "GArray.hpp"
+#include "GDefine.hpp"
 #include "GLogger.hpp"
 
 #include <algorithm> // std::min
@@ -65,6 +66,7 @@ template <typename T> class GArrayRoller {
             delete[] m_arrays;
             m_arrays = nullptr;
         }
+
         LOG_FORMAT(debug, "%s destructor", m_tag_name.c_str());
     }
 
@@ -80,6 +82,7 @@ template <typename T> class GArrayRoller {
         }
 
         m_fsm_state = IS_UNCLAIMED;
+        m_max_used  = 0;
         m_errors    = 0;
         m_used      = 0;
         m_iR        = 0;
@@ -230,9 +233,9 @@ template <typename T> class GArrayRoller {
 
         auto _state_changed{false};
 
-        if (old_level != nullptr) {
-            *old_level = m_fsm_level;
-        }
+        DO_IF(m_max_used < m_used, m_max_used = m_used);
+
+        DO_IF(old_level != nullptr, *old_level = m_fsm_level);
 
         if (m_fsm_level != TRANSITION_OFF) {
             auto _current_level{static_cast<int>(m_used)};
@@ -248,9 +251,7 @@ template <typename T> class GArrayRoller {
             }
         }
 
-        if (new_level != nullptr) {
-            *new_level = m_fsm_level;
-        }
+        DO_IF(new_level != nullptr, *new_level = m_fsm_level);
 
         return _state_changed;
     }
@@ -282,6 +283,11 @@ template <typename T> class GArrayRoller {
     }
 
     // WARNING: thread unsafe
+    [[nodiscard]] auto max_used() const {
+        return m_max_used;
+    }
+
+    // WARNING: thread unsafe
     [[nodiscard]] auto errors() const {
         return m_errors;
     }
@@ -305,6 +311,7 @@ template <typename T> class GArrayRoller {
 
     fsm_states_t m_fsm_state;
     fsm_levels_t m_fsm_level;
+    size_t       m_max_used;
     size_t       m_errors;
 
     GArray<T>** m_arrays{nullptr};
