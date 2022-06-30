@@ -10,14 +10,15 @@
 #include "GMessage.hpp"
 
 GMessage::GMessage(const uint32_t max_size) : GBuffer(max_size) {
-    Clear();
+    Reset();
 }
 
-void GMessage::Clear() {
+void GMessage::Reset() {
+    m_is_first       = true;
     m_packet_counter = 0;
     m_missed_counter = 0;
     m_errors_counter = 0;
-    GBuffer::Clear();
+    GBuffer::Reset();
 }
 
 void GMessage::Initialize(packet_t* packet) {
@@ -31,7 +32,12 @@ void GMessage::Initialize(packet_t* packet) {
 }
 
 bool GMessage::Append(packet_t* packet) {
-    auto _packet_counter{packet->head.packet_counter};
+    const auto _packet_counter{packet->head.packet_counter};
+
+    if (m_is_first) {
+        m_is_first       = false;
+        m_packet_counter = _packet_counter;
+    }
 
     if (m_packet_counter != _packet_counter) {
         if (m_packet_counter < _packet_counter) {

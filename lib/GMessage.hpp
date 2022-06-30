@@ -19,7 +19,7 @@ class GMessage : public GBuffer {
 
     GMessage(uint32_t max_size = GMessage::MAX_MESSAGE_SIZE);
 
-    void Clear();
+    void Reset();
     void Initialize(packet_t* packet);
     bool Append(packet_t* packet);
 
@@ -46,6 +46,7 @@ class GMessage : public GBuffer {
     private:
     bool          m_no_error;
     bool          m_is_valid;
+    bool          m_is_first;
     uint32_t      m_packet_counter;
     uint32_t      m_missed_counter;
     uint32_t      m_errors_counter;
