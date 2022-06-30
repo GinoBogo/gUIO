@@ -10,7 +10,12 @@
 #ifndef STREAMS_HPP
 #define STREAMS_HPP
 
+#include "GDecoder.hpp"
+#include "GEncoder.hpp"
 #include "globals.hpp"
+
+extern GDecoder* stream_decoder;
+extern GEncoder* stream_encoder;
 
 bool stream_reader_for_tx_words(g_array_t* array, g_udp_client_t* client, g_udp_server_t* server);
 

@@ -9,8 +9,6 @@
 
 #include "streams.hpp"
 
-#include "GDecoder.hpp"
-#include "GEncoder.hpp"
 #include "GString.hpp"
 
 #include <filesystem> // path
@@ -22,6 +20,9 @@ struct decoder_args_t {
     g_udp_server_t* server       = nullptr;
     bool*           is_large_msg = nullptr;
 };
+
+GDecoder* stream_decoder{nullptr};
+GEncoder* stream_encoder{nullptr};
 
 static bool decode_short_msg(std::any data, std::any args) {
     auto* _packet = std::any_cast<packet_t*>(data);
@@ -98,21 +99,23 @@ bool stream_reader_for_tx_words(g_array_t* array, g_udp_client_t* client, g_udp_
     // SECTION: UDP streaming
 
     if (TX_FILE_NAME.empty()) {
-        static auto decoder{GDecoder(decode_short_msg, decode_large_msg)};
+        if (stream_decoder == nullptr) {
+            stream_decoder = new GDecoder(decode_short_msg, decode_large_msg);
+        }
 
         auto _is_ready_msg = false;
         auto _is_large_msg = false;
         auto _error        = false;
         auto _bytes        = 0UL;
 
-        decoder.SetArgs(decoder_args_t{array, client, server, &_is_large_msg});
+        stream_decoder->SetArgs(decoder_args_t{array, client, server, &_is_large_msg});
 
         while (!_is_ready_msg || !_is_large_msg) {
-            BREAK_IF(_error, _error = !server->Receive(decoder.packet_ptr(), &_bytes));
+            BREAK_IF(_error, _error = !server->Receive(stream_decoder->packet_ptr(), &_bytes));
 
             BREAK_IF(_error, _error = _bytes < GPacket::PACKET_HEAD_SIZE);
 
-            BREAK_IF(_error, _error = !decoder.Process(&_is_ready_msg));
+            BREAK_IF(_error, _error = !stream_decoder->Process(&_is_ready_msg));
         }
 
         return !_error;
@@ -145,17 +148,19 @@ bool stream_writer_for_rx_words(g_array_t* array, g_udp_client_t* client, g_udp_
     // SECTION: UDP streaming
 
     if (RX_FILE_NAME.empty()) {
-        static auto encoder{GEncoder(RX_STREAM_ID)};
+        if (stream_encoder == nullptr) {
+            stream_encoder = new GEncoder(RX_STREAM_ID);
+        }
 
         auto _line  = 0;
         auto _error = false;
 
-        if (encoder.Process(RX_STREAM_TYPE, array->data_bytes(), array->used_bytes())) {
+        if (stream_encoder->Process(RX_STREAM_TYPE, array->data_bytes(), array->used_bytes())) {
             packet_t packet;
 
-            while (!encoder.IsEmpty() && !_error) {
+            while (!stream_encoder->IsEmpty() && !_error) {
                 auto* src_buffer = packet.ptr();
-                auto  src_bytes  = encoder.Pop(src_buffer, sizeof(packet));
+                auto  src_bytes  = stream_encoder->Pop(src_buffer, sizeof(packet));
 
                 _error = src_bytes < 0;
                 GOTO_IF(_error, _exit_label, _line = __LINE__);

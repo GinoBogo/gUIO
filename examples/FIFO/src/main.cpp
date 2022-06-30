@@ -181,7 +181,7 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
     _error = !device->SetTxEventsWords(TX_EVENTS_WORDS);
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
-    _error = !device->SetTxAutoReader(true);
+    _error = !device->SetTxAutoReader(false);
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     _error = !device->ClearEvent();
@@ -295,6 +295,10 @@ _exit_label:
 }
 
 static void tx_master_epilogue(bool& _quit, std::any& _args) {
+    LOG_FORMAT(info, "[STATS] DEC packet count: %u", stream_decoder->message.PacketCounter());
+    LOG_FORMAT(info, "[STATS] DEC errors count: %u", stream_decoder->message.ErrorsCounter());
+    LOG_FORMAT(info, "[STATS] DEC missed count: %u", stream_decoder->message.MissedCounter());
+
     LOG_WRITE(trace, "Thread STOPPED (PS <- STREAM)");
 }
 
