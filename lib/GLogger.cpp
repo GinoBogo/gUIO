@@ -38,6 +38,7 @@ constexpr const char* last_dot(const char* path) {
 }
 
 namespace GLogger {
+    using namespace std;
 
     enum alignment_t { LEFT, CENTER, RIGHT };
 
@@ -74,6 +75,9 @@ namespace GLogger {
         else {
             fout    = std::ofstream(filename);
             is_open = fout.is_open();
+
+            fout << endl;
+            cout << endl;
         }
     }
 
@@ -100,7 +104,6 @@ namespace GLogger {
             delete[] name_log;
         }
 
-        using namespace std;
         cout << _text << endl;
         fout << _text << endl;
 
