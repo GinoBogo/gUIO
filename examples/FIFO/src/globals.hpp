@@ -47,6 +47,7 @@ extern unsigned char  TX_STREAM_TYPE;
 extern std::string    TX_SERVER_ADDR;
 extern unsigned short TX_SERVER_PORT;
 extern unsigned int   TX_PACKET_WORDS;
+extern unsigned int   TX_EVENTS_WORDS;
 extern std::string    TX_FIFO_TAG_NAME;
 extern unsigned int   TX_FIFO_DEV_ADDR;
 extern unsigned int   TX_FIFO_DEV_SIZE;

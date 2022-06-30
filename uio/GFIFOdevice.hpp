@@ -20,9 +20,10 @@ class GFIFOdevice {
     public:
     enum fifo_regs_t {
         IP_CONTROL      = 0,
-        TX_PACKET_WORDS = 1,
+        TX_PACKET_WORDS = 1, // LSB of 32-bit register
         TX_UNUSED_WORDS = 2,
         RX_LENGTH_LEVEL = 2,
+        TX_EVENTS_WORDS = 1, // MSB of 32-bit register
         TX_EVENTS_COUNT = 3,
         RX_PACKET_BYTES = 7,
         TX_BUFFER_BEGIN = 8,
@@ -45,7 +46,9 @@ class GFIFOdevice {
     bool     POKE(uint32_t offset, uint32_t value);
 
     bool     SetTxPacketWords(uint32_t words);
+    bool     SetTxEventsWords(uint32_t words);
     uint32_t GetTxPacketWords(bool& error);
+    uint32_t GetTxEventsWords(bool& error);
     uint32_t GetTxUnusedWords(bool& error);
     uint32_t GetRxLengthLevel(bool& error);
     uint32_t GetRxPacketWords(bool& error);

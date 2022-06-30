@@ -111,10 +111,34 @@ bool GFIFOdevice::SetTxPacketWords(uint32_t words) {
     if (m_is_ready) {
         uint32_t _enable{1};
         uint32_t _forbid{0};
+        uint32_t _reg_value;
 
-        _res = _res || m_dev->Write(IP_CONTROL, &_enable);
-        _res = _res && m_dev->Write(TX_PACKET_WORDS, &words);
+        _res = m_dev->Read(TX_EVENTS_WORDS, &_reg_value);
+
+        _reg_value = (0xFFFF0000 & _reg_value) | (0x0000FFFF & words);
+
+        _res = _res && m_dev->Write(IP_CONTROL, &_enable);
+
+        _res = _res && m_dev->Write(TX_PACKET_WORDS, &_reg_value);
+
         _res = _res && m_dev->Write(IP_CONTROL, &_forbid);
+    }
+
+    return _res;
+}
+
+bool GFIFOdevice::SetTxEventsWords(uint32_t words) {
+    auto _res{false};
+
+    if (m_is_ready) {
+        uint32_t _packet_words;
+        uint32_t _events_words;
+
+        _res = m_dev->Read(TX_PACKET_WORDS, &_packet_words);
+
+        _events_words = (words << 16) | (0x0000FFFF & _packet_words);
+
+        _res = _res && m_dev->Write(TX_EVENTS_WORDS, &_events_words);
     }
 
     return _res;
@@ -126,6 +150,19 @@ uint32_t GFIFOdevice::GetTxPacketWords(bool& error) {
     error = false;
     if (m_is_ready) {
         error = !m_dev->Read(TX_PACKET_WORDS, &_val);
+        _val  = 0x0000FFFF & _val;
+    }
+
+    return _val;
+}
+
+uint32_t GFIFOdevice::GetTxEventsWords(bool& error) {
+    uint32_t _val{0};
+
+    error = false;
+    if (m_is_ready) {
+        error = !m_dev->Read(TX_EVENTS_WORDS, &_val);
+        _val  = (0xFFFF0000 & _val) >> 16;
     }
 
     return _val;
@@ -137,7 +174,7 @@ uint32_t GFIFOdevice::GetTxUnusedWords(bool& error) {
     error = false;
     if (m_is_ready) {
         error = !m_dev->Read(TX_UNUSED_WORDS, &_val);
-        _val  = 0x00001FFF & _val;
+        _val  = 0x0000FFFF & _val;
     }
 
     return _val;

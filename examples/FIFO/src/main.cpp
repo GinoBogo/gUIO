@@ -178,6 +178,9 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
     _error = !device->SetTxPacketWords(TX_PACKET_WORDS);
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
+    _error = !device->SetTxEventsWords(TX_EVENTS_WORDS);
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
+
     _error = !device->SetTxAutoReader(true);
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 

@@ -36,6 +36,7 @@ unsigned char  TX_STREAM_TYPE      = 2;
 std::string    TX_SERVER_ADDR      = "127.0.0.1";
 unsigned short TX_SERVER_PORT      = 30101;
 unsigned int   TX_PACKET_WORDS     = 1024;
+unsigned int   TX_EVENTS_WORDS     = 511;
 std::string    TX_FIFO_TAG_NAME    = "TX";
 unsigned int   TX_FIFO_DEV_ADDR    = 0xA0020000;
 unsigned int   TX_FIFO_DEV_SIZE    = 4096;
@@ -79,6 +80,7 @@ namespace Global {
         GOPTIONS_SET(opts, "PS_to_PL", TX_SERVER_ADDR     );
         GOPTIONS_SET(opts, "PS_to_PL", TX_SERVER_PORT     );
         GOPTIONS_SET(opts, "PS_to_PL", TX_PACKET_WORDS    );
+        GOPTIONS_SET(opts, "PS_to_PL", TX_EVENTS_WORDS    );
         GOPTIONS_SET(opts, "PS_to_PL", TX_FIFO_TAG_NAME   );
         GOPTIONS_SET(opts, "PS_to_PL", TX_FIFO_DEV_ADDR   );
         GOPTIONS_SET(opts, "PS_to_PL", TX_FIFO_DEV_SIZE   );
@@ -115,6 +117,7 @@ namespace Global {
         GOPTIONS_GET(opts, "PS_to_PL", TX_SERVER_ADDR     );
         GOPTIONS_GET(opts, "PS_to_PL", TX_SERVER_PORT     );
         GOPTIONS_GET(opts, "PS_to_PL", TX_PACKET_WORDS    );
+        GOPTIONS_GET(opts, "PS_to_PL", TX_EVENTS_WORDS    );
         GOPTIONS_GET(opts, "PS_to_PL", TX_FIFO_TAG_NAME   );
         GOPTIONS_GET(opts, "PS_to_PL", TX_FIFO_DEV_ADDR   );
         GOPTIONS_GET(opts, "PS_to_PL", TX_FIFO_DEV_SIZE   );
