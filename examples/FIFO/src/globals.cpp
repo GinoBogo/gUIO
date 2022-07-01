@@ -130,24 +130,22 @@ namespace Global {
     }
 
     void reset_all() {
-        if (RX_MODE_ENABLED) {
-            args.rx_device->Reset();
-            args.rx_device->ClearEvent();
-            args.rx_roller->Reset();
-        }
+        DO_BLOCK_IF(RX_MODE_ENABLED, //
+                    args.rx_device->Reset();
+                    args.rx_device->ClearEvent();
+                    args.rx_roller->Reset());
 
-        if (TX_MODE_ENABLED) {
-            args.tx_device->Reset();
-            args.tx_device->ClearEvent();
-            args.tx_roller->Reset();
-        }
+        DO_BLOCK_IF(TX_MODE_ENABLED, //
+                    args.tx_device->Reset();
+                    args.tx_device->ClearEvent();
+                    args.tx_roller->Reset());
     }
 
     void quit_process() {
         RETURN_IF_OR(*args.quit, *args.quit = true);
 
-        DO_IF(RX_MODE_ENABLED, args.rx_device->Close());
+        DO_BLOCK_IF(RX_MODE_ENABLED, args.rx_device->ClearEvent());
 
-        DO_IF(TX_MODE_ENABLED, args.tx_server->Stop(); args.tx_device->Close());
+        DO_BLOCK_IF(TX_MODE_ENABLED, args.tx_server->Stop(); args.tx_device->ClearEvent());
     }
 } // namespace Global
