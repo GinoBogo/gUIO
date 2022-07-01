@@ -102,9 +102,6 @@ static void rx_master_producer(bool& _quit, std::any& _args) {
         _error = !device->WaitThenClearEvent();
         GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
-        _level = device->GetRxLengthLevel(_error);
-        GOTO_IF_BUT(_error || (_level == 0), _exit_label, _line = __LINE__);
-
 _read_label:
         _words = device->GetRxPacketWords(_error);
         GOTO_IF_BUT(_error || (_words <= 7), _exit_label, _line = __LINE__);
@@ -135,15 +132,12 @@ _exit_label:
 
 static void rx_master_epilogue(bool& _quit, std::any& _args) {
     auto* worker_args   = std::any_cast<worker_args_t*>(_args);
-    auto* device        = worker_args->device;
     auto* roller        = worker_args->roller;
     auto* profile       = worker_args->profile;
     auto  loops_counter = worker_args->loops_counter;
     auto  total_bytes   = worker_args->total_bytes;
 
     profile->Stop();
-    device->ClearEvent(); // WARNING: a not served interrupt may happen
-    device->Close();
 
     auto _speed{GString::value_scaler((8 * total_bytes) / profile->us_to_sec(), "bps")};
 
@@ -231,15 +225,12 @@ _exit_label:
 
 static void tx_waiter_epilogue(bool& _quit, std::any& _args) {
     auto* worker_args   = std::any_cast<worker_args_t*>(_args);
-    auto* device        = worker_args->device;
     auto* roller        = worker_args->roller;
     auto* profile       = worker_args->profile;
     auto  loops_counter = worker_args->loops_counter;
     auto  total_bytes   = worker_args->total_bytes;
 
     profile->Stop();
-    device->ClearEvent(); // WARNING: a not served interrupt may happen
-    device->Close();
 
     auto _speed{GString::value_scaler((8 * total_bytes) / profile->us_to_sec(), "bps")};
 
