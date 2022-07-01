@@ -40,13 +40,13 @@ class GWorksCoupler {
 
             std::unique_lock _gate(m_mutex, std::defer_lock);
             while (!quit && !m_close) {
-                DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_total != 0U; }); --m_total);
+                DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_total > 0; }); --m_total);
 _work_label:
                 GOTO_IF(quit || m_close, _exit_label);
 
                 work_func.waiter_calculus(quit, args);
 
-                DO_GUARD(_gate, auto _loop = IF(m_total != 0U, --m_total));
+                DO_GUARD(_gate, DEC_IF(m_total > 0, m_total, _loop));
 
                 GOTO_IF(_loop, _work_label);
             }
@@ -78,7 +78,7 @@ _exit_label:
     }
 
     void Close() {
-        DO_IF(!m_close, m_close = true, m_total = 1U, m_event.notify_one());
+        DO_IF(!m_close, m_close = true, m_total = 1, m_event.notify_one());
     }
 
     void Wait() {
