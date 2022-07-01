@@ -46,7 +46,7 @@ namespace GLogger {
 
     std::ofstream fout{};
 
-    const char* flags[6] = {"DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARNING"};
+    const char* flags[6] = {"debug", "ERROR", "FATAL", "info", "trace", "WARNING"};
 
     // WARNING: unsafe function
     void GetDateTime(char* dst_buffer, size_t dst_buffer_size) {
@@ -67,17 +67,21 @@ namespace GLogger {
         snprintf(dst_buffer, dst_buffer_size, "%04d-%02d-%02d %02d:%02d:%02d.%06d", _Y, _M, _D, _h, _m, _s, _u);
     }
 
+    void initialize_stream(const char* filename) {
+        fout    = std::ofstream(filename);
+        is_open = fout.is_open();
+
+        fout << endl;
+        cout << endl;
+    }
+
     void Initialize(const char* filename) {
         is_open = fout.is_open();
         if (is_open) {
             LOG_WRITE(warning, "File stream already opened");
         }
         else {
-            fout    = std::ofstream(filename);
-            is_open = fout.is_open();
-
-            fout << endl;
-            cout << endl;
+            initialize_stream(filename);
         }
     }
 
@@ -95,11 +99,11 @@ namespace GLogger {
         if (!is_open) {
             auto  name_len = strnlen(_name, 256) + 5;
             auto* name_log = new char[name_len];
+
             strncpy(name_log, _name, name_len);
             strncpy((char*)last_dot(name_log), ".log", name_len);
 
-            fout    = std::ofstream(name_log);
-            is_open = fout.is_open();
+            initialize_stream(name_log);
 
             delete[] name_log;
         }
