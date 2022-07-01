@@ -240,12 +240,12 @@ template <typename T> class GArrayRoller {
         if (m_fsm_level != TRANSITION_OFF) {
             auto _current_level{static_cast<int>(m_used)};
 
-            if (m_max_level >= 1 && _current_level >= m_max_level) {
+            if (_current_level >= m_max_level) {
                 _state_changed = m_fsm_level != MAX_LEVEL_PASSED;
                 m_fsm_level    = MAX_LEVEL_PASSED;
             }
 
-            if (m_min_level >= 0 && _current_level <= m_min_level) {
+            if (_current_level <= m_min_level) {
                 _state_changed = m_fsm_level != MIN_LEVEL_PASSED;
                 m_fsm_level    = MIN_LEVEL_PASSED;
             }
