@@ -26,6 +26,9 @@
 #define CONTINUE_IF_OR_LOG(_condition, _type, _format, ...)       /**/ if (_condition) continue; LOG_FORMAT(_type, _format, __VA_ARGS__)
 #define CONTINUE_IF_OR(_condition, ...)                           /**/ if (_condition) continue; __VA_ARGS__
 #define CONTINUE_IF(_condition, ...)                              /**/ __VA_ARGS__; if (_condition) continue
+#define DEC_IF(_condition, _variable, _result, ...)               /**/ bool _result = _condition; _variable -= (decltype(_variable))_result
+#define DO_BLOCK_IF(_condition, ...)                              /**/ if (_condition) { __VA_ARGS__; }
+#define DO_BLOCK(...)                                             /**/ { __VA_ARGS__; }
 #define DO_GUARD(_unique_lock, ...)                               /**/ _unique_lock.lock(); __VA_ARGS__; _unique_lock.unlock()
 #define DO_IF(_condition, ...)                                    /**/ if (_condition) __VA_ARGS__
 #define DO_LOCK(_unique_lock, ...)                                /**/ _unique_lock.lock(); __VA_ARGS__
@@ -42,6 +45,7 @@
 #define GOTO_IF_OR(_condition, _label, ...)                       /**/ if (_condition) goto _label; __VA_ARGS__
 #define GOTO_IF(_condition, _label, ...)                          /**/ __VA_ARGS__; if (_condition) goto _label
 #define IF(_condition, ...)                                       /**/ _condition; if (_condition) __VA_ARGS__
+#define INC_IF(_condition, _variable, _result, ...)               /**/ bool _result = _condition; _variable += (decltype(_variable))_result
 #define LOG_IF(_condition, _type, _format, ...)                   /**/ if (_condition) LOG_FORMAT(_type, _format, __VA_ARGS__)
 #define RETURN_IF_BUT_LOG(_condition, _type, _format, ...)        /**/ if (_condition) { LOG_FORMAT(_type, _format, __VA_ARGS__); return; }
 #define RETURN_IF_BUT(_condition, ...)                            /**/ if (_condition) { __VA_ARGS__; return; }
