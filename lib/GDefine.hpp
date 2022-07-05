@@ -10,8 +10,6 @@
 #ifndef GDEFINE_HPP
 #define GDEFINE_HPP
 
-#include "GLogger.hpp"
-
 // SECTION: control flow statements
 
 // clang-format off

@@ -13,7 +13,6 @@
 #include "GUdpStreamWriter.hpp"
 
 #include <algorithm>  // min
-#include <cstring>    // strncpy, strnlen, memset, memcpy
 #include <ctime>      // localtime_r, timespec_get
 #include <filesystem> // path
 #include <fstream>    // ifstream, ofstream

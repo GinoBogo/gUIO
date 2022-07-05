@@ -9,53 +9,10 @@
 
 #include "GOptions.hpp"
 
+#include "GString.hpp"
+
 #include <filesystem>
 #include <fstream>
-#include <regex>
-#include <sstream>
-
-auto sanitize = [](std::string& line) {
-    auto remark = false;
-    auto filter = [&remark](char __c) {
-        remark |= (__c == '#') || (__c == ';');
-        return remark || (bool)std::isspace(__c);
-    };
-
-    line.erase(std::remove_if(line.begin(), line.end(), filter), line.end());
-};
-
-auto split = [](const std::string& data, const std::string& regex) {
-    std::vector<std::string> tokens;
-
-    std::regex                 _rgx{regex};
-    std::sregex_token_iterator next{data.begin(), data.end(), _rgx, -1};
-    std::sregex_token_iterator last;
-
-    while (next != last) {
-        tokens.push_back(next->str());
-        ++next;
-    }
-
-    auto filter = [](const std::string& _str) {
-        return _str.empty();
-    };
-    auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
-    tokens.erase(junks, tokens.end());
-    return tokens;
-};
-
-auto join = [](const std::vector<std::string>& data, const std::string& delimiter) {
-    std::stringstream result;
-
-    auto size{data.size() - 1};
-    for (decltype(size) i{0}; i <= size; ++i) {
-        result << data[i];
-        if (i != size) {
-            result << delimiter;
-        }
-    }
-    return result.str();
-};
 
 template <typename T, int B> auto expand_and_check(const std::string& value, T& type) {
     if (std::is_signed_v<T>) {
@@ -380,15 +337,15 @@ GOptions::Sections GOptions::ToSections() {
 
     auto pairs = ToPairs();
     for (const auto& pair : pairs) {
-        auto tokens      = split(pair.label, "R([. \t])");
+        auto tokens      = GString::split(pair.label, "R([. \t])");
         auto tokens_size = tokens.size();
         if (tokens_size >= 1U) {
             auto                     index(static_cast<ssize_t>(tokens_size - 1));
             std::vector<std::string> upper(tokens.begin(), tokens.begin() + index);
             std::vector<std::string> lower(tokens.begin() + index, tokens.end());
 
-            const auto title = join(upper, ".");
-            const auto label = join(lower, ".");
+            const auto title = GString::join(upper, ".");
+            const auto label = GString::join(lower, ".");
             const auto _pair = Pair(label, pair.value);
 
             auto filter = [title](const Section& _sec) {
@@ -414,12 +371,12 @@ static auto populate_sections(const std::string& filename, GOptions::Sections& s
     std::string   line;
 
     while (std::getline(stream, line)) {
-        sanitize(line);
+        GString::sanitize(line);
 
         auto check_1{line.find('[')};
         auto check_2{line.rfind(']')};
         if (check_1 < check_2) {
-            auto tokens = split(line, "[\\[\\]]");
+            auto tokens = GString::split(line, "[\\[\\]]");
             auto title  = tokens[0];
 
             auto filter = [title](const GOptions::Section& _sec) {
@@ -432,7 +389,7 @@ static auto populate_sections(const std::string& filename, GOptions::Sections& s
             }
         }
         else {
-            auto tokens = split(line, "[=\"]");
+            auto tokens = GString::split(line, "[=\"]");
             switch (tokens.size()) {
                 case 1: {
                     auto pair = GOptions::Pair(tokens[0], "");
