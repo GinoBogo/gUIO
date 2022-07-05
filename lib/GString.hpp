@@ -83,6 +83,16 @@ class GString {
         return std::strtoul(_str.c_str(), nullptr, _base);
     }
 
+    static auto sanitize(std::string& line) {
+        auto remark = false;
+        auto filter = [&remark](char __c) {
+            remark |= (__c == '#') || (__c == ';');
+            return remark || (bool)std::isspace(__c);
+        };
+
+        line.erase(std::remove_if(line.begin(), line.end(), filter), line.end());
+    }
+
     static auto split(const std::string& _str, const std::string& regex) {
         std::vector<std::string> tokens;
 
@@ -102,6 +112,19 @@ class GString {
         tokens.erase(junks, tokens.end());
         return tokens;
     }
+
+    static auto join(const std::vector<std::string>& data, const std::string& delimiter) {
+        std::stringstream result;
+
+        auto size{data.size() - 1};
+        for (decltype(size) i{0}; i <= size; ++i) {
+            result << data[i];
+            if (i != size) {
+                result << delimiter;
+            }
+        }
+        return result.str();
+    };
 
     template <typename T = double> static std::pair<T, std::string> value_scaler(T value, const std::string& unit) {
         auto _modulus{std::abs(value)};
