@@ -11,6 +11,7 @@
 #define GLOGGER_HPP
 
 #include <cstddef> // size_t
+#include <cstdint> // uint16_t
 #include <cstdio>  // snprintf
 
 #define LOG_MSG_MAXLEN                256
@@ -22,7 +23,7 @@ namespace GLogger {
 
     enum type_t { debug, error, fatal, info, trace, warning };
 
-    void Initialize(const char* filename);
+    void Initialize(const char* filename, const char* udp_server_addr = nullptr, uint16_t udp_server_port = 0);
 
     void Write(type_t type, const char* file, size_t line, const char* message);
 

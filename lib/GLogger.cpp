@@ -9,11 +9,14 @@
 
 #include "GLogger.hpp"
 
+#include "GString.hpp"
+#include "GUdpStreamWriter.hpp"
+
 #include <algorithm>  // min
 #include <cstring>    // strncpy, strnlen, memset, memcpy
 #include <ctime>      // localtime_r, timespec_get
 #include <filesystem> // path
-#include <fstream>    // ofstream
+#include <fstream>    // ifstream, ofstream
 #include <iostream>   // cout
 
 constexpr const char* file_name(const char* path) {
@@ -40,13 +43,15 @@ constexpr const char* last_dot(const char* path) {
 namespace GLogger {
     using namespace std;
 
-    enum alignment_t { LEFT, CENTER, RIGHT };
-
-    bool is_open{false};
+    GUdpStreamWriter sout{};
 
     std::ofstream fout{};
 
-    const char* flags[6] = {"debug", "ERROR", "FATAL", "info", "trace", "WARNING"};
+    bool is_open{false};
+
+    const char* flags[6] = {"DEBUG", "*ERROR", "*FATAL", "INFO", "TRACE", "*WARNING"};
+
+    enum alignment_t { LEFT, CENTER, RIGHT };
 
     // WARNING: unsafe function
     void GetDateTime(char* dst_buffer, size_t dst_buffer_size) {
@@ -67,21 +72,64 @@ namespace GLogger {
         snprintf(dst_buffer, dst_buffer_size, "%04d-%02d-%02d %02d:%02d:%02d.%06d", _Y, _M, _D, _h, _m, _s, _u);
     }
 
-    void initialize_stream(const char* filename) {
-        fout    = std::ofstream(filename);
+    void initialize_stream(const char* filename, const char* udp_server_addr = nullptr, uint16_t udp_server_port = 0) {
+        std::cout.sync_with_stdio(false); // INFO: on some platforms, stdout flushes on '\n'
+
+        std::string _addr;
+        uint16_t    _port;
+
+        if (udp_server_addr != nullptr) {
+            _addr = udp_server_addr;
+            _port = udp_server_port;
+        }
+        else {
+            auto _fs = ifstream(std::string(filename) + "_cfg");
+            if (_fs.is_open()) {
+                std::string _line;
+
+                while (std::getline(_fs, _line)) {
+                    GString::sanitize(_line);
+
+                    if (_line.find("udp_server_addr") != std::string::npos) {
+                        auto _pair = GString::split(_line, "[=]");
+                        if (_pair.size() > 1) {
+                            _addr = _pair[1];
+                            continue;
+                        }
+                    }
+
+                    if (_line.find("udp_server_port") != std::string::npos) {
+                        auto _pair = GString::split(_line, "[=]");
+                        if (_pair.size() > 1) {
+                            _port = GString::strtous(_pair[1]);
+                            continue;
+                        }
+                    }
+                }
+                _fs.close();
+            }
+        }
+
+        sout.open(_addr, _port);
+        fout.open(filename);
         is_open = fout.is_open();
 
-        fout << endl;
-        cout << endl;
+        sout << '\n';
+        fout << '\n'; // NOTE: std::endl puts '\n' in the stream, then flushes
+        cout << '\n';
+
+        sout.flush();
+        fout.flush();
+        cout.flush();
     }
 
-    void Initialize(const char* filename) {
+    void Initialize(const char* filename, const char* udp_server_addr, uint16_t udp_server_port) {
         is_open = fout.is_open();
         if (is_open) {
             LOG_WRITE(warning, "File stream already opened");
         }
         else {
-            initialize_stream(filename);
+            initialize_stream(filename, udp_server_addr, udp_server_port);
         }
     }
 
@@ -94,7 +142,7 @@ namespace GLogger {
         const auto* _flag{flags[type]};
         const auto* _name{file_name(file)};
 
-        snprintf(_text + 26, sizeof(_text) - 26, " | %8s | %24s (%04lu) | %s", _flag, _name, line, message);
+        snprintf(_text + 26, sizeof(_text) - 26, " | %9s | %24s (%04lu) | %s", _flag, _name, line, message);
 
         if (!is_open) {
             auto  name_len = strnlen(_name, 256) + 5;
@@ -108,11 +156,13 @@ namespace GLogger {
             delete[] name_log;
         }
 
-        cout << _text << endl;
-        fout << _text << endl;
+        sout << _text << '\n';
+        fout << _text << '\n';
+        cout << _text << '\n';
 
-        cout.flush();
+        sout.flush();
         fout.flush();
+        cout.flush();
     }
 
     // WARNING: unsafe function

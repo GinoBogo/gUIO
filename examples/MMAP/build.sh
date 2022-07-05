@@ -20,3 +20,5 @@ else
 fi
 
 ninja
+
+cp $path/cfg/*.* $path/build/bin
