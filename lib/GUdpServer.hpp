@@ -15,8 +15,8 @@
 
 class GUdpServer {
     public:
-    // Maximum UDP datagram size: 65507 = (2^16 - 1) -20 (UDP header) - 8 (IPv4 header)
-    static const size_t MAX_DATAGRAM_SIZE = 65507;
+    // Maximum UDP datagram size: 65507 = (2^16 - 1) - 20 (UDP header) - 8 (IPv4 header)
+    static const size_t MAX_DATAGRAM_SIZE = ((2 << 15) - 1) - 20 - 8;
 
     GUdpServer(const char* local_addr, uint16_t local_port, const char* tag_name = nullptr);
 
