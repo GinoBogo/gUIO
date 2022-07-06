@@ -54,8 +54,8 @@ class GUdpStreamWriter : public std::streambuf {
         m_length = length > 0 ? length : MAX_DATAGRAM_SIZE;
         m_buffer = new (std::nothrow) char[m_length];
 
-        struct addrinfo  hints;
-        struct addrinfo* res;
+        struct addrinfo  hints {};
+        struct addrinfo* res{};
 
         memset(&hints, 0, sizeof(hints));
         hints.ai_family   = AF_INET;
@@ -85,7 +85,9 @@ class GUdpStreamWriter : public std::streambuf {
         m_is_open = true;
 
 free_and_exit:
-        freeaddrinfo(res);
+        if (res != nullptr) {
+            freeaddrinfo(res);
+        }
         return m_is_open;
     }
 

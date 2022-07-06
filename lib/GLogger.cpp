@@ -74,8 +74,8 @@ namespace GLogger {
     void initialize_stream(const char* filename, const char* udp_server_addr = nullptr, uint16_t udp_server_port = 0) {
         std::cout.sync_with_stdio(false); // INFO: on some platforms, stdout flushes on '\n'
 
-        std::string _addr;
-        uint16_t    _port;
+        std::string _addr{};
+        uint16_t    _port{};
 
         if (udp_server_addr != nullptr) {
             _addr = udp_server_addr;
