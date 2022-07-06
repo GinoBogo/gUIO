@@ -13,6 +13,7 @@
 #include <cstdint> // uint8_t, uint16_t, uint32_t
 #include <cstdlib> // strtoul
 #include <regex>   // regex
+#include <sstream> // stringstream∏
 #include <string>  // string
 #include <utility> // pair
 #include <vector>  // vector
