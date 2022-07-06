@@ -10,6 +10,7 @@
 #include "GLogger.hpp"
 #include "GMAPdevice.hpp"
 #include "GRegisters.hpp"
+#include "globals.hpp"
 
 #include <cstring>    // memset
 #include <filesystem> // path
@@ -17,12 +18,15 @@
 int main(int argc, char* argv[]) {
     auto exec     = std::filesystem::path(argv[0]);
     auto exec_log = exec.stem().concat(".log");
+    auto exec_cfg = exec.stem().concat(".cfg");
 
     GLogger::Initialize(exec_log.c_str());
     LOG_FORMAT(trace, "Process STARTED (%s)", exec.stem().c_str());
 
-    auto ps2pl_regs{GMAPdevice(0xa0001000, 4096)};
-    auto pl2ps_regs{GMAPdevice(0xa0010000, 4096)};
+    Global::load_options(exec_cfg.c_str());
+
+    auto ps2pl_regs{GMAPdevice(PS2PL_REGS_DEV_ADDR, PS2PL_REGS_DEV_SIZE)};
+    auto pl2ps_regs{GMAPdevice(PL2PS_REGS_DEV_ADDR, PL2PS_REGS_DEV_SIZE)};
 
     uint32_t data[32];
     auto     _set = std::vector<uint8_t>({0, 2, 7, 8});

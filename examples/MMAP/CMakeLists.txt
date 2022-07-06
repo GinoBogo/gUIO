@@ -52,6 +52,7 @@ add_compile_options(
     -Wall
     -Wextra
     -Wfloat-equal
+    -Wno-gnu-zero-variadic-macro-arguments
     -Wno-unused-parameter
     -Wno-unused-result
     -Wno-unused-variable
@@ -66,6 +67,7 @@ endif()
 
 add_library(gLIB OBJECT
     "../../lib/GLogger.cpp"
+    "../../lib/GOptions.cpp"
 )
 
 add_library(gUIO OBJECT
@@ -80,6 +82,7 @@ include_directories(
 )
 
 add_executable(_mmap
+    "./src/globals.cpp"
     "./src/main.cpp"
 )
 target_link_libraries(_mmap pthread gLIB gUIO)
