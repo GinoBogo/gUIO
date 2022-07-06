@@ -91,7 +91,7 @@ ad9361_init_parameters_t init_params = {
         (uInt32)800000000, // uint32_t rx_path_clock_frequencies[6]
         (uInt32)400000000, //
         (uInt32)200000000, //
-        (uInt32)10000000,  //
+        (uInt32)100000000, //
         (uInt32)50000000,  //
         (uInt32)50000000   //
     },
@@ -99,7 +99,7 @@ ad9361_init_parameters_t init_params = {
         (uInt32)800000000, // uint32_t tx_path_clock_frequencies[6]
         (uInt32)400000000, //
         (uInt32)200000000, //
-        (uInt32)10000000,  //
+        (uInt32)100000000, //
         (uInt32)50000000,  //
         (uInt32)50000000   //
     },
