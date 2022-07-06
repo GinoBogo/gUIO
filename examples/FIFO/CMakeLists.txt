@@ -51,6 +51,7 @@ add_compile_options(
     -pedantic
     -Wall
     -Wextra
+    -Wno-gnu-zero-variadic-macro-arguments
     -Wno-unused-parameter
     -Wno-unused-result
     -Wno-unused-variable
