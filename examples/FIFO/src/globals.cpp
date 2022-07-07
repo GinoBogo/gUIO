@@ -51,8 +51,8 @@ int            TX_ROLLER_MIM_LEVEL = -1;
 namespace Global {
     global_args_t args;
 
-    void load_options(const char* filename) {
-        auto opts = GOptions();
+    void load_options(const std::string& filename) {
+        GOptions opts;
 
         // clang-format off
         GOPTIONS_SET(opts, "PL_to_PS", RX_MODE_ENABLED    );

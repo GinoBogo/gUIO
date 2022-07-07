@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     GLogger::Initialize(exec_log.c_str());
     LOG_FORMAT(trace, "Process STARTED (%s)", exec.stem().c_str());
 
-    Global::load_options(exec_cfg.c_str());
+    Global::load_options(exec_cfg);
 
     auto ps2pl_regs{GMAPdevice(PS2PL_REGS_DEV_ADDR, PS2PL_REGS_DEV_SIZE)};
     auto pl2ps_regs{GMAPdevice(PL2PS_REGS_DEV_ADDR, PL2PS_REGS_DEV_SIZE)};

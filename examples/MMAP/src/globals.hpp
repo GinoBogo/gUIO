@@ -25,7 +25,7 @@ extern unsigned int PS2PL_REGS_DEV_SIZE;
 // ============================================================================
 
 namespace Global {
-    void load_options(const char* filename);
+    void load_options(const std::string& filename);
 
 } // namespace Global
 

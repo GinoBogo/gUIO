@@ -11,20 +11,20 @@
 
 // SECTION: PL_to_PS global variables
 std::string  PL2PS_REGS_TAG_NAME = "PL2PS";
-unsigned int PL2PS_REGS_DEV_ADDR = 0xA0010000;
-unsigned int PL2PS_REGS_DEV_SIZE = 4096;
+unsigned int PL2PS_REGS_DEV_ADDR = 0x00010000;
+unsigned int PL2PS_REGS_DEV_SIZE = 512;
 
 // SECTION: PS_to_PL global variables
 std::string  PS2PL_REGS_TAG_NAME = "PS2PL";
-unsigned int PS2PL_REGS_DEV_ADDR = 0xA0020000;
-unsigned int PS2PL_REGS_DEV_SIZE = 4096;
+unsigned int PS2PL_REGS_DEV_ADDR = 0x00020000;
+unsigned int PS2PL_REGS_DEV_SIZE = 512;
 
 // ============================================================================
 
 namespace Global {
 
-    void load_options(const char* filename) {
-        auto opts = GOptions();
+    void load_options(const std::string& filename) {
+        GOptions opts;
 
         // clang-format off
         GOPTIONS_SET(opts, "PL_to_PS", PL2PS_REGS_TAG_NAME);
