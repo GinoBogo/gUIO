@@ -16,11 +16,13 @@
 extern std::string  PL2PS_REGS_TAG_NAME;
 extern unsigned int PL2PS_REGS_DEV_ADDR;
 extern unsigned int PL2PS_REGS_DEV_SIZE;
+extern unsigned int PL2PS_REGS_DEV_NUMB;
 
 // SECTION: PS_to_PL global variables
 extern std::string  PS2PL_REGS_TAG_NAME;
 extern unsigned int PS2PL_REGS_DEV_ADDR;
 extern unsigned int PS2PL_REGS_DEV_SIZE;
+extern unsigned int PS2PL_REGS_DEV_NUMB;
 
 // ============================================================================
 
