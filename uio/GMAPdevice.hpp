@@ -27,9 +27,17 @@ struct map_device_t {
 
 class GMAPdevice {
     public:
+    typedef enum {
+        READ_WRITE,
+        READ_ONLY,
+        WRITE_ONLY
+
+    } reg_access_t;
+
     typedef struct {
-        uint32_t offset;
-        uint32_t value;
+        reg_access_t access{};
+        uint32_t     offset{};
+        uint32_t     value{};
 
     } reg_pair_t;
 
@@ -46,6 +54,9 @@ class GMAPdevice {
         if (!list.empty()) {
             auto* _virt_addr{static_cast<uint32_t*>(m_dev.virt_addr)};
             for (auto it{list.begin()}; it != list.end(); ++it) {
+                if (it->access == WRITE_ONLY) {
+                    continue;
+                }
                 if (it->offset <= m_dev.size / sizeof(uint32_t)) {
                     it->value = _virt_addr[it->offset];
                 }
@@ -59,6 +70,9 @@ class GMAPdevice {
         if (!list.empty()) {
             auto* _virt_addr{static_cast<uint32_t*>(m_dev.virt_addr)};
             for (auto it{list.cbegin()}; it != list.cend(); ++it) {
+                if (it->access == READ_ONLY) {
+                    continue;
+                }
                 if (it->offset <= m_dev.size / sizeof(uint32_t)) {
                     _virt_addr[it->offset] = it->value;
                 }
