@@ -215,6 +215,7 @@ void evaluate_stream_reader_start(g_array_roller_t* roller, g_udp_client_t* clie
 
     static packet_head_t packet{packet_type_t::signal_start_flow, 0, 0, 0, 0, 0, 0, 1, 1};
     client->Send(&packet, GPacket::PACKET_HEAD_SIZE);
+    packet.packet_counter++;
     LOG_FORMAT(info, "START_FLOW message sent (%s)", __func__);
 }
 
@@ -224,5 +225,6 @@ void evaluate_stream_reader_stop(g_array_roller_t* roller, g_udp_client_t* clien
 
     static packet_head_t packet{packet_type_t::signal_stop_flow, 0, 0, 0, 0, 0, 0, 1, 1};
     client->Send(&packet, GPacket::PACKET_HEAD_SIZE);
+    packet.packet_counter++;
     LOG_FORMAT(info, "STOP_FLOW message sent (%s)", __func__);
 }
