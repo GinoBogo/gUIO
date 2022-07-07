@@ -94,24 +94,41 @@ class GString {
         line.erase(std::remove_if(line.begin(), line.end(), filter), line.end());
     }
 
+    static auto sanitize(std::vector<std::string>& items) {
+        for (auto _it{items.begin()}; _it != items.end(); ++_it) {
+            sanitize(*_it);
+        }
+
+        auto remark{false};
+
+        auto filter = [&remark](std::string& __s) {
+            if (!remark) {
+                remark = __s.empty();
+            }
+            return remark;
+        };
+        auto junks{std::remove_if(items.begin(), items.end(), filter)};
+        items.erase(junks, items.end());
+    }
+
     static auto split(const std::string& _str, const std::string& regex) {
-        std::vector<std::string> tokens;
+        std::vector<std::string> items;
 
         std::regex                 _rgx{regex};
         std::sregex_token_iterator next{_str.begin(), _str.end(), _rgx, -1};
         std::sregex_token_iterator last;
 
         while (next != last) {
-            tokens.push_back(next->str());
+            items.push_back(next->str());
             ++next;
         }
 
         auto filter = [](const std::string& __s) {
             return __s.empty();
         };
-        auto junks{std::remove_if(tokens.begin(), tokens.end(), filter)};
-        tokens.erase(junks, tokens.end());
-        return tokens;
+        auto junks{std::remove_if(items.begin(), items.end(), filter)};
+        items.erase(junks, items.end());
+        return items;
     }
 
     static auto join(const std::vector<std::string>& data, const std::string& delimiter) {
