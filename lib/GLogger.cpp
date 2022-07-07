@@ -139,15 +139,13 @@ namespace GLogger {
         GetDateTime(_text, sizeof(_text));
 
         const auto* _flag{flags[type]};
-        const auto* _name{file_name(file)};
-
-        snprintf(_text + 26, sizeof(_text) - 26, " | %9s | %24s (%04lu) | %s", _flag, _name, line, message);
+        snprintf(_text + 26, sizeof(_text) - 26, " | %9s | %24s (%04lu) | %s", _flag, file, line, message);
 
         if (!is_open) {
-            auto  name_len = strnlen(_name, 256) + 5;
+            auto  name_len = strnlen(file, 256) + 5;
             auto* name_log = new char[name_len];
 
-            strncpy(name_log, _name, name_len);
+            strncpy(name_log, file, name_len);
             strncpy((char*)last_dot(name_log), ".log", name_len);
 
             initialize_stream(name_log);

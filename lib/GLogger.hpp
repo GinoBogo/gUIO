@@ -14,8 +14,10 @@
 #include <cstdint> // uint16_t
 #include <cstdio>  // snprintf
 
+#define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
+
 #define LOG_MSG_MAXLEN                256
-#define LOG_TYPE(type)                GLogger::type, __FILE__, __LINE__
+#define LOG_TYPE(type)                GLogger::type, __FILENAME__, __LINE__
 #define LOG_WRITE(type, message)      GLogger::Write(LOG_TYPE(type), message)
 #define LOG_FORMAT(type, format, ...) GLogger::Format(LOG_TYPE(type), format, __VA_ARGS__)
 
