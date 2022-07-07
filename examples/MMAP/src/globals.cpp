@@ -73,27 +73,6 @@ namespace Global {
         return GMAPdevice::READ_WRITE;
     }
 
-    static void sanitize_items(std::vector<std::string>& items) {
-        std::vector<std::string> _items;
-
-        for (auto _it = items.begin(); _it != items.end(); _it++) {
-            GString::sanitize(*_it);
-        }
-
-        auto _remove{false};
-
-        for (auto _it = items.begin(); _it != items.end(); _it++) {
-            if (!_remove) {
-                _remove = _it->size() == 0;
-            }
-            if (!_remove) {
-                _items.push_back(*_it);
-            }
-        }
-
-        items = _items;
-    }
-
     GMAPdevice::reg_list_t load_registers(const std::string& filename) {
         GMAPdevice::reg_list_t reg_list;
 
@@ -107,7 +86,7 @@ namespace Global {
 
                 auto items{GString::split(_line, "[ \\t]")};
 
-                sanitize_items(items);
+                GString::sanitize(items);
 
                 switch (items.size()) {
                     case 2: {
