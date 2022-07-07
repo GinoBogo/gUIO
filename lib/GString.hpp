@@ -87,7 +87,7 @@ class GString {
     static auto sanitize(std::string& line) {
         auto remark = false;
         auto filter = [&remark](char __c) {
-            remark |= (__c == '#') || (__c == ';');
+            remark |= (__c == '!') || (__c == '#') || (__c == ';');
             return remark || (bool)std::isspace(__c);
         };
 
