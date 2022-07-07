@@ -95,7 +95,7 @@ typedef struct global_args_t {
 namespace Global {
     extern global_args_t args;
 
-    void load_options(const char* filename);
+    void load_options(const std::string& filename);
 
     void reset_all();
 

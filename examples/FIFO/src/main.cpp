@@ -305,7 +305,7 @@ int main(int argc, char* argv[]) {
     GLogger::Initialize(exec_log.c_str());
     LOG_FORMAT(trace, "Process STARTED (%s)", exec.stem().c_str());
 
-    Global::load_options(exec_cfg.c_str());
+    Global::load_options(exec_cfg);
 
     // SECTION: functions handles
 
