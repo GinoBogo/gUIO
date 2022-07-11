@@ -1,6 +1,6 @@
 
 #include <benchmark/benchmark.h>
-#include <cstring> // strcpy
+#include <cstring> // strncpy
 #include <ctime>   // clock_gettime, localtime_r
 
 void GetDateTime_1(char* dst_buffer, size_t dst_buffer_size) {
@@ -62,7 +62,7 @@ void GetDateTime_2(char* dst_buffer, size_t dst_buffer_size) {
     intrcpy(_s, 18);
     intrcpy(_u, 25);
 
-    strcpy(dst_buffer, timestamp);
+    strncpy(dst_buffer, timestamp, dst_buffer_size);
 }
 
 static void BM_date_time_snprintf(benchmark::State& state) {
