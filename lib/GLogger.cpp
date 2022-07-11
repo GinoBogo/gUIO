@@ -53,7 +53,7 @@ namespace GLogger {
     enum alignment_t { LEFT, CENTER, RIGHT };
 
     // WARNING: unsafe function
-    void GetDateTime(char* dst_buffer, size_t dst_buffer_size) {
+    void GetDateTime(char* dst_buffer) {
         struct timespec _ts;
         clock_gettime(CLOCK_REALTIME, &_ts);
 
@@ -68,33 +68,13 @@ namespace GLogger {
         auto _s{_tm.tm_sec};
         auto _u{static_cast<int>(_ts.tv_nsec / 1000)};
 
-        //                0         1         2
-        //                01234567890123456789012345
-        char timestamp[]{"0000-00-00 00:00:00.000000"};
-
-        auto intrcpy = [&timestamp](int __n, int __r) {
-            while (true) {
-                auto _div = __n / 10;
-                auto _rem = __n % 10;
-
-                if (!_div && !_rem) {
-                    break;
-                }
-                timestamp[__r--] = '0' + _rem;
-
-                __n = _div;
-            }
-        };
-
-        intrcpy(_Y, 3);
-        intrcpy(_M, 6);
-        intrcpy(_D, 9);
-        intrcpy(_h, 12);
-        intrcpy(_m, 15);
-        intrcpy(_s, 18);
-        intrcpy(_u, 25);
-
-        strncpy(dst_buffer, timestamp, dst_buffer_size);
+        GString::intrcpy(dst_buffer, _Y, 3);
+        GString::intrcpy(dst_buffer, _M, 6);
+        GString::intrcpy(dst_buffer, _D, 9);
+        GString::intrcpy(dst_buffer, _h, 12);
+        GString::intrcpy(dst_buffer, _m, 15);
+        GString::intrcpy(dst_buffer, _s, 18);
+        GString::intrcpy(dst_buffer, _u, 25);
     }
 
     void initialize_stream(const char* filename, const char* udp_server_addr = nullptr, uint16_t udp_server_port = 0) {
@@ -160,12 +140,19 @@ namespace GLogger {
 
     // WARNING: unsafe function
     void Write(type_t type, const char* file, size_t line, const char* message) {
-        char _text[LOG_MSG_MAXLEN];
+        //                          0         1         2         3         4         5         6         7
+        //                          0123456789012345678901234567890123456789012345678901234567890123456789012345
+        char _text[LOG_MSG_MAXLEN]{"0000-00-00 00:00:00.000000 |           |                          (0000) | "};
 
-        GetDateTime(_text, sizeof(_text));
+        GetDateTime(_text);
 
-        const auto* _flag{flags[type]};
-        snprintf(_text + 26, sizeof(_text) - 26, " | %9s | %24s (%04lu) | %s", _flag, file, line, message);
+        GString::strrcpy(_text, flags[type], 37);
+
+        GString::strrcpy(_text, file, 64);
+
+        GString::intrcpy(_text, line, 70);
+
+        strncpy(_text + 75, message, sizeof(_text) - 76);
 
         if (!is_open) {
             auto  name_len = strnlen(file, 256) + 5;
