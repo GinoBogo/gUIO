@@ -84,6 +84,29 @@ class GString {
         return std::strtoul(_str.c_str(), nullptr, _base);
     }
 
+    static auto intrcpy(char* _dst, int __n, int __r) {
+        while (true) {
+            auto _div = __n / 10;
+            auto _rem = __n % 10;
+
+            if (!_div && !_rem) {
+                break;
+            }
+            _dst[__r--] = '0' + _rem;
+
+            __n = _div;
+        }
+    }
+
+    static auto strrcpy(char* _dst, const char* _src, int __r) {
+        auto __n = (int)strlen(_src);
+        auto __s = __r - __n + 1;
+
+        for (auto i{0}; i < __n; ++i) {
+            _dst[__s + i] = _src[i];
+        }
+    }
+
     static auto sanitize(std::string& line) {
         auto remark = false;
         auto filter = [&remark](char __c) {
