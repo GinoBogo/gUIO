@@ -65,11 +65,11 @@ if(COMPILE_LANGUAGE:CXX)
 endif()
 
 add_library(gLIB OBJECT
-    "../../lib/GLogger.cpp"
+    "../lib/GLogger.cpp"
 )
 
 include_directories(
-    "../../lib"
+    "../lib"
 )
 
 add_executable(BM_date_time
