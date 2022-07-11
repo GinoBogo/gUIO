@@ -7,7 +7,7 @@ Clear-Host
 
 #Start-Sleep -Milliseconds 800
 
-Set-Location ./examples/FIFO
+Set-Location ./benchmark
 
 New-Item -ItemType Directory -Force -Path ./build
 

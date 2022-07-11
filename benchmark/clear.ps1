@@ -7,4 +7,4 @@ function DeleteItem {
     if ((Test-Path $name) -eq $true ) { Remove-Item $name -Recurse }
 }
 
-DeleteItem("./examples/FIFO/build")
+DeleteItem("./benchmark/build")
