@@ -1,4 +1,6 @@
 
+#include "GString.hpp"
+
 #include <benchmark/benchmark.h>
 #include <ctime> // clock_gettime, localtime_r
 
@@ -35,27 +37,13 @@ void GetDateTime_2(char* dst_buffer) {
     auto _s{_tm.tm_sec};
     auto _u{static_cast<int>(_ts.tv_nsec / 1000)};
 
-    auto intrcpy = [](char* _dst, int __n, int __r) {
-        while (true) {
-            auto _div = __n / 10;
-            auto _rem = __n % 10;
-
-            if (!_div && !_rem) {
-                break;
-            }
-            _dst[__r--] = '0' + _rem;
-
-            __n = _div;
-        }
-    };
-
-    intrcpy(dst_buffer, _Y, 3);
-    intrcpy(dst_buffer, _M, 6);
-    intrcpy(dst_buffer, _D, 9);
-    intrcpy(dst_buffer, _h, 12);
-    intrcpy(dst_buffer, _m, 15);
-    intrcpy(dst_buffer, _s, 18);
-    intrcpy(dst_buffer, _u, 25);
+    GString::intrcpy(dst_buffer, _Y, 3);
+    GString::intrcpy(dst_buffer, _M, 6);
+    GString::intrcpy(dst_buffer, _D, 9);
+    GString::intrcpy(dst_buffer, _h, 12);
+    GString::intrcpy(dst_buffer, _m, 15);
+    GString::intrcpy(dst_buffer, _s, 18);
+    GString::intrcpy(dst_buffer, _u, 25);
 }
 
 static void BM_date_time_snprintf(benchmark::State& state) {
