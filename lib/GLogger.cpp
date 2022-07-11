@@ -68,7 +68,33 @@ namespace GLogger {
         auto _s{_tm.tm_sec};
         auto _u{static_cast<int>(_ts.tv_nsec / 1000)};
 
-        snprintf(dst_buffer, dst_buffer_size, "%04d-%02d-%02d %02d:%02d:%02d.%06d", _Y, _M, _D, _h, _m, _s, _u);
+        //                0         1         2
+        //                01234567890123456789012345
+        char timestamp[]{"0000-00-00 00:00:00.000000"};
+
+        auto intrcpy = [&timestamp](int __n, int __r) {
+            while (true) {
+                auto _div = __n / 10;
+                auto _rem = __n % 10;
+
+                if (!_div && !_rem) {
+                    break;
+                }
+                timestamp[__r--] = '0' + _rem;
+
+                __n = _div;
+            }
+        };
+
+        intrcpy(_Y, 3);
+        intrcpy(_M, 6);
+        intrcpy(_D, 9);
+        intrcpy(_h, 12);
+        intrcpy(_m, 15);
+        intrcpy(_s, 18);
+        intrcpy(_u, 25);
+
+        strncpy(dst_buffer, timestamp, dst_buffer_size);
     }
 
     void initialize_stream(const char* filename, const char* udp_server_addr = nullptr, uint16_t udp_server_port = 0) {
