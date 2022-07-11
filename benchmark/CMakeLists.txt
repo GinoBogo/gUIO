@@ -74,7 +74,7 @@ include_directories(
 
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
     add_library(benchmark STATIC IMPORTED)
-    set_target_properties(benchmark PROPERTY IMPORTED_LOCATION "/usr/local/lib/libbenchmark.a")
+    set_target_properties(benchmark PROPERTIES IMPORTED_LOCATION "/usr/local/lib/libbenchmark.a")
 endif()
 
 add_executable(BM_date_time
