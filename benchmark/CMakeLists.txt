@@ -72,7 +72,7 @@ include_directories(
     "../lib"
 )
 
-if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+if(CMAKE_HOST_SYSTEM MATCHES "CYGWIN.*")
     add_library(benchmark STATIC IMPORTED)
     set_target_properties(benchmark PROPERTIES IMPORTED_LOCATION "/usr/local/lib/libbenchmark.a")
 endif()
