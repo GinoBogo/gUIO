@@ -12,6 +12,7 @@
 
 #include <cstdint> // uint8_t, uint16_t, uint32_t
 #include <cstdlib> // strtoul
+#include <cstring> // strlen
 #include <regex>   // regex
 #include <sstream> // stringstream∏
 #include <string>  // string
