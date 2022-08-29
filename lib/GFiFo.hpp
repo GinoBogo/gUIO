@@ -32,6 +32,10 @@ class GFiFo {
 
     GFiFo(uint32_t item_size, uint32_t fifo_depth, int max_level = -1, int min_level = -1);
 
+    GFiFo(const GFiFo& other) = delete;
+
+    GFiFo& operator=(const GFiFo& other) = delete;
+
     ~GFiFo();
 
     void Reset();

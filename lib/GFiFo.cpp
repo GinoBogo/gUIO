@@ -196,7 +196,7 @@ int32_t GFiFo::Pop(uint8_t* dst_data, const uint32_t dst_size) {
             uint32_t bytes = _item->used();
 
             if (dst_size >= bytes) {
-                memcpy((void*)dst_data, (void*)_item->data(), bytes);
+                memcpy(static_cast<void*>(dst_data), static_cast<void*>(_item->data()), bytes);
 
                 ++m_iR;
                 --m_used;
