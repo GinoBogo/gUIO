@@ -37,29 +37,29 @@ static bool decode_short_msg(std::any data, std::any args) {
         case packet_type_t::wake_up_query: {
             _packet->head.packet_type = packet_type_t::wake_up_reply;
             _client->Send(_packet, GPacket::PACKET_HEAD_SIZE);
-            LOG_FORMAT(info, "WAKE_UP message sent (%s)", __func__);
+            LOG_FORMAT(info, "WAKE_UP packet sent (%s)", __func__);
             return true;
         }
 
         case packet_type_t::signal_start_flow: {
-            LOG_FORMAT(warning, "START_FLOW message ignored (%s)", __func__);
+            LOG_FORMAT(warning, "START_FLOW packet ignored (%s)", __func__);
             return true;
         }
 
         case packet_type_t::signal_stop_flow: {
-            LOG_FORMAT(warning, "STOP_FLOW message ignored (%s)", __func__);
+            LOG_FORMAT(warning, "STOP_FLOW packet ignored (%s)", __func__);
             return true;
         }
 
         case packet_type_t::signal_reset_all: {
             Global::reset_all();
-            LOG_FORMAT(info, "RESET_ALL message received (%s)", __func__);
+            LOG_FORMAT(info, "RESET_ALL packet received (%s)", __func__);
             return true;
         }
 
-        case packet_type_t::signal_quit_process: {
-            Global::quit_process();
-            LOG_FORMAT(info, "QUIT_PROCESS message received (%s)", __func__);
+        case packet_type_t::signal_quit_deamon: {
+            Global::quit_deamon();
+            LOG_FORMAT(info, "QUIT_DEAMON packet received (%s)", __func__);
             return true;
         }
 
