@@ -29,6 +29,13 @@ typedef struct packet_head_t {
     uint16_t total_segments;
     uint16_t current_segment;
 
+    auto* ptr() {
+        return reinterpret_cast<uint8_t*>(this);
+    }
+    auto len() {
+        return sizeof(packet_head_t);
+    }
+
 } packet_head_t;
 
 typedef union packet_data_t {
@@ -51,20 +58,20 @@ typedef struct packet_t {
 } packet_t;
 
 typedef enum packet_type_t {
-    wake_up_query       = 0,
-    wake_up_reply       = 1,
-    signal_stop_flow    = 2,
-    signal_start_flow   = 3,
-    packet_to_hssl_1    = 13,
-    packet_from_hssl_1  = 14,
-    packet_to_hssl_2    = 15,
-    packet_from_hssl_2  = 16,
-    packet_to_gm_dh     = 17,
-    packet_from_gm_dh   = 18,
-    packet_to_gm_mc     = 19,
-    packet_from_gm_mc   = 20,
-    signal_reset_all    = 254,
-    signal_quit_process = 255
+    wake_up_query      = 0,
+    wake_up_reply      = 1,
+    signal_stop_flow   = 2,
+    signal_start_flow  = 3,
+    packet_to_hssl_1   = 13,
+    packet_from_hssl_1 = 14,
+    packet_to_hssl_2   = 15,
+    packet_from_hssl_2 = 16,
+    packet_to_gm_dh    = 17,
+    packet_from_gm_dh  = 18,
+    packet_to_gm_mc    = 19,
+    packet_from_gm_mc  = 20,
+    signal_reset_all   = 254,
+    signal_quit_deamon = 255
 
 } packet_type_t;
 

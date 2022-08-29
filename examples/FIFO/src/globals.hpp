@@ -99,7 +99,7 @@ namespace Global {
 
     void reset_all();
 
-    void quit_process();
+    void quit_deamon();
 } // namespace Global
 
 #endif // GLOBALS_HPP

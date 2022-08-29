@@ -141,7 +141,7 @@ namespace Global {
                     args.tx_roller->Reset());
     }
 
-    void quit_process() {
+    void quit_deamon() {
         RETURN_IF_OR(*args.quit, *args.quit = true);
 
         DO_BLOCK_IF(RX_MODE_ENABLED, args.rx_device->ClearEvent());

@@ -43,7 +43,7 @@ static void rx_waiter_consumer(bool& _quit, std::any& _args) {
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d (%s)", _line, __func__);
-    Global::quit_process();
+    Global::quit_deamon();
 }
 
 static void rx_waiter_epilogue(bool& _quit, std::any& _args) {
@@ -78,7 +78,7 @@ static void rx_master_preamble(bool& _quit, std::any& _args) {
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d (%s)", _line, __func__);
-    Global::quit_process();
+    Global::quit_deamon();
 }
 
 static void rx_master_producer(bool& _quit, std::any& _args) {
@@ -127,7 +127,7 @@ _read_label:
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> level: %u, words: %u (%s)", _line, _level, _words, __func__);
-    Global::quit_process();
+    Global::quit_deamon();
 }
 
 static void rx_master_epilogue(bool& _quit, std::any& _args) {
@@ -186,7 +186,7 @@ static void tx_waiter_preamble(bool& _quit, std::any& _args) {
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d (%s)", _line, __func__);
-    Global::quit_process();
+    Global::quit_deamon();
 }
 
 static void tx_waiter_consumer(bool& _quit, std::any& _args) {
@@ -220,7 +220,7 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> roller used: %lu (%s)", _line, roller->used(), __func__);
-    Global::quit_process();
+    Global::quit_deamon();
 }
 
 static void tx_waiter_epilogue(bool& _quit, std::any& _args) {
@@ -282,7 +282,7 @@ static void tx_master_producer(bool& _quit, std::any& _args) {
 
 _exit_label:
     LOG_IF(_line != 0, error, "FAILURE @ LINE %d -> roller free: %lu (%s)", _line, roller->free(), __func__);
-    Global::quit_process();
+    Global::quit_deamon();
 }
 
 static void tx_master_epilogue(bool& _quit, std::any& _args) {
