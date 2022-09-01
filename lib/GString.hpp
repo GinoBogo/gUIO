@@ -158,11 +158,13 @@ class GString {
     static auto join(const std::vector<std::string>& data, const std::string& delimiter) {
         std::stringstream result;
 
-        auto size{data.size() - 1};
-        for (decltype(size) i{0}; i <= size; ++i) {
-            result << data[i];
-            if (i != size) {
-                result << delimiter;
+        auto size{data.size()};
+        if (size-- > 0) {
+            for (decltype(size) i{0}; i <= size; ++i) {
+                result << data[i];
+                if (i != size) {
+                    result << delimiter;
+                }
             }
         }
         return result.str();
