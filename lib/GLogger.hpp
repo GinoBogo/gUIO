@@ -14,7 +14,18 @@
 #include <cstdint> // uint16_t
 #include <cstdio>  // snprintf
 
-#define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
+constexpr const char* _filename_(const char* path) {
+    const char* _name = path;
+    while (*path != 0) {
+        char ch = *path++;
+        if (ch == '/' || ch == '\\') {
+            _name = path;
+        }
+    }
+    return _name;
+}
+
+#define __FILENAME__ (_filename_(__FILE__))
 
 #define LOG_MSG_MAXLEN                256
 #define LOG_TYPE(type)                GLogger::type, __FILENAME__, __LINE__

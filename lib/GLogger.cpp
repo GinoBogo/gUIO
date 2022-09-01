@@ -18,18 +18,8 @@
 #include <fstream>    // ifstream, ofstream
 #include <iostream>   // cout
 
-constexpr const char* file_name(const char* path) {
-    const char* _file = path;
-    while (*path != 0) {
-        if (*path++ == '/') {
-            _file = path;
-        }
-    }
-    return _file;
-}
-
-constexpr const char* last_dot(const char* path) {
-    const char* _last = nullptr;
+constexpr char* last_dot(char* path) {
+    char* _last = nullptr;
     while (*path != 0) {
         if (*path == '.') {
             _last = path;
@@ -57,7 +47,7 @@ namespace GLogger {
         struct timespec _ts;
         clock_gettime(CLOCK_REALTIME, &_ts);
 
-        struct tm _tm;
+        struct tm _tm {};
         localtime_r(&_ts.tv_sec, &_tm);
 
         auto _Y{_tm.tm_year + 1900};
@@ -159,7 +149,7 @@ namespace GLogger {
             auto* name_log = new char[name_len];
 
             strncpy(name_log, file, name_len);
-            strncpy((char*)last_dot(name_log), ".log", name_len);
+            strncpy(last_dot(name_log), ".log", name_len);
 
             initialize_stream(name_log);
 
