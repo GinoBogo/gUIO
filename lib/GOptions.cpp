@@ -335,9 +335,9 @@ GOptions::Pairs GOptions::ToPairs() {
 GOptions::Sections GOptions::ToSections() {
     Sections sections{};
 
-    auto pairs = ToPairs();
+    auto pairs{ToPairs()};
     for (const auto& pair : pairs) {
-        auto tokens      = GString::split(pair.label, "R([. \t])");
+        auto tokens      = GString::split(pair.label, "[. \\t]");
         auto tokens_size = tokens.size();
         if (tokens_size >= 1U) {
             auto                     index(static_cast<ssize_t>(tokens_size - 1));
@@ -351,7 +351,7 @@ GOptions::Sections GOptions::ToSections() {
             auto filter = [title](const Section& _sec) {
                 return (_sec.title == title);
             };
-            auto found = std::find_if(sections.begin(), sections.end(), filter);
+            auto found{std::find_if(sections.begin(), sections.end(), filter)};
             if (found == sections.end()) {
                 auto _section = Section(title);
                 _section.pairs.push_back(_pair);
@@ -505,18 +505,20 @@ bool GOptions::Write(const std::string& filename) {
     const auto filepath{std::filesystem::path(filename)};
 
     if (!std::filesystem::is_directory(filepath)) {
-        auto stream   = std::ofstream(filename);
-        auto sections = ToSections();
+        auto stream{std::ofstream(filename)};
+        if (stream.is_open()) {
+            auto sections{ToSections()};
 
-        for (const auto& section : sections) {
-            stream << "[" << section.title << "]" << std::endl;
-            for (const auto& pair : section.pairs) {
-                stream << pair.label << " = " << pair.value << std::endl;
+            for (const auto& section : sections) {
+                stream << "[" << section.title << "]" << std::endl;
+                for (const auto& pair : section.pairs) {
+                    stream << pair.label << " = " << pair.value << std::endl;
+                }
+                stream << std::endl;
             }
-            stream << std::endl;
+            stream.close();
+            return true;
         }
-        stream.close();
-        return true;
     }
 
     return false;
