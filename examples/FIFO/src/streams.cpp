@@ -15,10 +15,9 @@
 #include <fstream>    // ifstream, ofstream
 
 struct decoder_args_t {
-    g_array_t*      array        = nullptr;
-    g_udp_client_t* client       = nullptr;
-    g_udp_server_t* server       = nullptr;
-    bool*           is_large_msg = nullptr;
+    g_array_t*      array  = nullptr;
+    g_udp_client_t* client = nullptr;
+    g_udp_server_t* server = nullptr;
 };
 
 GDecoder* stream_decoder{nullptr};
@@ -28,8 +27,6 @@ static bool decode_short_msg(std::any data, std::any args) {
     auto* _packet = std::any_cast<packet_t*>(data);
     auto  _args   = std::any_cast<decoder_args_t>(args);
     auto* _client = _args.client;
-
-    *_args.is_large_msg = false;
 
     const auto _packet_type{_packet->head.packet_type};
 
@@ -76,8 +73,6 @@ static bool decode_large_msg(std::any data, std::any args) {
     auto  _args    = std::any_cast<decoder_args_t>(args);
     auto* _array   = std::any_cast<g_array_t*>(_args.array);
 
-    *_args.is_large_msg = true;
-
     const auto _packet_type{_message->head()->packet_type};
 
     if (_packet_type == TX_STREAM_TYPE) {
@@ -108,14 +103,14 @@ bool stream_reader_for_tx_words(g_array_t* array, g_udp_client_t* client, g_udp_
         auto _error        = false;
         auto _bytes        = 0UL;
 
-        stream_decoder->SetArgs(decoder_args_t{array, client, server, &_is_large_msg});
+        stream_decoder->SetArgs(decoder_args_t{array, client, server});
 
-        while (!_is_ready_msg || !_is_large_msg) {
+        while (!_is_ready_msg) {
             BREAK_IF(_error, _error = !server->Receive(stream_decoder->packet_ptr(), &_bytes));
 
             BREAK_IF(_error, _error = _bytes < GPacket::PACKET_HEAD_SIZE);
 
-            BREAK_IF(_error, _error = !stream_decoder->Process(&_is_ready_msg));
+            BREAK_IF(_error, _error = !stream_decoder->Process(&_is_ready_msg, &_is_large_msg));
         }
 
         return !_error;

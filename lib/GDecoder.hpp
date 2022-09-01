@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// \file      GDecoder.hpp
 /// \version   0.1
-/// \date      Jan, 2022
+/// \date      January, 2022
 /// \author    Gino Francesco Bogo
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
@@ -19,29 +19,47 @@ class GDecoder {
     public:
     typedef bool (*WorkerFunc)(std::any data, std::any args);
 
+    GDecoder() {
+        SetWorkerFunc(nullptr, nullptr);
+        SetArgs(0);
+    }
+
     GDecoder(WorkerFunc decode_short_msg, WorkerFunc decode_large_msg) {
-        m_decode_short_msg = decode_short_msg;
-        m_decode_large_msg = decode_large_msg;
+        SetWorkerFunc(decode_short_msg, decode_large_msg);
+        SetArgs(0);
     }
 
     GDecoder(WorkerFunc decode_short_msg, WorkerFunc decode_large_msg, std::any args) {
+        SetWorkerFunc(decode_short_msg, decode_large_msg);
+        SetArgs(args);
+    }
+
+    void SetWorkerFunc(WorkerFunc decode_short_msg, WorkerFunc decode_large_msg) {
+        memset(&packet, 0, GPacket::PACKET_FULL_SIZE);
         m_decode_short_msg = decode_short_msg;
         m_decode_large_msg = decode_large_msg;
-        m_args             = std::move(args);
     }
 
     void SetArgs(std::any args) {
         m_args = std::move(args);
     }
 
-    bool Process(bool* is_ready = nullptr) {
+    bool Process(bool* is_ready = nullptr, bool* is_large = nullptr) {
         auto set_ready = [&](bool value) {
             if (is_ready != nullptr) {
                 *is_ready = value;
             }
         };
 
+        auto set_large = [&](bool value) {
+            if (is_large != nullptr) {
+                *is_large = value;
+            }
+        };
+
         set_ready(false);
+        set_large(false);
+
         if (GPacket::IsSingle(&packet)) {
             if (GPacket::IsShort(&packet)) {
                 set_ready(true);
@@ -52,6 +70,7 @@ class GDecoder {
             message.Append(&packet);
             if (message.IsValid()) {
                 set_ready(true);
+                set_large(true);
                 return m_decode_large_msg(&message, m_args);
             }
 
@@ -73,6 +92,7 @@ class GDecoder {
             message.Append(&packet);
             if (message.IsValid()) {
                 set_ready(true);
+                set_large(true);
                 return m_decode_large_msg(&message, m_args);
             }
         }
