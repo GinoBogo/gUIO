@@ -16,7 +16,12 @@
 
 class GEncoder {
     public:
-    GEncoder(uint32_t file_id, uint32_t fifo_depth = 20) : m_fifo{GPacket::PACKET_FULL_SIZE, fifo_depth} {
+    GEncoder(uint32_t file_id = 0, uint32_t fifo_depth = 20) : m_fifo{GPacket::PACKET_FULL_SIZE, fifo_depth} {
+        memset(&m_packet, 0, GPacket::PACKET_FULL_SIZE);
+        SetFileID(file_id);
+    }
+
+    void SetFileID(uint32_t file_id) {
         m_packet_counter = 1;
         m_file_id        = file_id;
     }
