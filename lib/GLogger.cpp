@@ -47,8 +47,12 @@ namespace GLogger {
         struct timespec _ts;
         clock_gettime(CLOCK_REALTIME, &_ts);
 
-        struct tm _tm {};
+        struct tm _tm;
+#ifdef __linux__
         localtime_r(&_ts.tv_sec, &_tm);
+#else
+        localtime_s(&_tm, &_ts.tv_sec);
+#endif
 
         auto _Y{_tm.tm_year + 1900};
         auto _M{_tm.tm_mon + 1};
