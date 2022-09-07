@@ -34,9 +34,9 @@ class GFiFo {
 
     GFiFo(const GFiFo& other) = delete;
 
-    GFiFo& operator=(const GFiFo& other) = delete;
-
     ~GFiFo();
+
+    GFiFo& operator=(const GFiFo& other) = delete;
 
     void Reset();
 

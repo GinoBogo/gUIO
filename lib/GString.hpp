@@ -14,7 +14,7 @@
 #include <cstdlib> // strtoul
 #include <cstring> // strlen
 #include <regex>   // regex
-#include <sstream> // stringstream∏
+#include <sstream> // stringstream
 #include <string>  // string
 #include <utility> // pair
 #include <vector>  // vector
@@ -90,7 +90,7 @@ class GString {
             auto _div = __n / 10;
             auto _rem = __n % 10;
 
-            if (!_div && !_rem) {
+            if ((_div == 0) && (_rem == 0)) {
                 break;
             }
             _dst[__r--] = '0' + _rem;

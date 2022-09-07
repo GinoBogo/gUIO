@@ -32,7 +32,7 @@ typedef struct packet_head_t {
     auto* ptr() {
         return reinterpret_cast<uint8_t*>(this);
     }
-    auto len() {
+    static auto len() {
         return sizeof(packet_head_t);
     }
 
