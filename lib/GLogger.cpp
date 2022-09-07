@@ -71,8 +71,8 @@ namespace GLogger {
         GString::intrcpy(dst_buffer, _u, 25);
     }
 
-    void initialize_stream(const char* filename, const char* udp_server_addr = nullptr, uint16_t udp_server_port = 0) {
-        std::cout.sync_with_stdio(false); // INFO: on some platforms, stdout flushes on '\n'
+    void initialize_stream(const char* filename, const char* udp_server_addr, uint16_t udp_server_port) {
+        std::ostream::sync_with_stdio(false); // INFO: on some platforms, stdout flushes on '\n'
 
         std::string _addr{};
         uint16_t    _port{};
@@ -155,7 +155,7 @@ namespace GLogger {
             strncpy(name_log, file, name_len);
             strncpy(last_dot(name_log), ".log", name_len);
 
-            initialize_stream(name_log);
+            initialize_stream(name_log, nullptr, 0);
 
             delete[] name_log;
         }
