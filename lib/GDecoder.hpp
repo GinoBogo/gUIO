@@ -14,6 +14,7 @@
 #include "GMessage.hpp"
 
 #include <any>
+#include <utility>
 
 class GDecoder {
     public:
@@ -31,7 +32,7 @@ class GDecoder {
 
     GDecoder(WorkerFunc decode_short_msg, WorkerFunc decode_large_msg, std::any args) {
         SetWorkerFunc(decode_short_msg, decode_large_msg);
-        SetArgs(args);
+        SetArgs(std::move(args));
     }
 
     void SetWorkerFunc(WorkerFunc decode_short_msg, WorkerFunc decode_large_msg) {
