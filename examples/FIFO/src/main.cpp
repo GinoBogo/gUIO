@@ -12,6 +12,15 @@
 
 #include <filesystem> // path
 
+/*
+         ╔═══════════════════════╗
+   PS -->║ rx master   rx waiter ║--> STREAM (writer)
+         ╚═══════════════════════╝
+         ╔═══════════════════════╗
+   PS <--║ tx waiter   tx master ║<-- STREAM (reader)
+         ╚═══════════════════════╝
+*/
+
 // ============================================================================
 // RX WAITER functions
 // ============================================================================
@@ -202,10 +211,13 @@ static void tx_waiter_consumer(bool& _quit, std::any& _args) {
     auto* src_buf{roller->Reading_Start(_error)};
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
+    _error = !device->ClearEvent();
+    GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
+
     _error = !device->WritePacket(src_buf->data(), src_buf->used());
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
-    _error = !device->WaitThenClearEvent();
+    _error = !device->WaitEvent();
     GOTO_IF_BUT(_error, _exit_label, _line = __LINE__);
 
     roller->Reading_Stop(_error);
