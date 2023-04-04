@@ -55,7 +55,7 @@ static void BM_date_time_snprintf(benchmark::State& state) {
 }
 
 static void BM_date_time_intrcpy(benchmark::State& state) {
-    //               0         1         2         3         4         5         6
+    //               0         1         2         3         4         5         6         7
     //               0123456789012345678901234567890123456789012345678901234567890123456789012345
     char _text[256]{"0000-00-00 00:00:00.000000 |           |                          (0000) | "};
 
