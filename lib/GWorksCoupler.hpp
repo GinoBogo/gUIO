@@ -40,13 +40,13 @@ class GWorksCoupler {
 
             std::unique_lock _gate(m_mutex, std::defer_lock);
             while (!quit && !m_close) {
-                DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_total > 0; }); --m_total);
+                DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_count > 0; }); --m_count);
 _work_label:
                 GOTO_IF(quit || m_close, _exit_label);
 
                 work_func.waiter_calculus(quit, args);
 
-                DO_GUARD(_gate, DEC_IF(m_total > 0, m_total, _loop));
+                DO_GUARD(_gate, DEC_IF(m_count > 0, m_count, _loop));
 
                 GOTO_IF(_loop, _work_label);
             }
@@ -63,7 +63,7 @@ _exit_label:
             while (!quit && !m_close) {
                 work_func.master_calculus(quit, args);
 
-                DO(DO_GUARD(_gate, ++m_total); m_event.notify_one());
+                DO(DO_GUARD(_gate, ++m_count); m_event.notify_one());
             }
 
             CALL(work_func.master_epilogue, quit, args);
@@ -78,7 +78,7 @@ _exit_label:
     }
 
     void Close() {
-        DO_IF(!m_close, m_close = true, m_total = 1, m_event.notify_one());
+        DO_IF(!m_close, m_close = true, m_count = 1, m_event.notify_one());
     }
 
     void Wait() {
@@ -91,7 +91,7 @@ _exit_label:
     std::thread t_master_group;
 
     bool                    m_close{false};
-    unsigned                m_total{0};
+    unsigned                m_count{0};
     std::mutex              m_mutex;
     std::condition_variable m_event;
 };
