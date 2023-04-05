@@ -107,11 +107,6 @@ template <typename T> class GArrayRoller {
                     m_fsm_state = IS_READING;
                     break;
 
-                case IS_READING:
-                case IS_READING_AND_WRITING:
-                    error = true;
-                    break;
-
                 case IS_WRITING:
                     m_fsm_state = IS_READING_AND_WRITING;
                     break;
@@ -133,11 +128,6 @@ template <typename T> class GArrayRoller {
         error = false;
 
         switch (m_fsm_state) {
-            case IS_UNCLAIMED:
-            case IS_WRITING:
-                error = true;
-                break;
-
             case IS_READING:
                 if (++m_iR == m_number) {
                     m_iR = 0;
@@ -173,11 +163,6 @@ template <typename T> class GArrayRoller {
                     m_fsm_state = IS_WRITING;
                     break;
 
-                case IS_WRITING:
-                case IS_READING_AND_WRITING:
-                    error = true;
-                    break;
-
                 case IS_READING:
                     m_fsm_state = IS_READING_AND_WRITING;
                     break;
@@ -199,11 +184,6 @@ template <typename T> class GArrayRoller {
         error = false;
 
         switch (m_fsm_state) {
-            case IS_UNCLAIMED:
-            case IS_READING:
-                error = true;
-                break;
-
             case IS_WRITING:
                 if (++m_iW == m_number) {
                     m_iW = 0;
