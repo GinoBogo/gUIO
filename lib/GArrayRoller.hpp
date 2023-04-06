@@ -208,7 +208,6 @@ template <typename T> class GArrayRoller {
         m_errors += (unsigned)error;
     }
 
-    // WARNING: the change to NORMAL_LEVEL state isn't included.
     bool IsLevelChanged(fsm_levels_t* new_fsm_level = nullptr, fsm_levels_t* old_fsm_level = nullptr) {
         std::lock_guard<std::mutex> _lock(m_mutex);
 
@@ -221,14 +220,20 @@ template <typename T> class GArrayRoller {
         if (m_fsm_level != TRANSITION_OFF) {
             auto _current_level{static_cast<int>(m_used)};
 
-            if (_current_level >= m_max_level) {
-                _state_changed = m_fsm_level != MAX_LEVEL_PASSED;
-                m_fsm_level    = MAX_LEVEL_PASSED;
+            if (m_min_level < _current_level && _current_level < m_max_level) {
+                _state_changed = m_fsm_level != REGULAR_LEVEL;
+                m_fsm_level    = REGULAR_LEVEL;
             }
+            else {
+                if (_current_level >= m_max_level) {
+                    _state_changed = m_fsm_level != MAX_LEVEL_PASSED;
+                    m_fsm_level    = MAX_LEVEL_PASSED;
+                }
 
-            if (_current_level <= m_min_level) {
-                _state_changed = m_fsm_level != MIN_LEVEL_PASSED;
-                m_fsm_level    = MIN_LEVEL_PASSED;
+                if (_current_level <= m_min_level) {
+                    _state_changed = m_fsm_level != MIN_LEVEL_PASSED;
+                    m_fsm_level    = MIN_LEVEL_PASSED;
+                }
             }
         }
 

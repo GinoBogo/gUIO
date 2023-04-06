@@ -205,8 +205,8 @@ _exit_label:
 // current_segment
 
 void evaluate_stream_reader_start(g_array_roller_t* roller, g_udp_client_t* client) {
-    RETURN_IF(!roller->IsLevelChanged(&new_level), g_array_roller_t::fsm_levels_t new_level);
-    RETURN_IF(new_level != g_array_roller_t::MIN_LEVEL_PASSED);
+    RETURN_IF(!roller->IsLevelChanged(&new_fsm_level), g_array_roller_t::fsm_levels_t new_fsm_level);
+    RETURN_IF(new_fsm_level != g_array_roller_t::MIN_LEVEL_PASSED);
 
     static packet_head_t packet{packet_type_t::signal_start_flow, 0, 0, 0, 0, 0, 0, 1, 1};
     client->Send(&packet, GPacket::PACKET_HEAD_SIZE);
@@ -215,8 +215,8 @@ void evaluate_stream_reader_start(g_array_roller_t* roller, g_udp_client_t* clie
 }
 
 void evaluate_stream_reader_stop(g_array_roller_t* roller, g_udp_client_t* client) {
-    RETURN_IF(!roller->IsLevelChanged(&new_level), g_array_roller_t::fsm_levels_t new_level);
-    RETURN_IF(new_level != g_array_roller_t::MAX_LEVEL_PASSED);
+    RETURN_IF(!roller->IsLevelChanged(&new_fsm_level), g_array_roller_t::fsm_levels_t new_fsm_level);
+    RETURN_IF(new_fsm_level != g_array_roller_t::MAX_LEVEL_PASSED);
 
     static packet_head_t packet{packet_type_t::signal_stop_flow, 0, 0, 0, 0, 0, 0, 1, 1};
     client->Send(&packet, GPacket::PACKET_HEAD_SIZE);

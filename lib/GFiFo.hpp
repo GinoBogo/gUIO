@@ -52,12 +52,14 @@ class GFiFo {
 
     int32_t Pop(uint8_t* dst_data, uint32_t dst_size);
 
-    bool IsLevelChanged(fsm_levels_t* new_level = nullptr, fsm_levels_t* old_level = nullptr);
+    bool IsLevelChanged(fsm_levels_t* new_fsm_level = nullptr, fsm_levels_t* old_fsm_level = nullptr);
 
+    // WARNING: thread unsafe
     [[nodiscard]] auto IsEmpty() const {
         return (m_used == 0);
     }
 
+    // WARNING: thread unsafe
     [[nodiscard]] auto IsFull() const {
         return (m_used == m_depth);
     }
@@ -78,29 +80,45 @@ class GFiFo {
         return m_min_level;
     }
 
+    // WARNING: thread unsafe
+    [[nodiscard]] auto fsm_level() const {
+        return m_fsm_level;
+    }
+
+    // WARNING: thread unsafe
+    [[nodiscard]] auto max_used() const {
+        return m_max_used;
+    }
+
+    // WARNING: thread unsafe
     [[nodiscard]] auto used() const {
         return m_used;
     }
 
+    // WARNING: thread unsafe
     [[nodiscard]] auto free() const {
         return m_depth - m_used;
     }
 
     private:
-    uint32_t  m_size;
-    uint32_t  m_depth;
-    int       m_max_level;
-    int       m_min_level;
+    uint32_t m_size;
+    uint32_t m_depth;
+    int      m_max_level;
+    int      m_min_level;
+
+    fsm_levels_t m_fsm_level;
+    uint32_t     m_max_used;
+
+    GBuffer** p_fifo{nullptr};
     uint32_t  m_used;
     uint32_t  m_iR;
     uint32_t  m_iW;
-    GBuffer** p_fifo{nullptr};
-
-    fsm_levels_t m_fsm_level;
 
 #ifdef GFIFO_THREAD_SAFE
     std::mutex m_mutex;
 #endif
+
+    void wipe_resources();
 };
 
 #endif // GFIFO_HPP

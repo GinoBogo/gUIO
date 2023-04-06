@@ -170,8 +170,14 @@ start(["START"]) --> N1
 N1["state_changed = false \n old_FSM_level = FSM_level"] --> N2
 
 N2{{"FSM_level != TRANSITION_OFF"}}
-N2 -- yes --> N3
+N2 -- yes --> A1
 N2 -- no  --> N7
+
+A1{{"min_level < used AND used < max_level"}}
+A1 -- yes --> A2
+A1 -- no  --> N3
+
+A2["state_changed = FSM_level != REGULAR_LEVEL \n FSM_level = REGULAR_LEVEL"] --> N7
 
 N3{{"used >= max_level"}}
 N3 -- yes --> N4
