@@ -3,6 +3,22 @@
 All **GArrayRoller** functions use the **std::lock_guard** to arbitrate the **std::mutex** ownership.
 
 &nbsp;
+
+List of possible **FSM_state** values:
+1. IS_UNCLAIMED
+2. IS_READING
+3. IS_WRITING
+4. IS_READING_AND_WRITING
+
+&nbsp;
+
+List of possible **FSM_level** values:
+1. TRANSITION_OFF
+2. REGULAR_LEVEL
+3. MAX_LEVEL_PASSED
+4. MIN_LEVEL_PASSED
+
+&nbsp;
 ## **GArrayRoller::Reading_Start()**
 
 ```mermaid
@@ -19,17 +35,17 @@ N1{{"used > 0"}}
 N1 -- yes --> N2
 N1 -- no  --> ET
 
-N2{{"FSM == IS_UNCLAIMED"}}
+N2{{"FSM_state == IS_UNCLAIMED"}}
 N2 -- yes --> N3
 N2 -- no  --> N4
 
-N3["FSM = IS_READING"] --> EF
+N3["FSM_state = IS_READING"] --> EF
 
-N4{{"FSM == IS_WRITING"}}
+N4{{"FSM_state == IS_WRITING"}}
 N4 -- yes --> N5
 N4 -- no  --> ET
 
-N5["FSM = IS_READING_AND_WRITING"] --> EF
+N5["FSM_state = IS_READING_AND_WRITING"] --> EF
 
 EF["error = false"] --> N6
 ET["error = true" ] --> N6
