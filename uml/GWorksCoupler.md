@@ -6,7 +6,7 @@
 
 Threads use the **std::unique_lock** to arbitrate the **std::mutex** ownership.
 
-::: mermaid
+```mermaid
 flowchart TB
 
 style start fill:#FF6
@@ -48,4 +48,4 @@ M5["event.notify()"] --> M2
 ME["master_epilogue()"] --> stop
 
 stop([STOP])
-:::
+```

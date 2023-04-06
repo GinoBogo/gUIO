@@ -8,7 +8,7 @@ All **GArrayRoller** functions use the **std::lock_guard** to arbitrate the **st
 &nbsp;
 ## **GArrayRoller::Reading_Start()**
 
-::: mermaid
+```mermaid
 flowchart TB
 
 style start fill:#FF6
@@ -40,12 +40,12 @@ ET["error = true" ] --> N6
 N6["return (array @ RD_index)"] -->
 
 stop(["STOP"])
-:::
+```
 
 &nbsp;
 ## **GArrayRoller::Reading_Stop()**
 
-::: mermaid
+```mermaid
 flowchart TB
 
 style start fill:#FF6
@@ -73,12 +73,12 @@ ET["error = true" ] --> N5
 N5["return array @ RD_index"] --> stop
 
 stop(["STOP"])
-:::
+```
 
 &nbsp;
 ## **GArrayRoller::Writing_Start()**
 
-::: mermaid
+```mermaid
 flowchart TB
 
 style start fill:#FF6
@@ -110,12 +110,12 @@ ET["error = true" ] --> N6
 N6["return array @ WR_index"] --> stop
 
 stop(["STOP"])
-:::
+```
 
 &nbsp;
 ## **GArrayRoller::Writing_Stop()**
 
-::: mermaid
+```mermaid
 flowchart TB
 
 style start fill:#FF6
@@ -141,12 +141,12 @@ EF["error = false"] --> stop
 ET["error = true" ] --> stop
 
 stop(["STOP"])
-:::
+```
 
 &nbsp;
 ## **GArrayRoller::IsLevelChanged()**
 
-::: mermaid
+```mermaid
 flowchart TB
 
 style start fill:#FF6
@@ -175,4 +175,4 @@ N6["state_changed = FSM_level != MIN_LEVEL_PASSED" \n FSM_level = MIN_LEVEL_PASS
 N7["new_FSM_level = FSM_level \n return state_changed"] --> stop
 
 stop(["STOP"])
-:::
+```
