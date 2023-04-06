@@ -10,7 +10,7 @@ Threads use the **std::unique_lock** to arbitrate the **std::mutex** ownership.
 flowchart TB
 
 style start fill:#FF6
-style stop  fill:#6F6
+style stop  fill:#FF6
 style WC    fill:#6FF
 style MC    fill:#6FF
 
