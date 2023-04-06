@@ -1,6 +1,3 @@
-<style>
-    body {color:black; background-color: white}
-</style>
 
 ## **GArrayRoller**
 All **GArrayRoller** functions use the **std::lock_guard** to arbitrate the **std::mutex** ownership.
