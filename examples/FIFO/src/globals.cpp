@@ -46,14 +46,12 @@ unsigned int   TX_ROLLER_NUMBER    = 20;
 int            TX_ROLLER_MAX_LEVEL = -1;
 int            TX_ROLLER_MIM_LEVEL = -1;
 
-// ============================================================================
+// =============================================================================
 
 namespace Global {
     global_args_t args;
 
-    void load_options(const std::string& filename) {
-        GOptions opts;
-
+    static void __options_set(GOptions& opts) {
         // clang-format off
         GOPTIONS_SET(opts, "PL_to_PS", RX_MODE_ENABLED    );
         GOPTIONS_SET(opts, "PL_to_PS", RX_MODE_LOOPS      );
@@ -89,9 +87,11 @@ namespace Global {
         GOPTIONS_SET(opts, "PS_to_PL", TX_ROLLER_NUMBER   );
         GOPTIONS_SET(opts, "PS_to_PL", TX_ROLLER_MAX_LEVEL);
         GOPTIONS_SET(opts, "PS_to_PL", TX_ROLLER_MIM_LEVEL);
+        // clang-format on
+    }
 
-        RETURN_IF(!opts.Read(filename));
-
+    static void __options_get(GOptions& opts) {
+        // clang-format off
         GOPTIONS_GET(opts, "PL_to_PS", RX_MODE_ENABLED    );
         GOPTIONS_GET(opts, "PL_to_PS", RX_MODE_LOOPS      );
         GOPTIONS_GET(opts, "PL_to_PS", RX_FILE_NAME       );
@@ -127,6 +127,16 @@ namespace Global {
         GOPTIONS_GET(opts, "PS_to_PL", TX_ROLLER_MAX_LEVEL);
         GOPTIONS_GET(opts, "PS_to_PL", TX_ROLLER_MIM_LEVEL);
         // clang-format on
+    }
+
+    void load_options(const std::string& filename) {
+        GOptions opts;
+
+        __options_set(opts);
+
+        RETURN_IF(!opts.Read(filename));
+
+        __options_get(opts);
     }
 
     void reset_all() {
