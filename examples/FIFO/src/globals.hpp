@@ -57,7 +57,7 @@ extern unsigned int   TX_ROLLER_NUMBER;
 extern int            TX_ROLLER_MAX_LEVEL;
 extern int            TX_ROLLER_MIM_LEVEL;
 
-// ============================================================================
+// =============================================================================
 
 using g_array_roller_t  = GArrayRoller<uint16_t>;
 using g_array_t         = GArray<uint16_t>;
@@ -90,7 +90,7 @@ typedef struct global_args_t {
 
 } global_args_t;
 
-// ============================================================================
+// =============================================================================
 
 namespace Global {
     extern global_args_t args;

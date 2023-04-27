@@ -27,7 +27,7 @@ extern unsigned int PS2PL_REGS_DEV_ADDR;
 extern unsigned int PS2PL_REGS_DEV_SIZE;
 extern unsigned int PS2PL_REGS_DEV_NUMB;
 
-// ============================================================================
+// =============================================================================
 
 namespace Global {
     void load_options(const std::string& filename);

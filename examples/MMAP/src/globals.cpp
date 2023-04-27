@@ -27,7 +27,7 @@ unsigned int PS2PL_REGS_DEV_ADDR = 0x00020000;
 unsigned int PS2PL_REGS_DEV_SIZE = 512;
 unsigned int PS2PL_REGS_DEV_NUMB = 64;
 
-// ============================================================================
+// =============================================================================
 
 namespace Global {
 
