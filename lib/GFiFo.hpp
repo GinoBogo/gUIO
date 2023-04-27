@@ -86,7 +86,8 @@ class GFiFo {
     }
 
     // WARNING: thread unsafe
-    [[nodiscard]] auto max_used() const {
+    [[nodiscard]] auto max_used() {
+        if (m_max_used < m_used) m_max_used = m_used;
         return m_max_used;
     }
 

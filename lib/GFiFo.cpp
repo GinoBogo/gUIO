@@ -92,23 +92,26 @@ bool GFiFo::Push(const GBuffer* src_buff) {
     std::lock_guard<std::mutex> lock(m_mutex);
 #endif
 
-    if (src_buff != nullptr) {
-        if (!IsFull()) {
-            GBuffer* _item = p_fifo[m_iW];
+    const bool error_1 = src_buff == nullptr;
+    const bool error_2 = IsFull();
 
-            _item->Reset();
+    if (error_1 || error_2) {
+        return false;
+    }
 
-            if (_item->Append(src_buff->data(), src_buff->used())) {
-                ++m_iW;
-                ++m_used;
+    GBuffer* _item = p_fifo[m_iW];
 
-                if (m_iW == m_depth) {
-                    m_iW = 0;
-                }
+    _item->Reset();
 
-                return true;
-            }
+    if (_item->Append(src_buff->data(), src_buff->used())) {
+        ++m_iW;
+        ++m_used;
+
+        if (m_iW == m_depth) {
+            m_iW = 0;
         }
+
+        return true;
     }
 
     return false;
@@ -150,23 +153,26 @@ bool GFiFo::Pop(GBuffer* dst_buff) {
     std::lock_guard<std::mutex> lock(m_mutex);
 #endif
 
-    if (dst_buff != nullptr) {
-        if (!IsEmpty()) {
-            GBuffer* _item = p_fifo[m_iR];
+    const bool error_1 = dst_buff == nullptr;
+    const bool error_2 = IsEmpty();
 
-            dst_buff->Reset();
+    if (error_1 || error_2) {
+        return false;
+    }
 
-            if (dst_buff->Append(_item->data(), _item->used())) {
-                ++m_iR;
-                --m_used;
+    GBuffer* _item = p_fifo[m_iR];
 
-                if (m_iR == m_depth) {
-                    m_iR = 0;
-                }
+    dst_buff->Reset();
 
-                return true;
-            }
+    if (dst_buff->Append(_item->data(), _item->used())) {
+        ++m_iR;
+        --m_used;
+
+        if (m_iR == m_depth) {
+            m_iR = 0;
         }
+
+        return true;
     }
 
     return false;
@@ -177,24 +183,28 @@ int32_t GFiFo::Pop(uint8_t* dst_data, const uint32_t dst_size) {
     std::lock_guard<std::mutex> lock(m_mutex);
 #endif
 
-    if ((dst_data != nullptr) && (dst_size > 0)) {
-        if (!IsEmpty()) {
-            GBuffer* _item = p_fifo[m_iR];
-            uint32_t bytes = _item->used();
+    const bool error_1 = dst_data == nullptr;
+    const bool error_2 = dst_size == 0;
+    const bool error_3 = IsEmpty();
 
-            if (dst_size >= bytes) {
-                memcpy(static_cast<void*>(dst_data), static_cast<void*>(_item->data()), bytes);
+    if (error_1 || error_2 || error_3) {
+        return false;
+    }
 
-                ++m_iR;
-                --m_used;
+    GBuffer* _item = p_fifo[m_iR];
+    uint32_t bytes = _item->used();
 
-                if (m_iR == m_depth) {
-                    m_iR = 0;
-                }
+    if (dst_size >= bytes) {
+        memcpy(static_cast<void*>(dst_data), static_cast<void*>(_item->data()), bytes);
 
-                return (int32_t)bytes;
-            }
+        ++m_iR;
+        --m_used;
+
+        if (m_iR == m_depth) {
+            m_iR = 0;
         }
+
+        return (int32_t)bytes;
     }
 
     return -1;
@@ -207,29 +217,30 @@ bool GFiFo::IsLevelChanged(fsm_levels_t* new_fsm_level, fsm_levels_t* old_fsm_le
 
     auto _state_changed{false};
 
-    DO_IF(m_max_used < m_used, m_max_used = m_used);
+    auto _current_level{static_cast<int>(m_used)};
 
     DO_IF(old_fsm_level != nullptr, *old_fsm_level = m_fsm_level);
 
-    if (m_fsm_level != TRANSITION_OFF) {
-        auto _current_level{static_cast<int>(m_used)};
+    GOTO_IF(m_fsm_level == TRANSITION_OFF, label_exit);
 
-        if (m_min_level < _current_level && _current_level < m_max_level) {
-            _state_changed = m_fsm_level != REGULAR_LEVEL;
-            m_fsm_level    = REGULAR_LEVEL;
-        }
-        else {
-            if (_current_level >= m_max_level) {
-                _state_changed = m_fsm_level != MAX_LEVEL_PASSED;
-                m_fsm_level    = MAX_LEVEL_PASSED;
-            }
-
-            if (_current_level <= m_min_level) {
-                _state_changed = m_fsm_level != MIN_LEVEL_PASSED;
-                m_fsm_level    = MIN_LEVEL_PASSED;
-            }
-        }
+    if (m_min_level < _current_level && _current_level < m_max_level) {
+        _state_changed = m_fsm_level != REGULAR_LEVEL;
+        m_fsm_level    = REGULAR_LEVEL;
+        goto label_exit;
     }
+
+    if (_current_level >= m_max_level) {
+        _state_changed = m_fsm_level != MAX_LEVEL_PASSED;
+        m_fsm_level    = MAX_LEVEL_PASSED;
+        goto label_exit;
+    }
+
+    if (_current_level <= m_min_level) {
+        _state_changed = m_fsm_level != MIN_LEVEL_PASSED;
+        m_fsm_level    = MIN_LEVEL_PASSED;
+    }
+
+label_exit:
     DO_IF(new_fsm_level != nullptr, *new_fsm_level = m_fsm_level);
 
     return _state_changed;
