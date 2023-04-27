@@ -213,30 +213,30 @@ template <typename T> class GArrayRoller {
 
         auto _state_changed{false};
 
-        DO_IF(m_max_used < m_used, m_max_used = m_used);
+        auto _current_level{static_cast<int>(m_used)};
 
         DO_IF(old_fsm_level != nullptr, *old_fsm_level = m_fsm_level);
 
-        if (m_fsm_level != TRANSITION_OFF) {
-            auto _current_level{static_cast<int>(m_used)};
+        GOTO_IF(m_fsm_level == TRANSITION_OFF, label_exit);
 
-            if (m_min_level < _current_level && _current_level < m_max_level) {
-                _state_changed = m_fsm_level != REGULAR_LEVEL;
-                m_fsm_level    = REGULAR_LEVEL;
-            }
-            else {
-                if (_current_level >= m_max_level) {
-                    _state_changed = m_fsm_level != MAX_LEVEL_PASSED;
-                    m_fsm_level    = MAX_LEVEL_PASSED;
-                }
-
-                if (_current_level <= m_min_level) {
-                    _state_changed = m_fsm_level != MIN_LEVEL_PASSED;
-                    m_fsm_level    = MIN_LEVEL_PASSED;
-                }
-            }
+        if (m_min_level < _current_level && _current_level < m_max_level) {
+            _state_changed = m_fsm_level != REGULAR_LEVEL;
+            m_fsm_level    = REGULAR_LEVEL;
+            goto label_exit;
         }
 
+        if (_current_level >= m_max_level) {
+            _state_changed = m_fsm_level != MAX_LEVEL_PASSED;
+            m_fsm_level    = MAX_LEVEL_PASSED;
+            goto label_exit;
+        }
+
+        if (_current_level <= m_min_level) {
+            _state_changed = m_fsm_level != MIN_LEVEL_PASSED;
+            m_fsm_level    = MIN_LEVEL_PASSED;
+        }
+
+label_exit:
         DO_IF(new_fsm_level != nullptr, *new_fsm_level = m_fsm_level);
 
         return _state_changed;
@@ -269,7 +269,8 @@ template <typename T> class GArrayRoller {
     }
 
     // WARNING: thread unsafe
-    [[nodiscard]] auto max_used() const {
+    [[nodiscard]] auto max_used() {
+        if (m_max_used < m_used) m_max_used = m_used;
         return m_max_used;
     }
 
