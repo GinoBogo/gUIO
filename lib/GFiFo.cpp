@@ -119,23 +119,27 @@ bool GFiFo::Push(const uint8_t* src_data, const uint32_t src_count) {
     std::lock_guard<std::mutex> lock(m_mutex);
 #endif
 
-    if ((src_data != nullptr) && (src_count > 0)) {
-        if (!IsFull()) {
-            GBuffer* _item = p_fifo[m_iW];
+    const bool error_1 = src_data == nullptr;
+    const bool error_2 = src_count == 0;
+    const bool error_3 = IsFull();
 
-            _item->Reset();
+    if (error_1 || error_2 || error_3) {
+        return false;
+    }
 
-            if (_item->Append(src_data, src_count)) {
-                ++m_iW;
-                ++m_used;
+    GBuffer* _item = p_fifo[m_iW];
 
-                if (m_iW == m_depth) {
-                    m_iW = 0;
-                }
+    _item->Reset();
 
-                return true;
-            }
+    if (_item->Append(src_data, src_count)) {
+        ++m_iW;
+        ++m_used;
+
+        if (m_iW == m_depth) {
+            m_iW = 0;
         }
+
+        return true;
     }
 
     return false;
