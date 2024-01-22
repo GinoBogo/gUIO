@@ -33,7 +33,7 @@ class GWorksCoupler {
     } work_func_t;
 
     GWorksCoupler(work_func_t& work_func, bool& quit, std::any& args, bool is_enabled = true) {
-        RETURN_IF(!is_enabled);
+        RETURN_IF(!is_enabled,);
 
         t_waiter_group = std::thread([&] {
             CALL(work_func.waiter_preamble, quit, args);
@@ -42,13 +42,13 @@ class GWorksCoupler {
             while (!quit && !m_close) {
                 DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_count > 0; }); --m_count);
 _work_label:
-                GOTO_IF(quit || m_close, _exit_label);
+                GOTO_IF(quit || m_close, _exit_label,);
 
                 work_func.waiter_calculus(quit, args);
 
-                DO_GUARD(_gate, DEC_IF(m_count > 0, m_count, _loop));
+                DO_GUARD(_gate, DEC_IF(m_count > 0, m_count, _loop,));
 
-                GOTO_IF(_loop, _work_label);
+                GOTO_IF(_loop, _work_label,);
             }
 _exit_label:
             CALL(work_func.waiter_epilogue, quit, args);

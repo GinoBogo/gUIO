@@ -12,6 +12,8 @@
 #include "GLogger.hpp"
 #include "GRegisters.hpp"
 
+#include <cstddef>
+
 #define enable_system       BIT_SPI_CR_SPE
 #define inhibit_master      BIT_SPI_CR_MTI
 #define reset_all_fifo      BIT_SPI_CR_RFR | BIT_SPI_CR_TFR
@@ -24,7 +26,8 @@
 #define enable_global_irq   0x80000000
 #define disable_global_irq  0x00000000
 
-GAXIQuadSPI::GAXIQuadSPI(size_t addr, size_t size) : GMAPdevice(addr, size) {
+GAXIQuadSPI::GAXIQuadSPI(size_t addr, size_t size) :
+GMAPdevice(addr, size) {
     m_base_addr  = nullptr;
     m_is_valid   = false;
     m_ctrl_reg   = 0;

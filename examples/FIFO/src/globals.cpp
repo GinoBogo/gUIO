@@ -134,7 +134,7 @@ namespace Global {
 
         __options_set(opts);
 
-        RETURN_IF(!opts.Read(filename));
+        RETURN_IF(!opts.Read(filename),);
 
         __options_get(opts);
     }

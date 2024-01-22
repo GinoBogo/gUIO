@@ -221,7 +221,7 @@ bool GFiFo::IsLevelChanged(fsm_levels_t* new_fsm_level, fsm_levels_t* old_fsm_le
 
     DO_IF(old_fsm_level != nullptr, *old_fsm_level = m_fsm_level);
 
-    GOTO_IF(m_fsm_level == TRANSITION_OFF, label_exit);
+    GOTO_IF(m_fsm_level == TRANSITION_OFF, label_exit,);
 
     if (m_min_level < _current_level && _current_level < m_max_level) {
         _state_changed = m_fsm_level != REGULAR_LEVEL;
