@@ -10,11 +10,11 @@
 #ifndef GBARRIER_HPP
 #define GBARRIER_HPP
 
-#include <condition_variable>
-#include <mutex>
+#include <condition_variable> // condition_variable
+#include <mutex>              // defer_lock, mutex, unique_lock
 
 class GBarrier {
-    public:
+  public:
     void Close() {
         std::unique_lock _gate(m_mutex, std::defer_lock);
         _gate.lock();
@@ -37,7 +37,7 @@ class GBarrier {
         _gate.unlock();
     }
 
-    private:
+  private:
     std::condition_variable m_event;
     std::mutex              m_mutex;
     bool                    m_is_open{false};

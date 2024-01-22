@@ -9,6 +9,8 @@
 
 #include "globals.hpp"
 
+#include "GOptions.hpp"
+
 // SECTION: PL_to_PS global variables
 bool           RX_MODE_ENABLED     = true;
 unsigned int   RX_MODE_LOOPS       = 20;
@@ -134,7 +136,7 @@ namespace Global {
 
         __options_set(opts);
 
-        RETURN_IF(!opts.Read(filename),);
+        RETURN_IF(!opts.Read(filename), );
 
         __options_get(opts);
     }

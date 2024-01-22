@@ -9,10 +9,10 @@
 
 #include "GOptions.hpp"
 
-#include "GString.hpp"
+#include "GString.hpp" // GString
 
-#include <filesystem>
-#include <fstream>
+#include <filesystem> // exists, file_size, is_directory, is_regular_file, path
+#include <fstream>    // ifstream, ofstream
 
 template <typename T, int B> auto expand_and_check(const std::string& value, T& type) {
     if (std::is_signed_v<T>) {

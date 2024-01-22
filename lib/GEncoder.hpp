@@ -10,13 +10,14 @@
 #ifndef GENCODER_HPP
 #define GENCODER_HPP
 
-#include "GFiFo.hpp"
-#include "GLogger.hpp"
-#include "GMessage.hpp"
+#include "GFiFo.hpp"   // GFiFo
+#include "GLogger.hpp" // LOG_WRITE, error
+#include "GPacket.hpp" // PACKET_DATA_SIZE, PACKET_FULL_SIZE, PACKET_HEAD_SIZE, packet_t
 
 class GEncoder {
-    public:
-    GEncoder(uint32_t file_id = 0, uint32_t fifo_depth = 20) : m_fifo{GPacket::PACKET_FULL_SIZE, fifo_depth} {
+  public:
+    GEncoder(uint32_t file_id = 0, uint32_t fifo_depth = 20) :
+    m_fifo{GPacket::PACKET_FULL_SIZE, fifo_depth} {
         memset(&m_packet, 0, GPacket::PACKET_FULL_SIZE);
         SetFileID(file_id);
     }
@@ -59,7 +60,7 @@ class GEncoder {
                     memcpy(m_packet.data.bytes, message_data, GPacket::PACKET_DATA_SIZE);
                     _loop = m_fifo.Push((uint8_t*)&m_packet, GPacket::PACKET_FULL_SIZE);
 
-                    message_data += GPacket::PACKET_DATA_SIZE;
+                    message_data                  += GPacket::PACKET_DATA_SIZE;
                     m_packet.head.current_segment += 1;
                 }
 
@@ -92,7 +93,7 @@ class GEncoder {
         return m_fifo.Pop(dst_data, dst_size);
     }
 
-    private:
+  private:
     uint32_t m_packet_counter;
     uint32_t m_file_id;
     packet_t m_packet;

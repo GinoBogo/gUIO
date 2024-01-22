@@ -34,7 +34,7 @@ struct uio_device_t {
 };
 
 class GUIOdevice {
-    public:
+  public:
     GUIOdevice(int uio_num, int map_num);
     ~GUIOdevice();
 
@@ -94,7 +94,7 @@ class GUIOdevice {
         return m_dev.irq_count;
     }
 
-    private:
+  private:
     uio_device_t m_dev;
 };
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(COMPILER "gcc")
+set(COMPILER "clang")
 
 if(COMPILER STREQUAL "clang")
     if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
@@ -33,6 +33,7 @@ else()
 endif()
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 message("================================================================================")
 message("    OS: " ${CMAKE_HOST_SYSTEM_NAME})

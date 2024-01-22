@@ -1,10 +1,12 @@
+.gitignore
+
 _clang-format
+.cache
 .clang-format
 .DS_Store
-.gitignore
+.fake
 .vscode
 *.orig
-*.user
 *.rej
+*.user
 build
-.fake

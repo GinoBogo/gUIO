@@ -9,7 +9,7 @@
 
 #include "GAXIQuadSPI.hpp"
 
-#include "GLogger.hpp"
+#include "../lib/GLogger.hpp"
 #include "GRegisters.hpp"
 
 #include <cstddef>

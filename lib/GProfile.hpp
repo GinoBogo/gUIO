@@ -10,10 +10,10 @@
 #ifndef GPROFILE_HPP
 #define GPROFILE_HPP
 
-#include <chrono>
+#include <chrono> // duration_cast, microseconds, milliseconds, nanoseconds, seconds
 
 class GProfile {
-    public:
+  public:
     void Start() {
         m_t0 = std::chrono::system_clock::now();
     }
@@ -50,7 +50,7 @@ class GProfile {
         return ns() / 1e9;
     }
 
-    private:
+  private:
     std::chrono::time_point<std::chrono::system_clock> m_t0;
     std::chrono::time_point<std::chrono::system_clock> m_t1;
 };

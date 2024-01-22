@@ -10,14 +10,13 @@
 #ifndef GDECODER_HPP
 #define GDECODER_HPP
 
-#include "GLogger.hpp"
-#include "GMessage.hpp"
+#include "GMessage.hpp" // GMessage
 
-#include <any>
-#include <utility>
+#include <any>     // any
+#include <utility> // move
 
 class GDecoder {
-    public:
+  public:
     typedef bool (*WorkerFunc)(std::any data, std::any args);
 
     GDecoder() {
@@ -112,7 +111,7 @@ class GDecoder {
         return sizeof(packet);
     }
 
-    private:
+  private:
     std::any   m_args;
     WorkerFunc m_decode_short_msg;
     WorkerFunc m_decode_large_msg;

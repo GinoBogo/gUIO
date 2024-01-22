@@ -9,11 +9,11 @@
 
 #include "GMAPdevice.hpp"
 
-#include "GLogger.hpp"
+#include "../lib/GLogger.hpp"
 
 #include <cerrno>     // errno
-#include <cstring>    // memset
-#include <fcntl.h>    // open
+#include <cstring>    // memset, size_t
+#include <fcntl.h>    // _RDWR, O_SYNC, open
 #include <sys/mman.h> // mmap, munmap
 #include <unistd.h>   // close, read, write
 

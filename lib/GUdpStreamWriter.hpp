@@ -10,7 +10,6 @@
 #ifndef GUDPSTREAMWRITER_HPP
 #define GUDPSTREAMWRITER_HPP
 
-#include <cerrno>    // errno
 #include <cstring>   // memset, strerror
 #include <netdb.h>   // addrinfo
 #include <streambuf> // basic_streambuf<char>
@@ -19,7 +18,7 @@
 class GUdpStreamWriter : public std::streambuf {
     using base = std::streambuf;
 
-    public:
+  public:
     // Maximum UDP datagram size: 65507 = (2^16 - 1) - 20 (UDP header) - 8 (IPv4 header)
     static const size_t MAX_DATAGRAM_SIZE = ((2 << 15) - 1) - 20 - 8;
     // Maximum Transmission Unit: 1500 (Ethernet II frame format) - 20 (UDP header) - 8 (IPv4 header)
@@ -151,7 +150,7 @@ free_and_exit:
         return m_last_error.c_str();
     }
 
-    private:
+  private:
     // SECTION: stream
     size_t m_length{0};
     char*  m_buffer{nullptr};

@@ -12,10 +12,10 @@
 
 #include "GDefine.hpp" // UNUSED
 
-#include <any>
-#include <list>
-#include <map>
-#include <string>
+#include <any>    // any, any_cast
+#include <list>   // list
+#include <map>    // map
+#include <string> // string
 
 #define ENABLE_SFINAE
 
@@ -24,7 +24,7 @@
 #define GOPTIONS_GET(__o, __s, __v) __v = __o.Get<decltype(__v)>(__s "." #__v)
 
 class GOptions : public std::map<std::string, std::any> {
-    public:
+  public:
     struct Pair {
         Pair(const std::string& _label, const std::string& _value) {
             label = _label;
@@ -165,7 +165,8 @@ class GOptions : public std::map<std::string, std::any> {
 
     template <typename A, typename B> using accept_if_number = std::enable_if_t<!std::is_same_v<A, std::string>, B>;
 
-    template <typename T> void Insert(const std::string& label, const std::any& value, accept_if_string<T, bool> ___ = 0) {
+    template <typename T>
+    void Insert(const std::string& label, const std::any& value, accept_if_string<T, bool> ___ = 0) {
         UNUSED(___)
         if (value.type() == typeid(T)) {
             this->insert_or_assign(label, std::any_cast<T>(value));
@@ -175,7 +176,8 @@ class GOptions : public std::map<std::string, std::any> {
         }
     }
 
-    template <typename T> void Insert(const std::string& label, const std::any& value, accept_if_number<T, long> ___ = 0) {
+    template <typename T>
+    void Insert(const std::string& label, const std::any& value, accept_if_number<T, long> ___ = 0) {
         UNUSED(___)
         if (value.type() == typeid(T)) {
             this->insert_or_assign(label, std::any_cast<T>(value));

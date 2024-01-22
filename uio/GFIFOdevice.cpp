@@ -9,8 +9,8 @@
 
 #include "GFIFOdevice.hpp"
 
-#include "GDefine.hpp"
-#include "GLogger.hpp"
+#include "../lib/GDefine.hpp"
+#include "../lib/GLogger.hpp"
 
 GFIFOdevice::GFIFOdevice(size_t dev_addr, size_t dev_size, int uio_num, int uio_map, const std::string& tag_name) {
     m_dev_addr = dev_addr;

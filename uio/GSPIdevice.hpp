@@ -27,7 +27,7 @@ struct spi_device_t {
 };
 
 class GSPIdevice {
-    public:
+  public:
     GSPIdevice(const char* file,                       //
                uint32_t    mode          = SPI_MODE_1, //
                uint8_t     lsb_first     = 0,          //
@@ -45,7 +45,7 @@ class GSPIdevice {
     bool Write(void* tx_buf, uint32_t tx_buf_len) const;
     bool WriteThenRead(const void* tx_buf, uint32_t tx_buf_len, void* rx_buf, uint32_t rx_buf_len) const;
 
-    private:
+  private:
     spi_device_t m_dev;
 };
 

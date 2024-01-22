@@ -14,7 +14,7 @@
 #include <cstring> // memset
 
 class GBuffer {
-    public:
+  public:
     GBuffer(uint32_t size = 0);
 
     GBuffer(const GBuffer& buffer) = delete;
@@ -86,7 +86,7 @@ class GBuffer {
         return p_next;
     }
 
-    private:
+  private:
     bool     m_is_ready{false};
     bool     m_is_wrapper;
     uint32_t m_size;

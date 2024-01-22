@@ -10,9 +10,9 @@
 #ifndef GFIFO_HPP
 #define GFIFO_HPP
 
-#include "GBuffer.hpp"
+#include "GBuffer.hpp" // GBuffer
 
-//#define GFIFO_THREAD_SAFE
+// #define GFIFO_THREAD_SAFE
 
 #ifdef GFIFO_THREAD_SAFE
 #include <mutex>
@@ -21,7 +21,7 @@
 #endif
 
 class GFiFo {
-    public:
+  public:
     typedef enum {
         TRANSITION_OFF, // Disable the Finite-State Machine
         REGULAR_LEVEL,
@@ -87,7 +87,9 @@ class GFiFo {
 
     // WARNING: thread unsafe
     [[nodiscard]] auto max_used() {
-        if (m_max_used < m_used) m_max_used = m_used;
+        if (m_max_used < m_used) {
+            m_max_used = m_used;
+        }
         return m_max_used;
     }
 
@@ -101,7 +103,7 @@ class GFiFo {
         return m_depth - m_used;
     }
 
-    private:
+  private:
     uint32_t m_size;
     uint32_t m_depth;
     int      m_max_level;

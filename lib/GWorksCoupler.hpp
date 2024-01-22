@@ -12,13 +12,13 @@
 
 #include "GDefine.hpp"
 
-#include <any>
-#include <condition_variable>
-#include <mutex>
-#include <thread>
+#include <any>                // any
+#include <condition_variable> // condition_variable
+#include <mutex>              // defer_lock, mutex, unique_lock
+#include <thread>             // sleep_for, thread
 
 class GWorksCoupler {
-    public:
+  public:
     typedef void (*WorkFunc)(bool& quit, std::any& args);
 
     typedef struct work_funct_t {
@@ -33,7 +33,7 @@ class GWorksCoupler {
     } work_func_t;
 
     GWorksCoupler(work_func_t& work_func, bool& quit, std::any& args, bool is_enabled = true) {
-        RETURN_IF(!is_enabled,);
+        RETURN_IF(!is_enabled, );
 
         t_waiter_group = std::thread([&] {
             CALL(work_func.waiter_preamble, quit, args);
@@ -42,13 +42,13 @@ class GWorksCoupler {
             while (!quit && !m_close) {
                 DO_GUARD(_gate, m_event.wait(_gate, [&] { return m_count > 0; }); --m_count);
 _work_label:
-                GOTO_IF(quit || m_close, _exit_label,);
+                GOTO_IF(quit || m_close, _exit_label, );
 
                 work_func.waiter_calculus(quit, args);
 
-                DO_GUARD(_gate, DEC_IF(m_count > 0, m_count, _loop,));
+                DO_GUARD(_gate, DEC_IF(m_count > 0, m_count, _loop, ));
 
-                GOTO_IF(_loop, _work_label,);
+                GOTO_IF(_loop, _work_label, );
             }
 _exit_label:
             CALL(work_func.waiter_epilogue, quit, args);
@@ -86,7 +86,7 @@ _exit_label:
         DO_IF(t_master_group.joinable(), t_master_group.join());
     }
 
-    private:
+  private:
     std::thread t_waiter_group;
     std::thread t_master_group;
 

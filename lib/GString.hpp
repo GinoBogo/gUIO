@@ -13,14 +13,14 @@
 #include <cstdint> // uint8_t, uint16_t, uint32_t
 #include <cstdlib> // strtoul
 #include <cstring> // strlen
-#include <regex>   // regex
+#include <regex>   // regex, sregex_token_iterator
 #include <sstream> // stringstream
 #include <string>  // string
 #include <utility> // pair
 #include <vector>  // vector
 
 class GString {
-    public:
+  public:
     static auto strtouc(std::string& _str) {
         auto _base{10};
         auto _last{_str.back()};

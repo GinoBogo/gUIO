@@ -11,7 +11,8 @@
 #define GLOBALS_HPP
 
 #include "GMAPdevice.hpp"
-#include "GOptions.hpp"
+
+#include <string> // string
 
 // SECTION: PL_to_PS global variables
 extern std::string  PL2PS_REGS_TAG_NAME;

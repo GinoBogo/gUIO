@@ -13,7 +13,7 @@
 #include "GMAPdevice.hpp"
 
 class GAXIQuadSPI : public GMAPdevice {
-    public:
+  public:
     GAXIQuadSPI(size_t addr, size_t size);
     ~GAXIQuadSPI();
 
@@ -27,7 +27,7 @@ class GAXIQuadSPI : public GMAPdevice {
     void     Stop();
     uint32_t WriteThenRead(const uint8_t* tx_buf, uint32_t tx_buf_len, uint8_t* rx_buf, uint32_t rx_buf_len);
 
-    private:
+  private:
     void update_ctrl_reg(const char* func);
 
     void*             m_base_addr;

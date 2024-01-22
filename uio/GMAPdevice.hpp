@@ -26,7 +26,7 @@ struct map_device_t {
 };
 
 class GMAPdevice {
-    public:
+  public:
     typedef enum {
         READ_WRITE,
         READ_ONLY,
@@ -34,7 +34,7 @@ class GMAPdevice {
 
     } reg_access_t;
 
-    typedef struct {
+    typedef struct reg_pair_t {
         reg_access_t access{};
         uint32_t     offset{};
         uint32_t     value{};
@@ -160,7 +160,7 @@ class GMAPdevice {
         return m_dev.virt_addr;
     }
 
-    private:
+  private:
     map_device_t m_dev;
 };
 

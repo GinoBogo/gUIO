@@ -10,15 +10,15 @@
 #ifndef GARRAYROLLER_HPP
 #define GARRAYROLLER_HPP
 
-#include "GArray.hpp"
-#include "GDefine.hpp"
-#include "GLogger.hpp"
+#include "GArray.hpp"  // GArray
+#include "GDefine.hpp" // DO_IF, GOTO_IF
+#include "GLogger.hpp" // LOG_FORMAT, debug
 
-#include <algorithm> // std::min
-#include <mutex>     // mutex, lock_guard
+#include <algorithm> // min
+#include <mutex>     // lock_guard, mutex
 
 template <typename T> class GArrayRoller {
-    public:
+  public:
     typedef enum {
         IS_UNCLAIMED,
         IS_READING,
@@ -217,7 +217,7 @@ template <typename T> class GArrayRoller {
 
         DO_IF(old_fsm_level != nullptr, *old_fsm_level = m_fsm_level);
 
-        GOTO_IF(m_fsm_level == TRANSITION_OFF, label_exit,);
+        GOTO_IF(m_fsm_level == TRANSITION_OFF, label_exit, );
 
         if (m_min_level < _current_level && _current_level < m_max_level) {
             _state_changed = m_fsm_level != REGULAR_LEVEL;
@@ -270,7 +270,9 @@ label_exit:
 
     // WARNING: thread unsafe
     [[nodiscard]] auto max_used() {
-        if (m_max_used < m_used) m_max_used = m_used;
+        if (m_max_used < m_used) {
+            m_max_used = m_used;
+        }
         return m_max_used;
     }
 
@@ -289,7 +291,7 @@ label_exit:
         return m_number - m_used;
     }
 
-    private:
+  private:
     size_t      m_length;
     size_t      m_number;
     std::string m_tag_name;

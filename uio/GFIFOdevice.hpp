@@ -17,7 +17,7 @@
 #include <string> // std::string
 
 class GFIFOdevice {
-    public:
+  public:
     enum fifo_regs_t {
         IP_CONTROL      = 0,
         TX_PACKET_WORDS = 1, // LSB of 32-bit register
@@ -114,7 +114,7 @@ class GFIFOdevice {
         return m_tag_name;
     }
 
-    private:
+  private:
     size_t      m_dev_addr;
     size_t      m_dev_size;
     int         m_uio_num;

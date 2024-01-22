@@ -9,7 +9,6 @@
 
 #include "GLogger.hpp"
 #include "definitions.hpp"
-#include "sdr_ad9361_api.hpp"
 #include "sdr_if.hpp"
 #include "spi_if.hpp"
 

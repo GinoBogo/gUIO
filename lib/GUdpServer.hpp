@@ -14,7 +14,7 @@
 #include <sys/socket.h> // sockaddr_storage, socklen_t
 
 class GUdpServer {
-    public:
+  public:
     // Maximum UDP datagram size: 65507 = (2^16 - 1) - 20 (UDP header) - 8 (IPv4 header)
     static const size_t MAX_DATAGRAM_SIZE = ((2 << 15) - 1) - 20 - 8;
 
@@ -44,7 +44,7 @@ class GUdpServer {
 
     void Stop();
 
-    private:
+  private:
     char                    s_addr[32];
     char                    s_port[16];
     char                    m_tag_name[64];

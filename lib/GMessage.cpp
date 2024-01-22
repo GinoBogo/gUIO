@@ -9,7 +9,8 @@
 
 #include "GMessage.hpp"
 
-GMessage::GMessage(const uint32_t max_size) : GBuffer(max_size) {
+GMessage::GMessage(const uint32_t max_size) :
+GBuffer(max_size) {
     Reset();
 }
 

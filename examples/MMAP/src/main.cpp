@@ -7,8 +7,7 @@
 /// \copyright This file is released under the MIT license
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "GLogger.hpp"
-#include "GRegisters.hpp"
+#include "GLogger.hpp" // Initialize, LOG_FORMAT, trace
 #include "globals.hpp"
 
 #include <filesystem> // path

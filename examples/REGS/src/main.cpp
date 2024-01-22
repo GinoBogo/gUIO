@@ -13,7 +13,7 @@
 #include "GString.hpp"
 
 #include <filesystem> // path
-#include <fstream>
+#include <fstream>    // ifstream
 
 #define PS2PL_REGS_ADDR 0xA0050000
 #define PS2PL_REGS_SIZE 4096

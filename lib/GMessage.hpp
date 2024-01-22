@@ -14,7 +14,7 @@
 #include "GPacket.hpp"
 
 class GMessage : public GBuffer {
-    public:
+  public:
     static const size_t MAX_MESSAGE_SIZE = 64 * 1024;
 
     GMessage(uint32_t max_size = GMessage::MAX_MESSAGE_SIZE);
@@ -43,7 +43,7 @@ class GMessage : public GBuffer {
         return m_errors_counter;
     }
 
-    private:
+  private:
     bool          m_no_error;
     bool          m_is_valid;
     bool          m_is_first;

@@ -26,7 +26,7 @@ void GPIO_printRegistersInfo(GUIOdevice* uio_dev) {
     }
 }
 
-//#define QEMU
+// #define QEMU
 
 #ifdef QEMU
 #define UIO_NUM 4

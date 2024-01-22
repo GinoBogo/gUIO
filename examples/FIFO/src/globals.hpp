@@ -12,7 +12,6 @@
 
 #include "GArrayRoller.hpp"
 #include "GFIFOdevice.hpp"
-#include "GOptions.hpp"
 #include "GProfile.hpp"
 #include "GUdpClient.hpp"
 #include "GUdpServer.hpp"

@@ -9,7 +9,8 @@
 
 #include "globals.hpp"
 
-#include "GString.hpp"
+#include "GOptions.hpp" // GOPTIONS_GET, GOPTIONS_SET, GOptions
+#include "GString.hpp"  // GString
 
 #include <fstream> // ifstream
 

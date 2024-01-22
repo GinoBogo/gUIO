@@ -9,7 +9,7 @@
 
 #include "GSPIdevice.hpp"
 
-#include "GLogger.hpp"
+#include "../lib/GLogger.hpp"
 
 #include <cerrno>      // errno
 #include <cstring>     // memset, strncpy

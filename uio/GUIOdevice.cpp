@@ -9,7 +9,7 @@
 
 #include "GUIOdevice.hpp"
 
-#include "GLogger.hpp"
+#include "../lib/GLogger.hpp"
 
 #include <cerrno>     // errno
 #include <cstdlib>    // strtoul

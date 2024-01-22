@@ -9,14 +9,13 @@
 
 #include "GLogger.hpp"
 
-#include "GString.hpp"
-#include "GUdpStreamWriter.hpp"
+#include "GString.hpp"          // GString
+#include "GUdpStreamWriter.hpp" // GUdpStreamWriter
 
-#include <algorithm>  // min
-#include <ctime>      // localtime_r, timespec_get
-#include <filesystem> // path
-#include <fstream>    // ifstream, ofstream
-#include <iostream>   // cout
+#include <algorithm> // min
+#include <ctime>     // size_t, timespec, tm
+#include <fstream>   // ifstream, ofstream
+#include <iostream>  // cout, ostream
 
 constexpr char* last_dot(char* path) {
     char* _last = nullptr;
@@ -136,7 +135,8 @@ namespace GLogger {
     void Write(type_t type, const char* file, size_t line, const char* message) {
         //                          0         1         2         3         4         5         6         7
         //                          0123456789012345678901234567890123456789012345678901234567890123456789012345
-        char _text[LOG_MSG_MAXLEN]{"0000-00-00 00:00:00.000000 |           |                          (0000) | "};
+        char _text[LOG_MSG_MAXLEN]{
+            "0000-00-00 00:00:00.000000 |           |                          (0000) | "};
 
         GetDateTime(_text);
 

@@ -15,7 +15,7 @@
 #include <type_traits> // is_fundamental_v
 
 template <typename T> class GArray {
-    public:
+  public:
     GArray(size_t size) {
         static_assert(std::is_fundamental_v<T>, "Type not supported.");
 
@@ -87,7 +87,7 @@ template <typename T> class GArray {
         return _res;
     }
 
-    private:
+  private:
     T*     m_data{nullptr};
     size_t m_size{0};
     size_t m_used{0};
